@@ -80,8 +80,168 @@
             android:theme="@style/Theme.Calender">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Event Management Activities -->
+        <activity
+            android:name=".feature.events.EventEditActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT" />
+                <action android:name="android.intent.action.INSERT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/event" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT" />
+                <action android:name="android.intent.action.INSERT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/event" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".feature.events.EventInfoActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.item/event" />
+            </intent-filter>
+        </activity>
+
+        <!-- Settings Activities -->
+        <activity
+            android:name=".feature.settings.CalendarSettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait">
+            <intent-filter android:priority="40">
+                <action android:name="android.intent.action.APP_SETTINGS" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".feature.settings.PermissionRequestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".feature.settings.AccountSettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait" />
+
+        <!-- Calendar Management Activities -->
+        <activity
+            android:name=".feature.calendar.SelectVisibleCalendarsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:scheme="http"
+                    android:host="calendar.moderncalendar.com"
+                    android:pathPrefix="/setting/account" />
+            </intent-filter>
+        </activity>
+
+        <!-- Search Activities -->
+        <activity
+            android:name=".feature.search.EventSearchActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.moderncalendar.events.search" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Share Activity -->
+        <activity
+            android:name=".feature.events.ShareActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Widget Configuration Activity -->
+        <activity
+            android:name=".widget.WidgetSettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- Alert Activities -->
+        <activity
+            android:name=".alerts.AlertActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Calender.Alert" />
+
+        <activity
+            android:name=".alerts.NotificationMiddleActivity"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- Import/Export Activities -->
+        <activity
+            android:name=".feature.sync.CalendarImportActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/calendar" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".feature.sync.IcsFileImportActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Calender"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/calendar" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="webcal" />
+                <data android:scheme="webcals" />
             </intent-filter>
         </activity>
 
