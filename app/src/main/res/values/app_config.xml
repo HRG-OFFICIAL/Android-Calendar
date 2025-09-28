@@ -51,7 +51,6 @@
     
     <!-- Accessibility -->
     <string name="accessibility_calendar_view">Calendar view</string>
-    <string name="accessibility_event_item">Event item</string>
     <string name="accessibility_create_event_button">Create event button</string>
     <string name="accessibility_search_button">Search button</string>
     <string name="accessibility_settings_button">Settings button</string>

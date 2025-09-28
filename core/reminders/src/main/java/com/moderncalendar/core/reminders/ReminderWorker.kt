@@ -7,7 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.moderncalendar.R
+// import com.moderncalendar.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -66,7 +66,7 @@ class ReminderWorker @AssistedInject constructor(
             .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val notificationBuilder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(description ?: "Event starting at $time")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

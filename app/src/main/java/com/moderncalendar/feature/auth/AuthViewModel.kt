@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.auth.AuthRepository
 import com.moderncalendar.core.common.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,86 +19,64 @@ class AuthViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
     
+    private val _authResult = MutableStateFlow<Result<Unit>>(Result.Loading)
+    val authResult: StateFlow<Result<Unit>> = _authResult.asStateFlow()
+    
     init {
-        checkAuthState()
+        checkAuthStatus()
     }
     
-    private fun checkAuthState() {
+    private fun checkAuthStatus() {
         viewModelScope.launch {
-            authRepository.getAuthState().collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _uiState.value = _uiState.value.copy(
-                            isAuthenticated = result.data != null,
-                            isLoading = false
-                        )
-                    }
-                    is Result.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = result.exception.message
-                        )
-                    }
-                    is Result.Loading -> {
-                        _uiState.value = _uiState.value.copy(isLoading = true)
-                    }
+            authRepository.isUserSignedIn().collect { isSignedIn ->
+                _uiState.value = _uiState.value.copy(isAuthenticated = isSignedIn)
+            }
+        }
+    }
+    
+    fun signInWithGoogle() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            _authResult.value = Result.Loading
+
+            authRepository.signInWithGoogle().collect { result ->
+                _authResult.value = result
+                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                if (result is Result.Success) {
+                    _uiState.value = _uiState.value.copy(isAuthenticated = true)
                 }
             }
         }
     }
     
-    fun signIn(email: String, password: String) {
-        if (!validateSignInInput(email, password)) return
-        
+    fun signInWithEmail(email: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            
-            when (val result = authRepository.signInWithEmailAndPassword(email, password)) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isAuthenticated = true,
-                        isLoading = false
-                    )
-                }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.exception.message ?: "Sign in failed"
-                    )
-                }
-                is Result.Loading -> {
-                    // Handle loading state if needed
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            _authResult.value = Result.Loading
+
+            authRepository.signInWithEmail(email, password).collect { result ->
+                _authResult.value = result
+                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                if (result is Result.Success) {
+                    _uiState.value = _uiState.value.copy(isAuthenticated = true)
                 }
             }
         }
     }
     
-    fun signUp(email: String, password: String, confirmPassword: String, displayName: String) {
-        if (!validateSignUpInput(email, password, confirmPassword, displayName)) return
-        
+    fun signUpWithEmail(email: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            
-            when (val result = authRepository.createUserWithEmailAndPassword(email, password)) {
-                is Result.Success -> {
-                    // Update display name if provided
-                    if (displayName.isNotBlank()) {
-                        authRepository.updateUserProfile(displayName)
-                    }
-                    
-                    _uiState.value = _uiState.value.copy(
-                        isAuthenticated = true,
-                        isLoading = false
-                    )
-                }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.exception.message ?: "Sign up failed"
-                    )
-                }
-                is Result.Loading -> {
-                    // Handle loading state if needed
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            _authResult.value = Result.Loading
+
+            authRepository.signUpWithEmail(email, password).collect { result ->
+                _authResult.value = result
+                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                if (result is Result.Success) {
+                    _uiState.value = _uiState.value.copy(isAuthenticated = true)
                 }
             }
         }
@@ -104,137 +84,68 @@ class AuthViewModel @Inject constructor(
     
     fun signOut() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            when (val result = authRepository.signOut()) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isAuthenticated = false,
-                        isLoading = false
-                    )
-                }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.exception.message ?: "Sign out failed"
-                    )
-                }
-                is Result.Loading -> {
-                    // Handle loading state if needed
-                }
-            }
+            authRepository.signOut()
+            _uiState.value = _uiState.value.copy(isAuthenticated = false)
         }
     }
     
     fun resetPassword(email: String) {
-        if (email.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                emailError = "Email is required"
-            )
-            return
-        }
-        
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            
-            when (val result = authRepository.resetPassword(email)) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = "Password reset email sent"
-                    )
-                }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.exception.message ?: "Password reset failed"
-                    )
-                }
-                is Result.Loading -> {
-                    // Handle loading state if needed
-                }
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            _authResult.value = Result.Loading
+
+            authRepository.resetPassword(email).collect { result ->
+                _authResult.value = result
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
     
-    fun clearErrors() {
+    fun validateEmail(email: String): String? {
+        return if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            "Please enter a valid email address"
+        } else null
+    }
+    
+    fun validatePassword(password: String): String? {
+        return if (password.length < 6) {
+            "Password must be at least 6 characters"
+        } else null
+    }
+    
+    fun validateConfirmPassword(password: String, confirmPassword: String): String? {
+        return if (password != confirmPassword) {
+            "Passwords do not match"
+        } else null
+    }
+    
+    fun signUp(email: String, password: String, confirmPassword: String) {
+        val emailError = validateEmail(email)
+        val passwordError = validatePassword(password)
+        val confirmPasswordError = validateConfirmPassword(password, confirmPassword)
+        
         _uiState.value = _uiState.value.copy(
-            emailError = null,
-            passwordError = null,
-            confirmPasswordError = null,
-            errorMessage = null
+            emailError = emailError,
+            passwordError = passwordError,
+            confirmPasswordError = confirmPasswordError
         )
+        
+        if (emailError == null && passwordError == null && confirmPasswordError == null) {
+            signUpWithEmail(email, password)
+        }
     }
     
-    private fun validateSignInInput(email: String, password: String): Boolean {
-        var isValid = true
+    fun signIn(email: String, password: String) {
+        val emailError = validateEmail(email)
+        val passwordError = validatePassword(password)
         
-        if (email.isBlank()) {
-            _uiState.value = _uiState.value.copy(emailError = "Email is required")
-            isValid = false
-        } else if (!isValidEmail(email)) {
-            _uiState.value = _uiState.value.copy(emailError = "Invalid email format")
-            isValid = false
-        } else {
-            _uiState.value = _uiState.value.copy(emailError = null)
+        _uiState.value = _uiState.value.copy(
+            emailError = emailError,
+            passwordError = passwordError
+        )
+        
+        if (emailError == null && passwordError == null) {
+            signInWithEmail(email, password)
         }
-        
-        if (password.isBlank()) {
-            _uiState.value = _uiState.value.copy(passwordError = "Password is required")
-            isValid = false
-        } else {
-            _uiState.value = _uiState.value.copy(passwordError = null)
-        }
-        
-        return isValid
-    }
-    
-    private fun validateSignUpInput(email: String, password: String, confirmPassword: String, displayName: String): Boolean {
-        var isValid = true
-        
-        if (email.isBlank()) {
-            _uiState.value = _uiState.value.copy(emailError = "Email is required")
-            isValid = false
-        } else if (!isValidEmail(email)) {
-            _uiState.value = _uiState.value.copy(emailError = "Invalid email format")
-            isValid = false
-        } else {
-            _uiState.value = _uiState.value.copy(emailError = null)
-        }
-        
-        if (password.isBlank()) {
-            _uiState.value = _uiState.value.copy(passwordError = "Password is required")
-            isValid = false
-        } else if (password.length < 6) {
-            _uiState.value = _uiState.value.copy(passwordError = "Password must be at least 6 characters")
-            isValid = false
-        } else {
-            _uiState.value = _uiState.value.copy(passwordError = null)
-        }
-        
-        if (confirmPassword.isBlank()) {
-            _uiState.value = _uiState.value.copy(confirmPasswordError = "Please confirm your password")
-            isValid = false
-        } else if (password != confirmPassword) {
-            _uiState.value = _uiState.value.copy(confirmPasswordError = "Passwords do not match")
-            isValid = false
-        } else {
-            _uiState.value = _uiState.value.copy(confirmPasswordError = null)
-        }
-        
-        return isValid
-    }
-    
-    private fun isValidEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 }
-
-data class AuthUiState(
-    val isAuthenticated: Boolean = false,
-    val isLoading: Boolean = false,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val confirmPasswordError: String? = null,
-    val errorMessage: String? = null
-)

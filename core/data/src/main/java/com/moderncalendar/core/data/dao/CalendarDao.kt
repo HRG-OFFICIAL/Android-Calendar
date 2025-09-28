@@ -3,6 +3,7 @@ package com.moderncalendar.core.data.dao
 import androidx.room.*
 import com.moderncalendar.core.data.entity.CalendarEntity
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface CalendarDao {
@@ -29,29 +30,29 @@ interface CalendarDao {
     suspend fun getUnsyncedCalendars(): List<CalendarEntity>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCalendar(calendar: CalendarEntity)
+    suspend fun insertCalendar(calendar: CalendarEntity): Unit
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCalendars(calendars: List<CalendarEntity>)
+    suspend fun insertCalendars(calendars: List<CalendarEntity>): Unit
     
     @Update
-    suspend fun updateCalendar(calendar: CalendarEntity)
+    suspend fun updateCalendar(calendar: CalendarEntity): Unit
     
     @Query("UPDATE calendars SET is_deleted = 1, updated_at = :updatedAt WHERE id = :calendarId")
-    suspend fun deleteCalendar(calendarId: String, updatedAt: LocalDateTime = LocalDateTime.now())
+    suspend fun deleteCalendar(calendarId: String, updatedAt: LocalDateTime = LocalDateTime.now()): Unit
     
     @Query("UPDATE calendars SET is_primary = 0 WHERE id != :calendarId")
-    suspend fun unsetPrimaryCalendar(calendarId: String)
+    suspend fun unsetPrimaryCalendar(calendarId: String): Unit
     
     @Query("UPDATE calendars SET is_primary = 1 WHERE id = :calendarId")
-    suspend fun setPrimaryCalendar(calendarId: String)
+    suspend fun setPrimaryCalendar(calendarId: String): Unit
     
     @Query("UPDATE calendars SET is_visible = :isVisible WHERE id = :calendarId")
-    suspend fun updateCalendarVisibility(calendarId: String, isVisible: Boolean)
+    suspend fun updateCalendarVisibility(calendarId: String, isVisible: Boolean): Unit
     
     @Query("UPDATE calendars SET is_synced = 1 WHERE id = :calendarId")
-    suspend fun markCalendarAsSynced(calendarId: String)
+    suspend fun markCalendarAsSynced(calendarId: String): Unit
     
     @Query("UPDATE calendars SET is_synced = 0 WHERE sync_id = :syncId")
-    suspend fun markCalendarAsUnsynced(syncId: String)
+    suspend fun markCalendarAsUnsynced(syncId: String): Unit
 }

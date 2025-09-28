@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Calendario Moderno</string>
+    
+    <!-- Calendar -->
+    <string name="calendar_title">Calendario Moderno</string>
+    <string name="calendar_today">Hoy</string>
+    <string name="calendar_yesterday">Ayer</string>
+    <string name="calendar_tomorrow">Mañana</string>
+    <string name="calendar_this_week">Esta Semana</string>
+    <string name="calendar_this_month">Este Mes</string>
+    <string name="calendar_this_year">Este Año</string>
+    
+    <!-- Calendar Views -->
+    <string name="view_month">Mes</string>
+    <string name="view_week">Semana</string>
+    <string name="view_day">Día</string>
+    <string name="view_year">Año</string>
+    <string name="view_heatmap">Mapa de Calor</string>
+    
+    <!-- Events -->
+    <string name="event_title">Título del Evento</string>
+    <string name="event_description">Descripción</string>
+    <string name="event_location">Ubicación</string>
+    <string name="event_all_day">Evento de Todo el Día</string>
+    <string name="event_recurring">Evento Recurrente</string>
+    <string name="event_color">Color del Evento</string>
+    <string name="event_reminder">Recordatorio</string>
+    <string name="event_created">Evento Creado</string>
+    <string name="event_updated">Evento Actualizado</string>
+    <string name="event_deleted">Evento Eliminado</string>
+    <string name="event_no_events">No hay eventos programados</string>
+    <string name="event_loading">Cargando eventos...</string>
+    <string name="event_error">Error al cargar eventos</string>
+    
+    <!-- Actions -->
+    <string name="action_create">Crear</string>
+    <string name="action_edit">Editar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_settings">Configuración</string>
+    <string name="action_share">Compartir</string>
+    <string name="action_export">Exportar</string>
+    <string name="action_import">Importar</string>
+    <string name="action_sync">Sincronizar</string>
+    <string name="action_refresh">Actualizar</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_dismiss">Descartar</string>
+    
+    <!-- Navigation -->
+    <string name="nav_calendar">Calendario</string>
+    <string name="nav_events">Eventos</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_settings">Configuración</string>
+    <string name="nav_about">Acerca de</string>
+    
+    <!-- Settings -->
+    <string name="settings_general">General</string>
+    <string name="settings_appearance">Apariencia</string>
+    <string name="settings_notifications">Notificaciones</string>
+    <string name="settings_sync">Sincronización</string>
+    <string name="settings_accessibility">Accesibilidad</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_dark_mode">Modo Oscuro</string>
+    <string name="settings_accent_color">Color de Acento</string>
+    <string name="settings_font_size">Tamaño de Fuente</string>
+    <string name="settings_high_contrast">Alto Contraste</string>
+    <string name="settings_large_text">Texto Grande</string>
+    <string name="settings_reduced_motion">Movimiento Reducido</string>
+    
+    <!-- Notifications -->
+    <string name="notification_event_reminder">Recordatorio de Evento</string>
+    <string name="notification_event_starting">Evento Iniciando</string>
+    <string name="notification_event_ended">Evento Terminado</string>
+    <string name="notification_sync_complete">Sincronización Completa</string>
+    <string name="notification_sync_failed">Sincronización Fallida</string>
+    
+    <!-- Errors -->
+    <string name="error_network">Error de Red</string>
+    <string name="error_permission">Permiso Denegado</string>
+    <string name="error_unknown">Error Desconocido</string>
+    <string name="error_validation">Error de Validación</string>
+    <string name="error_sync">Error de Sincronización</string>
+    <string name="error_storage">Error de Almacenamiento</string>
+    
+    <!-- Accessibility -->
+    <string name="accessibility_event_item">Evento: %1$s, Hora: %2$s, Ubicación: %3$s</string>
+    <string name="accessibility_calendar_day">Día %1$d, %2$s</string>
+    <string name="accessibility_create_event">Crear nuevo evento</string>
+    <string name="accessibility_search_events">Buscar eventos</string>
+    <string name="accessibility_open_settings">Abrir configuración</string>
+    <string name="accessibility_loading">Cargando eventos</string>
+    <string name="accessibility_error">Error: %1$s</string>
+    
+    <!-- Time -->
+    <string name="time_all_day">Todo el día</string>
+    <string name="time_am">AM</string>
+    <string name="time_pm">PM</string>
+    <string name="time_today">Hoy</string>
+    <string name="time_yesterday">Ayer</string>
+    <string name="time_tomorrow">Mañana</string>
+    
+    <!-- Days of Week -->
+    <string name="day_monday">Lunes</string>
+    <string name="day_tuesday">Martes</string>
+    <string name="day_wednesday">Miércoles</string>
+    <string name="day_thursday">Jueves</string>
+    <string name="day_friday">Viernes</string>
+    <string name="day_saturday">Sábado</string>
+    <string name="day_sunday">Domingo</string>
+    
+    <!-- Months -->
+    <string name="month_january">Enero</string>
+    <string name="month_february">Febrero</string>
+    <string name="month_march">Marzo</string>
+    <string name="month_april">Abril</string>
+    <string name="month_may">Mayo</string>
+    <string name="month_june">Junio</string>
+    <string name="month_july">Julio</string>
+    <string name="month_august">Agosto</string>
+    <string name="month_september">Septiembre</string>
+    <string name="month_october">Octubre</string>
+    <string name="month_november">Noviembre</string>
+    <string name="month_december">Diciembre</string>
+    
+    <!-- Recurrence -->
+    <string name="recurrence_daily">Diario</string>
+    <string name="recurrence_weekly">Semanal</string>
+    <string name="recurrence_monthly">Mensual</string>
+    <string name="recurrence_yearly">Anual</string>
+    <string name="recurrence_custom">Personalizado</string>
+    
+    <!-- Widgets -->
+    <string name="widget_calendar">Widget de Calendario</string>
+    <string name="widget_agenda">Widget de Agenda</string>
+    <string name="widget_week">Widget de Semana</string>
+    <string name="widget_configure">Configurar Widget</string>
+    
+    <!-- Sync -->
+    <string name="sync_google">Google Calendar</string>
+    <string name="sync_outlook">Outlook</string>
+    <string name="sync_apple">Apple Calendar</string>
+    <string name="sync_custom">Servidor Personalizado</string>
+    <string name="sync_manual">Sincronización Manual</string>
+    <string name="sync_automatic">Sincronización Automática</string>
+    <string name="sync_last_sync">Última Sincronización: %1$s</string>
+    <string name="sync_syncing">Sincronizando...</string>
+    <string name="sync_success">Sincronización Exitosa</string>
+    <string name="sync_failed">Sincronización Fallida</string>
+    
+    <!-- Permissions -->
+    <string name="permission_calendar">Acceso al Calendario</string>
+    <string name="permission_notifications">Notificaciones</string>
+    <string name="permission_storage">Almacenamiento</string>
+    <string name="permission_location">Ubicación</string>
+    <string name="permission_camera">Cámara</string>
+    <string name="permission_microphone">Micrófono</string>
+    
+    <!-- About -->
+    <string name="about_version">Versión %1$s</string>
+    <string name="about_build">Compilación %1$d</string>
+    <string name="about_developer">Desarrollador</string>
+    <string name="about_license">Licencia</string>
+    <string name="about_privacy">Política de Privacidad</string>
+    <string name="about_terms">Términos de Servicio</string>
+    <string name="about_support">Soporte</string>
+    <string name="about_feedback">Comentarios</string>
+    <string name="about_rate">Calificar App</string>
+    <string name="about_share">Compartir App</string>
+</resources>

@@ -16,8 +16,5 @@ object SyncModule {
     
     @Provides
     @Singleton
-    fun provideCloudSyncRepository(
-        firestore: FirebaseFirestore,
-        authRepository: AuthRepository
-    ): CloudSyncRepository = CloudSyncRepository(firestore, authRepository)
+    fun provideCloudSyncRepository(): CloudSyncRepository = CloudSyncRepository()
 }

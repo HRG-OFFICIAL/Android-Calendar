@@ -21,31 +21,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "ModernCalendar"
 include(":app")
-
-// Core modules
-include(":core")
+include(":core:common")
 include(":core:ui")
 include(":core:data")
-include(":core:domain")
-include(":core:network")
-include(":core:common")
 include(":core:reminders")
 include(":core:auth")
 include(":core:sync")
 include(":core:analytics")
 include(":core:performance")
 include(":core:accessibility")
-
-// Feature modules
-include(":feature:calendar")
-include(":feature:events")
-include(":feature:settings")
-include(":feature:auth")
-include(":feature:sync")
-include(":feature:reminders")
-include(":feature:search")
-
-// Data modules
-include(":data:local")
-include(":data:remote")
-include(":data:repository")

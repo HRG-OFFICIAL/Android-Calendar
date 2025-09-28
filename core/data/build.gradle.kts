@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -13,13 +13,6 @@ android {
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        // Room schema export
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas")
-            }
-        }
     }
 
     buildTypes {
@@ -37,8 +30,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
 }
 
@@ -46,6 +41,7 @@ dependencies {
     implementation(project(":core:common"))
     
     implementation(libs.androidx.core.ktx)
+    implementation(libs.gson)
     implementation(libs.bundles.room)
     implementation(libs.datastore.preferences)
     implementation(libs.bundles.network)
@@ -53,8 +49,8 @@ dependencies {
     
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    kapt(libs.room.compiler)
+    ksp(libs.hilt.compiler)
+    ksp(libs.room.compiler)
     
     // Security
     implementation(libs.security.crypto)

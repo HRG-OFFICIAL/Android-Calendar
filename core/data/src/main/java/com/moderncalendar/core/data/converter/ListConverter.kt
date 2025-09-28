@@ -15,9 +15,9 @@ class ListConverter {
     
     @TypeConverter
     fun toIntList(value: String?): List<Int>? {
-        return value?.let { 
+        return value?.let {
             val listType = object : TypeToken<List<Int>>() {}.type
-            gson.fromJson(it, listType)
+            gson.fromJson<List<Int>>(it, listType)
         }
     }
 }

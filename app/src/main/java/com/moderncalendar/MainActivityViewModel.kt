@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.auth.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -13,11 +15,24 @@ class MainActivityViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
     
-    val isUserSignedIn: StateFlow<Boolean> = flow {
-        emit(authRepository.isUserSignedIn)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
+    private val _isUserSignedIn = MutableStateFlow(false)
+    val isUserSignedIn: StateFlow<Boolean> = _isUserSignedIn.asStateFlow()
+    
+    init {
+        checkAuthStatus()
+    }
+    
+    private fun checkAuthStatus() {
+        viewModelScope.launch {
+            authRepository.isUserSignedIn().collect { isSignedIn ->
+                _isUserSignedIn.value = isSignedIn
+            }
+        }
+    }
+    
+    fun signOut() {
+        viewModelScope.launch {
+            authRepository.signOut()
+        }
+    }
 }

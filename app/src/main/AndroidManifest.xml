@@ -249,7 +249,7 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
-            android:theme="@style/Theme.Calender.Alert" />
+            android:theme="@style/Theme.Calender" />
 
         <activity
             android:name=".alerts.NotificationMiddleActivity"
@@ -469,26 +469,26 @@
                 <action android:name="android.intent.action.SETTINGS_SEARCH_PROVIDER" />
             </intent-filter>
         </provider>
-
-        <!-- Queries for Android 11+ -->
-        <queries>
-            <intent>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent>
-            <intent>
-                <action android:name="android.intent.action.VIEW" />
-                <data android:mimeType="text/calendar" />
-            </intent>
-            <intent>
-                <action android:name="android.intent.action.VIEW" />
-                <data android:scheme="webcal" />
-            </intent>
-            <intent>
-                <action android:name="android.intent.action.VIEW" />
-                <data android:scheme="webcals" />
-            </intent>
-        </queries>
     </application>
+
+    <!-- Queries for Android 11+ -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="text/calendar" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="webcal" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="webcals" />
+        </intent>
+    </queries>
 
 </manifest>

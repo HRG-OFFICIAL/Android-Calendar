@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.data.entity.EventEntity
-import com.moderncalendar.core.ui.theme.ModernCalendarTheme
+import com.moderncalendar.ui.theme.ModernCalendarTheme
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)

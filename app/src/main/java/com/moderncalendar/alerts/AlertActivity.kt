@@ -11,7 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.moderncalendar.core.ui.theme.ModernCalendarTheme
+import com.moderncalendar.ui.theme.ModernCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

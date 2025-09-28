@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.pm.ShortcutManagerCompat
-import com.moderncalendar.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,44 +13,38 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ShortcutsReceiver : BroadcastReceiver() {
     
+    @Inject
+    lateinit var shortcutManager: ShortcutManagerCompat
+    
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
-                // Update app shortcuts after boot
+                // Update shortcuts after boot
                 CoroutineScope(Dispatchers.IO).launch {
-                    updateAppShortcuts(context)
+                    updateShortcuts(context)
+                }
+            }
+            "com.moderncalendar.action.MIDNIGHT" -> {
+                // Update shortcuts at midnight
+                CoroutineScope(Dispatchers.IO).launch {
+                    updateShortcuts(context)
                 }
             }
             Intent.ACTION_LOCALE_CHANGED -> {
                 // Update shortcuts when locale changes
                 CoroutineScope(Dispatchers.IO).launch {
-                    updateAppShortcuts(context)
-                }
-            }
-            "com.moderncalendar.action.MIDNIGHT" -> {
-                // Update shortcuts daily
-                CoroutineScope(Dispatchers.IO).launch {
-                    updateAppShortcuts(context)
+                    updateShortcuts(context)
                 }
             }
         }
     }
     
-    private suspend fun updateAppShortcuts(context: Context) {
-        try {
-            // Create dynamic shortcuts for quick actions
-            val shortcuts = listOf(
-                // Add shortcuts for common actions
-                // - Create new event
-                // - View today's events
-                // - Search events
-                // - Open settings
-            )
-            
-            // Update shortcuts
-            ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
-        } catch (e: Exception) {
-            // Handle error
-        }
+    private suspend fun updateShortcuts(context: Context) {
+        // Update app shortcuts based on recent events and user preferences
+        // This would typically create shortcuts for:
+        // - Quick event creation
+        // - Today's agenda
+        // - Calendar view
+        // - Search
     }
 }

@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -20,14 +24,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.core.Week
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.data.entity.EventEntity
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+
+enum class CalendarViewType {
+    MONTH, WEEK, DAY, YEAR, HEATMAP
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +53,18 @@ fun CalendarScreen(
     val startDate = remember { currentDate.minusYears(1) }
     val endDate = remember { currentDate.plusYears(1) }
     
-    val calendarState = rememberCalendarState(
+    // Calendar view type state
+    var calendarViewType by remember { mutableStateOf(CalendarViewType.MONTH) }
+    
+    // Calendar states for different view types
+    val monthCalendarState = rememberCalendarState(
+        startMonth = YearMonth.from(startDate),
+        endMonth = YearMonth.from(endDate),
+        firstVisibleMonth = YearMonth.from(currentDate),
+        firstDayOfWeek = DayOfWeek.SUNDAY
+    )
+    
+    val weekCalendarState = rememberCalendarState(
         startMonth = YearMonth.from(startDate),
         endMonth = YearMonth.from(endDate),
         firstVisibleMonth = YearMonth.from(currentDate),
@@ -53,6 +74,11 @@ fun CalendarScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    
+    // Disabled dates (example: weekends for certain operations)
+    val disabledDates = remember { 
+        setOf<LocalDate>() // Add specific dates to disable
+    }
     
     Box(
         modifier = modifier.fillMaxSize()
@@ -94,6 +120,13 @@ fun CalendarScreen(
             }
         }
         
+        // Calendar View Type Selector
+        CalendarViewSelector(
+            selectedViewType = calendarViewType,
+            onViewTypeChange = { calendarViewType = it },
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
         // Selected Date Display
         Card(
             modifier = Modifier
@@ -121,20 +154,73 @@ fun CalendarScreen(
             }
         }
         
-        // Calendar
-        HorizontalCalendar(
-            state = calendarState,
-            dayContent = { day ->
-                DayContent(
-                    day = day,
-                    isSelected = selectedDate == day.date,
-                    onClick = { viewModel.selectDate(day.date) }
+        // Calendar - Dynamic view based on selected type
+        when (calendarViewType) {
+            CalendarViewType.MONTH -> {
+                HorizontalCalendar(
+                    state = monthCalendarState,
+                    dayContent = { day ->
+                        EnhancedDayContent(
+                            day = day,
+                            isSelected = selectedDate == day.date,
+                            isDisabled = day.date in disabledDates,
+                            onClick = { 
+                                if (day.date !in disabledDates) {
+                                    viewModel.selectDate(day.date)
+                                }
+                            }
+                        )
+                    },
+                    monthHeader = { month ->
+                        EnhancedMonthHeader(month = month)
+                    }
                 )
-            },
-            monthHeader = { month ->
-                MonthHeader(month = month)
             }
-        )
+            CalendarViewType.WEEK -> {
+                VerticalCalendar(
+                    state = weekCalendarState,
+                    dayContent = { day ->
+                        EnhancedDayContent(
+                            day = day,
+                            isSelected = selectedDate == day.date,
+                            isDisabled = day.date in disabledDates,
+                            onClick = { 
+                                if (day.date !in disabledDates) {
+                                    viewModel.selectDate(day.date)
+                                }
+                            }
+                        )
+                    },
+                    weekHeader = { week ->
+                        WeekHeader(week = week)
+                    }
+                )
+            }
+            CalendarViewType.DAY -> {
+                DayView(
+                    selectedDate = selectedDate,
+                    onDateChange = { viewModel.selectDate(it) },
+                    disabledDates = disabledDates
+                )
+            }
+            CalendarViewType.YEAR -> {
+                YearCalendar(
+                    selectedDate = selectedDate,
+                    onDateClick = { viewModel.selectDate(it) },
+                    disabledDates = disabledDates
+                )
+            }
+            CalendarViewType.HEATMAP -> {
+                // Sample data for heatmap (replace with real data)
+                val heatmapData = remember {
+                    generateHeatmapData(selectedDate)
+                }
+                HeatMapCalendar(
+                    data = heatmapData,
+                    onDateClick = { viewModel.selectDate(it) }
+                )
+            }
+        }
         
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -203,9 +289,10 @@ fun CalendarScreen(
 }
 
 @Composable
-private fun DayContent(
+fun EnhancedDayContent(
     day: CalendarDay,
     isSelected: Boolean,
+    isDisabled: Boolean,
     onClick: () -> Unit
 ) {
     val isToday = day.date == LocalDate.now()
@@ -218,17 +305,19 @@ private fun DayContent(
             .clip(CircleShape)
             .background(
                 when {
+                    isDisabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
                     isSelected -> MaterialTheme.colorScheme.primary
                     isToday -> MaterialTheme.colorScheme.primaryContainer
                     else -> Color.Transparent
                 }
             )
-            .clickable { onClick() },
+            .clickable(enabled = !isDisabled) { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = day.date.dayOfMonth.toString(),
             color = when {
+                isDisabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
                 isSelected -> MaterialTheme.colorScheme.onPrimary
                 isToday -> MaterialTheme.colorScheme.onPrimaryContainer
                 isWeekend -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -242,7 +331,41 @@ private fun DayContent(
 }
 
 @Composable
-private fun MonthHeader(month: YearMonth) {
+fun DayContent(
+    day: CalendarDay,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    EnhancedDayContent(
+        day = day,
+        isSelected = isSelected,
+        isDisabled = false,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun EnhancedMonthHeader(month: YearMonth) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+        )
+    ) {
+        Text(
+            text = "${month.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${month.year}",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun MonthHeader(month: YearMonth) {
     Text(
         text = "${month.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${month.year}",
         style = MaterialTheme.typography.titleLarge,
@@ -252,7 +375,80 @@ private fun MonthHeader(month: YearMonth) {
 }
 
 @Composable
-private fun EventItem(
+fun WeekHeader(week: Week) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.1f)
+        )
+    ) {
+        Text(
+            text = "Week ${week.weekOfYear}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun DayView(
+    selectedDate: LocalDate,
+    onDateChange: (LocalDate) -> Unit,
+    disabledDates: Set<LocalDate>
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = selectedDate.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() },
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            Text(
+                text = "${selectedDate.dayOfMonth} ${selectedDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${selectedDate.year}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            
+            // Navigation buttons for day view
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { onDateChange(selectedDate.minusDays(1)) },
+                    enabled = selectedDate.minusDays(1) !in disabledDates
+                ) {
+                    Text("Previous")
+                }
+                Button(
+                    onClick = { onDateChange(selectedDate.plusDays(1)) },
+                    enabled = selectedDate.plusDays(1) !in disabledDates
+                ) {
+                    Text("Next")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EventItem(
     event: EventEntity,
     onClick: () -> Unit
 ) {
@@ -312,4 +508,23 @@ private fun EventItem(
             }
         }
     }
+}
+
+// Helper function to generate sample heatmap data
+fun generateHeatmapData(selectedDate: LocalDate): Map<LocalDate, Int> {
+    val data = mutableMapOf<LocalDate, Int>()
+    val startDate = selectedDate.minusYears(1)
+    val endDate = selectedDate.plusYears(1)
+    
+    var currentDate = startDate
+    while (currentDate.isBefore(endDate) || currentDate.isEqual(endDate)) {
+        // Generate random activity data (replace with real data)
+        val activity = (0..10).random()
+        if (activity > 0) {
+            data[currentDate] = activity
+        }
+        currentDate = currentDate.plusDays(1)
+    }
+    
+    return data
 }

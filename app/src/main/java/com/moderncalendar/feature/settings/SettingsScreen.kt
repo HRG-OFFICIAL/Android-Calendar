@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -96,7 +96,7 @@ fun SettingsScreen(
                 SettingsItem(
                     title = "Sign Out",
                     subtitle = "Sign out of your account",
-                    icon = Icons.Default.Logout,
+                    icon = Icons.Default.ExitToApp,
                     onClick = onSignOut
                 )
             }

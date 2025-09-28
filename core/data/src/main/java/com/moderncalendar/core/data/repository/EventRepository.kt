@@ -31,7 +31,9 @@ class EventRepository @Inject constructor(
     }
     
     fun getEventsByDate(date: LocalDateTime): Flow<Result<List<EventEntity>>> {
-        return eventDao.getEventsByDate(date)
+        val startOfDay = date.toLocalDate().atStartOfDay()
+        val endOfDay = startOfDay.plusDays(1)
+        return eventDao.getEventsByDate(startOfDay, endOfDay)
             .map { events -> Result.Success(events) }
             .catch { exception -> Result.Error(exception) }
     }

@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.core.auth.AuthRepository
-import com.moderncalendar.core.ui.theme.ModernCalendarTheme
+import com.moderncalendar.ui.theme.ModernCalendarTheme
 import com.moderncalendar.feature.auth.AuthScreen
 import com.moderncalendar.navigation.ModernCalendarNavigation
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -5,12 +5,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.moderncalendar.core.data.converter.DateTimeConverter
-import com.moderncalendar.core.data.converter.RecurrenceConverter
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity(tableName = "events")
-@TypeConverters(DateTimeConverter::class, RecurrenceConverter::class)
+@TypeConverters(DateTimeConverter::class)
 data class EventEntity(
     @PrimaryKey
     val id: String = UUID.randomUUID().toString(),
@@ -40,10 +39,10 @@ data class EventEntity(
     val calendarId: String,
     
     @ColumnInfo(name = "recurrence_rule")
-    val recurrenceRule: RecurrenceRule? = null,
+    val recurrenceRule: String? = null, // Store as JSON string for now
     
     @ColumnInfo(name = "reminder_minutes")
-    val reminderMinutes: List<Int> = emptyList(),
+    val reminderMinutes: String = "", // Store as comma-separated string
     
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false,
@@ -61,20 +60,3 @@ data class EventEntity(
     val isDeleted: Boolean = false
 )
 
-data class RecurrenceRule(
-    val frequency: RecurrenceFrequency,
-    val interval: Int = 1,
-    val count: Int? = null,
-    val until: LocalDateTime? = null,
-    val byDay: List<DayOfWeek> = emptyList(),
-    val byMonthDay: List<Int> = emptyList(),
-    val byMonth: List<Int> = emptyList()
-)
-
-enum class RecurrenceFrequency {
-    DAILY, WEEKLY, MONTHLY, YEARLY
-}
-
-enum class DayOfWeek {
-    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
-}
