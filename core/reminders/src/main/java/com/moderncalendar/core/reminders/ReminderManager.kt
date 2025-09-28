@@ -21,14 +21,17 @@ class ReminderManager @Inject constructor(
 ) {
     
     fun scheduleReminder(event: EventEntity) {
-        if (event.reminderMinutes.isEmpty()) return
+        val reminderMinutes = event.reminderMinutes ?: return
         
-        event.reminderMinutes.forEach { minutesBefore ->
-            val reminderTime = event.startDateTime.minusMinutes(minutesBefore.toLong())
-            if (reminderTime.isAfter(LocalDateTime.now())) {
-                scheduleAlarm(event.id, reminderTime, event.title)
-            }
+        val reminderTime = event.startDateTime.minusMinutes(reminderMinutes.toLong())
+        if (reminderTime.isAfter(LocalDateTime.now())) {
+            scheduleAlarm(event.id, reminderTime, event.title)
         }
+    }
+    
+    fun scheduleReminderLater(eventId: String, delayMinutes: Int) {
+        val reminderTime = LocalDateTime.now().plusMinutes(delayMinutes.toLong())
+        scheduleAlarm(eventId, reminderTime, "Event Reminder")
     }
     
     fun cancelReminder(eventId: String) {
@@ -43,6 +46,17 @@ class ReminderManager @Inject constructor(
         )
         alarmManager.cancel(pendingIntent)
     }
+    
+    fun cancelAllReminders() {
+        // This is a placeholder implementation
+        // In a real implementation, you would need to track all scheduled reminders
+        // and cancel them individually. For now, we'll just log it.
+        android.util.Log.d("ReminderManager", "Cancelling all reminders")
+        // TODO: Implement proper tracking and cancellation of all reminders
+    }
+
+    // Public forwarder for downstream modules to avoid any visibility/tooling ambiguity
+    fun cancelAllPublic() = cancelAllReminders()
     
     fun rescheduleAllReminders() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -86,17 +100,6 @@ class ReminderManager @Inject constructor(
         }
     }
     
-    private fun cancelAllReminders() {
-        // Cancel all existing reminders
-        // This is a simplified implementation
-        // In production, you'd want to track all scheduled reminders
-        try {
-            // Cancel all alarms with our package name
-            // This is a basic implementation - in production, you'd track specific alarm IDs
-        } catch (e: Exception) {
-            android.util.Log.e("ReminderManager", "Error canceling all reminders", e)
-        }
-    }
     
     private fun scheduleAlarm(eventId: String, reminderTime: LocalDateTime, eventTitle: String) {
         val intent = Intent("com.moderncalendar.REMINDER_ACTION").apply {

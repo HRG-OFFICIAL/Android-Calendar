@@ -27,7 +27,9 @@ fun SettingsScreen(
     onSignOut: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val theme by viewModel.theme.collectAsState()
+    val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
+    val dynamicColorsEnabled by viewModel.dynamicColorsEnabled.collectAsState()
     
     Column(
         modifier = modifier.fillMaxSize()
@@ -57,7 +59,7 @@ fun SettingsScreen(
                 SettingsItem(
                     title = "Dark Mode",
                     subtitle = "Use dark theme",
-                    icon = if (uiState.isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                    icon = if (theme == "dark") Icons.Default.DarkMode else Icons.Default.LightMode,
                     onClick = { viewModel.toggleDarkMode() }
                 )
                 
@@ -91,7 +93,7 @@ fun SettingsScreen(
             // Account Section
             SettingsSection(
                 title = "Account",
-                icon = Icons.Default.Palette
+                icon = Icons.Default.ExitToApp
             ) {
                 SettingsItem(
                     title = "Sign Out",
@@ -106,7 +108,7 @@ fun SettingsScreen(
             // About Section
             SettingsSection(
                 title = "About",
-                icon = Icons.Default.Palette
+                icon = Icons.Default.Notifications
             ) {
                 SettingsItem(
                     title = "Version",

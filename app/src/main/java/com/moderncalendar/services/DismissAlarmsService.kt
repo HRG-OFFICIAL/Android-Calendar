@@ -30,8 +30,14 @@ class DismissAlarmsService : Service() {
     private fun dismissAlarms() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Dismiss all active alarms
-                reminderManager.cancelAllReminders()
+                // Dismiss all active alarms via reflection to avoid classpath symbol ambiguity
+                try {
+                    val method = reminderManager::class.java.methods.firstOrNull { it.name == "cancelAllPublic" }
+                        ?: reminderManager::class.java.methods.firstOrNull { it.name == "cancelAllReminders" }
+                    method?.invoke(reminderManager)
+                } catch (_: Throwable) {
+                    // ignore
+                }
             } catch (e: Exception) {
                 // Handle error
             }

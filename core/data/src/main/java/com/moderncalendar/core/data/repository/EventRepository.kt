@@ -38,6 +38,14 @@ class EventRepository @Inject constructor(
             .catch { exception -> Result.Error(exception) }
     }
     
+    fun getEventsForDate(date: java.time.LocalDate): Flow<Result<List<EventEntity>>> {
+        val startOfDay = date.atStartOfDay()
+        val endOfDay = startOfDay.plusDays(1)
+        return eventDao.getEventsByDate(startOfDay, endOfDay)
+            .map { events -> Result.Success(events) }
+            .catch { exception -> Result.Error(exception) }
+    }
+    
     suspend fun getEventById(eventId: String): Result<EventEntity?> {
         return try {
             val event = eventDao.getEventById(eventId)

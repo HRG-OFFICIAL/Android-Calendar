@@ -202,7 +202,7 @@ fun AuthScreen(
         Button(
             onClick = {
                 if (isSignUp) {
-                    viewModel.signUp(email, password, confirmPassword, displayName)
+                    viewModel.signUp(email, password, confirmPassword)
                 } else {
                     viewModel.signIn(email, password)
                 }

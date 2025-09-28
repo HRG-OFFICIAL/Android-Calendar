@@ -1,5 +1,6 @@
 package com.moderncalendar.feature.events
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +35,7 @@ fun EventCreationScreen(
     var selectedColor by remember { mutableStateOf("#6750A4") }
     var isRecurring by remember { mutableStateOf(false) }
     var recurrenceFrequency by remember { mutableStateOf(RecurrenceFrequency.WEEKLY) }
+    var reminderMinutes by remember { mutableStateOf(listOf<Int>()) }
     
     val eventColors = listOf(
         "#6750A4", "#E57373", "#81C784", "#64B5F6", "#FFB74D",
@@ -234,19 +236,19 @@ fun EventCreationScreen(
                 }
                 
                 val event = EventEntity(
+                    id = java.util.UUID.randomUUID().toString(),
                     title = title,
                     description = description.ifEmpty { null },
-                    location = location.ifEmpty { null },
                     startDateTime = startDateTime,
                     endDateTime = endDateTime,
                     isAllDay = isAllDay,
-                    color = selectedColor,
+                    location = location.ifEmpty { null },
+                    color = selectedColor.toIntOrNull() ?: 0xFF6750A4.toInt(),
                     calendarId = "default", // TODO: Get from user selection
                     recurrenceRule = if (isRecurring) {
-                        com.moderncalendar.core.data.entity.RecurrenceRule(
-                            frequency = recurrenceFrequency
-                        )
-                    } else null
+                        recurrenceFrequency.name
+                    } else null,
+                    reminderMinutes = reminderMinutes.firstOrNull()
                 )
                 
                 viewModel.createEvent(event)

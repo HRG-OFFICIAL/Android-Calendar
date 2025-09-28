@@ -1,11 +1,13 @@
 package com.moderncalendar.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.core.analytics.AnalyticsManager
 import javax.inject.Inject
@@ -42,9 +44,10 @@ fun ModernCalendarTheme(
 @Composable
 fun ModernCalendarThemeWithManager(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    themeManager: ThemeManager = hiltViewModel<ThemeManagerViewModel>().themeManager,
+    viewModel: ThemeManagerViewModel = hiltViewModel(),
     content: @Composable () -> Unit
 ) {
+    val themeManager = viewModel.getThemeManager()
     val isDarkMode by themeManager.isDarkMode.collectAsState()
     val accentColor by themeManager.accentColor.collectAsState()
     val themeStyle by themeManager.themeStyle.collectAsState()
@@ -64,8 +67,9 @@ fun ModernCalendarThemeWithManager(
 
 @Composable
 fun ThemeSettingsScreen(
-    themeManager: ThemeManager = hiltViewModel<ThemeManagerViewModel>().themeManager
+    viewModel: ThemeManagerViewModel = hiltViewModel()
 ) {
+    val themeManager = viewModel.getThemeManager()
     val isDarkMode by themeManager.isDarkMode.collectAsState()
     val accentColor by themeManager.accentColor.collectAsState()
     val themeStyle by themeManager.themeStyle.collectAsState()

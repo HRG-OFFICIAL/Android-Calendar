@@ -1,9 +1,12 @@
 package com.moderncalendar.feature.calendar
 
+import androidx.compose.material3.ExperimentalMaterial3Api
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +34,7 @@ class SelectVisibleCalendarsActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectVisibleCalendarsScreen() {
     var calendars by remember { 

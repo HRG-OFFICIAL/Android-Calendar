@@ -31,14 +31,26 @@ class CloudSyncManager @Inject constructor(
             val localEvents = getLocalEventsToSync()
             
             // Get remote events
-            val remoteEvents = cloudSyncRepository.getRemoteEvents()
-            
-            // Merge and resolve conflicts
-            val mergedEvents = mergeEvents(localEvents, remoteEvents)
-            
-            // Update local database
-            mergedEvents.forEach { event ->
-                eventRepository.insertEvent(event)
+            cloudSyncRepository.getRemoteEvents().collect { remoteResult ->
+                when (remoteResult) {
+                    is Result.Success -> {
+                        val remoteEvents = remoteResult.data
+                        // Merge and resolve conflicts
+                        val mergedEvents = mergeEvents(localEvents, remoteEvents)
+                        
+                        // Update local database
+                        mergedEvents.forEach { event ->
+                            eventRepository.insertEvent(event)
+                        }
+                    }
+                    is Result.Error -> {
+                        emit(Result.Error(remoteResult.exception))
+                        return@collect
+                    }
+                    is Result.Loading -> {
+                        // Continue with local events only
+                    }
+                }
             }
             
             // Upload local changes to cloud
@@ -66,8 +78,13 @@ class CloudSyncManager @Inject constructor(
     fun downloadEvent(eventId: String): Flow<Result<EventEntity>> = flow {
         try {
             emit(Result.Loading)
-            val event = cloudSyncRepository.downloadEvent(eventId)
-            emit(Result.Success(event))
+            cloudSyncRepository.downloadEvent(eventId).collect { result ->
+                when (result) {
+                    is Result.Success -> emit(Result.Success(result.data))
+                    is Result.Error -> emit(Result.Error(result.exception))
+                    is Result.Loading -> emit(Result.Loading)
+                }
+            }
         } catch (e: Exception) {
             emit(Result.Error(e))
         }

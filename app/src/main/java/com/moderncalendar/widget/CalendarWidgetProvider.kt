@@ -13,8 +13,10 @@ import com.moderncalendar.core.data.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.moderncalendar.core.common.Result
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -53,7 +55,12 @@ class CalendarWidgetProvider : AppWidgetProvider() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val today = LocalDate.now()
-                val events = eventRepository.getEventsForDate(today)
+                val dateFmt = DateTimeFormatter.ofPattern("MMM dd")
+                val timeFmt = DateTimeFormatter.ofPattern("HH:mm")
+                val start = today.atStartOfDay()
+                val end = start.plusDays(1)
+                val result: Result<List<EventEntity>>? = eventRepository.getEventsByDateRange(start, end).firstOrNull()
+                val events: List<EventEntity> = if (result is Result.Success<List<EventEntity>>) result.data else emptyList()
                 
                 // Update widget with events
                 val eventText = if (events.isNotEmpty()) {
@@ -61,7 +68,7 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                         val time = if (event.isAllDay) {
                             "All day"
                         } else {
-                            event.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                            event.startDateTime.format(timeFmt)
                         }
                         "$time - ${event.title}"
                     }
@@ -70,11 +77,11 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                 }
                 
                 views.setTextViewText(R.id.widget_events, eventText)
-                views.setTextViewText(R.id.widget_date, today.format(DateTimeFormatter.ofPattern("MMM dd")))
+                views.setTextViewText(R.id.widget_date, today.format(dateFmt))
                 
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             } catch (e: Exception) {
-                views.setTextViewText(R.id.widget_events, "Error loading events")
+                views.setTextViewText(R.id.widget_events, "Error")
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
         }

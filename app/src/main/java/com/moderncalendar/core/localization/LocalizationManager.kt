@@ -4,7 +4,17 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -62,7 +72,7 @@ data class Language(
 
 @Composable
 fun LocalizationSettingsScreen(
-    localizationManager: LocalizationManager = hiltViewModel<LocalizationViewModel>().localizationManager
+    localizationManager: LocalizationManager = hiltViewModel()
 ) {
     val currentLanguage by localizationManager.currentLanguage.collectAsState()
     val supportedLanguages = localizationManager.getSupportedLanguages()
@@ -83,7 +93,7 @@ fun LocalizationSettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RadioButton(
-                    selected = currentLanguage.code == language.code,
+                    selected = currentLanguage == language.code,
                     onClick = { localizationManager.setLanguage(language.code) }
                 )
                 

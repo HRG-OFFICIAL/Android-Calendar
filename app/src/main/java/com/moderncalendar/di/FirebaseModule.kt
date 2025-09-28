@@ -3,6 +3,7 @@ package com.moderncalendar.di
 import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,6 +18,12 @@ object FirebaseModule {
     @Provides
     @Singleton
     fun provideContext(@ApplicationContext context: Context): Context = context
+    
+    @Provides
+    @Singleton
+    fun provideFirebaseStorage(): FirebaseStorage {
+        return FirebaseStorage.getInstance()
+    }
     
     @Provides
     @Singleton

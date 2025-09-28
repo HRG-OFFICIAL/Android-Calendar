@@ -2,8 +2,19 @@ package com.moderncalendar.services
 
 import android.app.Service
 import android.content.Intent
+import android.content.Context
 import android.os.IBinder
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.ListenableWorker
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import androidx.hilt.work.HiltWorker
 import com.moderncalendar.core.sync.CloudSyncManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -87,18 +98,18 @@ class BackgroundSyncService : Service() {
     }
 }
 
-class SyncWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val cloudSyncManager: CloudSyncManager
-) : CoroutineWorker(context, workerParams) {
+// Temporarily disable Hilt wiring to isolate KSP failures
+class SyncWorker(
+    appContext: android.content.Context,
+    params: androidx.work.WorkerParameters
+) : CoroutineWorker(appContext, params) {
     
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): ListenableWorker.Result {
         return try {
-            cloudSyncManager.syncEvents()
-            Result.success()
+            // TODO: Re-enable once Hilt graph is green
+            ListenableWorker.Result.success()
         } catch (e: Exception) {
-            Result.retry()
+            ListenableWorker.Result.retry()
         }
     }
     

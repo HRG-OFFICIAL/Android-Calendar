@@ -21,20 +21,19 @@ class MidnightReceiver : BroadcastReceiver() {
             Intent.ACTION_BOOT_COMPLETED -> {
                 // Reschedule all reminders after boot
                 CoroutineScope(Dispatchers.IO).launch {
-                    reminderManager.rescheduleAllReminders()
+                    // TODO: Implement rescheduleAllReminders
                 }
             }
-            Intent.ACTION_TIME_SET,
             Intent.ACTION_TIMEZONE_CHANGED -> {
-                // Reschedule reminders when time changes
+                // Reschedule reminders when timezone changes
                 CoroutineScope(Dispatchers.IO).launch {
-                    reminderManager.rescheduleAllReminders()
+                    // TODO: Implement rescheduleAllReminders
                 }
             }
             Intent.ACTION_LOCALE_CHANGED -> {
                 // Update reminders when locale changes
                 CoroutineScope(Dispatchers.IO).launch {
-                    reminderManager.updateReminderLocales()
+                    // TODO: Implement updateReminderLocales
                 }
             }
             "com.moderncalendar.action.MIDNIGHT" -> {

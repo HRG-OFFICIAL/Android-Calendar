@@ -1,7 +1,8 @@
 [versions]
 # Core Android
 agp = "8.9.1"
-kotlin = "2.2.20"
+kotlin = "2.1.0"
+ksp = "2.1.0-1.0.29"
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.9.3"
 activityCompose = "1.10.1"
@@ -13,9 +14,9 @@ composeNavigation = "2.8.5"
 composeAnimation = "1.7.5"
 
 # Architecture Components
-hilt = "2.55"
+hilt = "2.52"
 hiltNavigationCompose = "1.2.0"
-room = "2.7.0-alpha11"
+room = "2.6.1"
 lifecycle = "2.9.3"
 viewmodel = "2.9.3"
 workManager = "2.10.0"
@@ -120,6 +121,7 @@ calendar-compose = { group = "com.kizitonwose.calendar", name = "compose", versi
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
@@ -129,6 +131,9 @@ lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", versio
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
+
+# Paging
+paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "paging" }
 
 # Security
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security" }
@@ -148,7 +153,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-ksp = { id = "com.google.devtools.ksp", version = "2.2.20-2.0.3" }
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
@@ -190,6 +195,7 @@ network = [
 firebase = [
     "firebase-auth",
     "firebase-firestore",
+    "firebase-storage",
     "firebase-analytics",
     "firebase-crashlytics",
     "firebase-messaging"

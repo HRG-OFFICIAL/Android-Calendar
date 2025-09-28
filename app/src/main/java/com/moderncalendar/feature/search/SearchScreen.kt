@@ -1,5 +1,6 @@
 package com.moderncalendar.feature.search
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,8 +29,8 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val events by viewModel.events.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val searchResults by viewModel.searchResults.collectAsState()
+    val isLoading by viewModel.isSearching.collectAsState()
     
     LaunchedEffect(searchQuery) {
         if (searchQuery.isNotEmpty()) {
@@ -65,7 +66,8 @@ fun SearchScreen(
         )
         
         // Search Results
-        when (events) {
+        val resultsLocal = searchResults
+        when (resultsLocal) {
             is Result.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -75,7 +77,8 @@ fun SearchScreen(
                 }
             }
             is Result.Success -> {
-                if (events.data.isEmpty() && searchQuery.isNotEmpty()) {
+                val data = resultsLocal.data
+                if (data.isEmpty() && searchQuery.isNotEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -92,10 +95,10 @@ fun SearchScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(events.data) { event ->
+                        items(data) { event ->
                             SearchEventItem(
                                 event = event,
-                                onClick = { onEventClick(event.id) }
+                                onClick = { onEventClick(event.id.toString()) }
                             )
                         }
                     }
@@ -107,7 +110,7 @@ fun SearchScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Error: ${events.exception.message}",
+                        text = "Error: ${resultsLocal.exception.message}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -142,9 +145,7 @@ private fun SearchEventItem(
                 modifier = Modifier
                     .size(12.dp)
                     .background(
-                        color = androidx.compose.ui.graphics.Color(
-                            android.graphics.Color.parseColor(event.color)
-                        ),
+                        color = androidx.compose.ui.graphics.Color(event.color),
                         shape = androidx.compose.foundation.shape.CircleShape
                     )
             )

@@ -7,8 +7,10 @@ import com.moderncalendar.R
 import com.moderncalendar.core.data.entity.EventEntity
 import com.moderncalendar.core.data.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import java.time.format.DateTimeFormatter
+import com.moderncalendar.core.common.Result
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,6 +30,7 @@ class AgendaRemoteViewsFactory(
 ) : RemoteViewsService.RemoteViewsFactory {
     
     private var events: List<EventEntity> = emptyList()
+    private var currentDate = java.time.LocalDate.now()
     
     override fun onCreate() {
         // Initialize
@@ -36,8 +39,11 @@ class AgendaRemoteViewsFactory(
     override fun onDataSetChanged() {
         runBlocking {
             try {
-                val today = java.time.LocalDate.now()
-                events = eventRepository.getEventsForDate(today)
+                currentDate = java.time.LocalDate.now()
+                val start = currentDate.atStartOfDay()
+                val end = start.plusDays(1)
+                val result: Result<List<EventEntity>>? = eventRepository.getEventsByDateRange(start, end).firstOrNull()
+                events = if (result is Result.Success<List<EventEntity>>) result.data else emptyList()
             } catch (e: Exception) {
                 events = emptyList()
             }

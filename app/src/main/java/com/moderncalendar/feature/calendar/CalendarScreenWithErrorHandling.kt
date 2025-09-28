@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.core.common.ErrorHandler
 import com.moderncalendar.core.common.ResultWithRetry
 import com.moderncalendar.core.common.toResultWithRetry
@@ -31,13 +32,14 @@ fun CalendarScreenWithErrorHandling(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     
-    // Convert events result to include retry information
-    val eventsWithRetry = remember(events) {
-        when (events) {
-            is com.moderncalendar.core.common.Result.Success -> ResultWithRetry.Success(events.data)
+    // Avoid smart casts on delegated state by binding to local val first
+    val eventsLocal = events
+    val eventsWithRetry = remember(eventsLocal) {
+        when (eventsLocal) {
+            is com.moderncalendar.core.common.Result.Success -> ResultWithRetry.Success(eventsLocal.data)
             is com.moderncalendar.core.common.Result.Error -> ResultWithRetry.Error(
-                events.exception, 
-                ErrorHandler.isRetryable(events.exception)
+                eventsLocal.exception, 
+                ErrorHandler.isRetryable(eventsLocal.exception)
             )
             is com.moderncalendar.core.common.Result.Loading -> ResultWithRetry.Loading
         }
@@ -47,10 +49,10 @@ fun CalendarScreenWithErrorHandling(
         // Main calendar content
         CalendarScreen(
             modifier = Modifier.fillMaxSize(),
-            onEventClick = onEventClick,
-            onCreateEventClick = onCreateEventClick,
-            onSearchClick = onSearchClick,
-            onSettingsClick = onSettingsClick,
+            onNavigateToEventDetails = onEventClick,
+            onNavigateToEventCreation = onCreateEventClick,
+            onNavigateToSearch = onSearchClick,
+            onNavigateToSettings = onSettingsClick,
             viewModel = viewModel
         )
         
@@ -62,7 +64,7 @@ fun CalendarScreenWithErrorHandling(
                     isRetryable = eventsWithRetry.isRetryable,
                     onRetry = {
                         coroutineScope.launch {
-                            viewModel.loadEventsForSelectedDate()
+                            viewModel.selectDate(selectedDate)
                         }
                     },
                     onDismiss = {

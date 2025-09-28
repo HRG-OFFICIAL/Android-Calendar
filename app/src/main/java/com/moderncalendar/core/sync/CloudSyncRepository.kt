@@ -29,4 +29,33 @@ class CloudSyncRepository @Inject constructor() {
         // Simulate settings sync
         emit(Result.Success(Unit))
     }
+    
+    fun getRemoteEvents(): Flow<Result<List<EventEntity>>> = flow {
+        // Simulate getting remote events
+        emit(Result.Success(emptyList()))
+    }
+    
+    fun downloadEvent(eventId: String): Flow<Result<EventEntity>> = flow {
+        // Simulate downloading a specific event
+        emit(Result.Success(EventEntity(
+            id = eventId,
+            title = "Downloaded Event",
+            description = "Event downloaded from cloud",
+            startDateTime = java.time.LocalDateTime.now(),
+            endDateTime = java.time.LocalDateTime.now().plusHours(1),
+            isAllDay = false,
+            location = "",
+            color = 0xFF6750A4.toInt(),
+            calendarId = "default",
+            recurrenceRule = null,
+            reminderMinutes = null,
+            createdAt = java.time.LocalDateTime.now(),
+            updatedAt = java.time.LocalDateTime.now()
+        )))
+    }
+    
+    fun deleteEvent(eventId: String): Flow<Result<Unit>> = flow {
+        // Simulate deleting an event
+        emit(Result.Success(Unit))
+    }
 }

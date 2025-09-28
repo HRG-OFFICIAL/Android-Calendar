@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+enum class ThemeType {
+    LIGHT, DARK, SYSTEM
+}
+
 @Singleton
 class ThemeManager @Inject constructor() {
     
@@ -38,9 +42,30 @@ class ThemeManager @Inject constructor() {
         _themeStyle.value = style
     }
     
+    fun setTheme(theme: ThemeType) {
+        when (theme) {
+            ThemeType.LIGHT -> _isDarkMode.value = false
+            ThemeType.DARK -> _isDarkMode.value = true
+            ThemeType.SYSTEM -> {
+                // Note: isSystemInDarkTheme() requires @Composable context
+                // This should be called from a @Composable function
+                _isDarkMode.value = false // Default to light mode
+            }
+        }
+    }
+    
+    fun setDynamicColorsEnabled(enabled: Boolean) {
+        // This would be implemented based on system capabilities
+    }
+    
+    fun setHighContrastEnabled(enabled: Boolean) {
+        // This would be implemented based on system capabilities
+    }
+    
+    @Composable
     fun getColorScheme(isDark: Boolean = _isDarkMode.value): ColorScheme {
         val accent = _accentColor.value
-        return when (style) {
+        return when (_themeStyle.value) {
             ThemeStyle.Material3 -> createMaterial3ColorScheme(isDark, accent)
             ThemeStyle.Material2 -> createMaterial2ColorScheme(isDark, accent)
             ThemeStyle.Custom -> createCustomColorScheme(isDark, accent)

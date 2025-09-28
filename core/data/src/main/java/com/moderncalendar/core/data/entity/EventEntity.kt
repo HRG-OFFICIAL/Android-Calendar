@@ -26,6 +26,10 @@ data class EventEntity(
     @ColumnInfo(name = "end_date_time")
     val endDateTime: LocalDateTime,
     
+    // Aliases for backward compatibility
+    val startTime: LocalDateTime = startDateTime,
+    val endTime: LocalDateTime = endDateTime,
+    
     @ColumnInfo(name = "is_all_day")
     val isAllDay: Boolean = false,
     
@@ -33,16 +37,16 @@ data class EventEntity(
     val location: String? = null,
     
     @ColumnInfo(name = "color")
-    val color: String = "#6750A4",
+    val color: Int = 0xFF6750A4.toInt(),
     
     @ColumnInfo(name = "calendar_id")
-    val calendarId: String,
+    val calendarId: String = "default",
     
     @ColumnInfo(name = "recurrence_rule")
     val recurrenceRule: String? = null, // Store as JSON string for now
     
     @ColumnInfo(name = "reminder_minutes")
-    val reminderMinutes: String = "", // Store as comma-separated string
+    val reminderMinutes: Int? = null, // Store as Int for minutes before event
     
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false,

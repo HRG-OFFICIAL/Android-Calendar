@@ -21,16 +21,16 @@ fun ModernCalendarNavigation(
     ) {
         composable("calendar") {
             CalendarScreen(
-                onEventClick = { eventId ->
+                onNavigateToEventDetails = { eventId: String ->
                     navController.navigate("event_details/$eventId")
                 },
-                onCreateEventClick = {
+                onNavigateToEventCreation = {
                     navController.navigate("create_event")
                 },
-                onSearchClick = {
+                onNavigateToSearch = {
                     navController.navigate("search")
                 },
-                onSettingsClick = {
+                onNavigateToSettings = {
                     navController.navigate("settings")
                 }
             )

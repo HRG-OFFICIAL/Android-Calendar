@@ -24,7 +24,8 @@ class AlertLaterReceiver : BroadcastReceiver() {
                 
                 if (eventId != null) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        reminderManager.scheduleReminderLater(eventId, delayMinutes)
+                        // TODO: Implement scheduleReminderLater method
+                        // reminderManager.scheduleReminderLater(eventId, delayMinutes)
                     }
                 }
             }

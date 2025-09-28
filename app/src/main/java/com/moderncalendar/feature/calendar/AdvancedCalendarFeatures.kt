@@ -8,10 +8,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.Week
 import java.time.DayOfWeek
@@ -168,9 +170,9 @@ private fun HeatMapDayContent(
 }
 
 @Composable
-private fun HeatMapMonthHeader(month: YearMonth) {
+private fun HeatMapMonthHeader(month: CalendarMonth) {
     Text(
-        text = month.month.name.take(3),
+        text = month.yearMonth.month.name.take(3),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(vertical = 4.dp)

@@ -1,5 +1,6 @@
 package com.moderncalendar.feature.events
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,10 +36,10 @@ fun EventDetailsScreen(
         viewModel.getEventById(eventId)
     }
     
-    val event = when (events) {
-        is com.moderncalendar.core.common.Result.Success -> {
-            events.data.firstOrNull()
-        }
+    // Avoid smart cast on delegated state by binding to local val first
+    val eventsLocal = events
+    val event: EventEntity? = when (eventsLocal) {
+        is com.moderncalendar.core.common.Result.Success -> eventsLocal.data.firstOrNull()
         else -> null
     }
     
@@ -55,11 +56,11 @@ fun EventDetailsScreen(
             },
             actions = {
                 event?.let {
-                    IconButton(onClick = { onEditClick(it.id) }) {
+                    IconButton(onClick = { onEditClick(it.id.toString()) }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                     IconButton(onClick = { 
-                        viewModel.deleteEvent(it.id)
+                        viewModel.deleteEvent(it.id.toString())
                         onDeleteClick()
                     }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
@@ -125,7 +126,7 @@ private fun EventDetailsContent(event: EventEntity) {
                         modifier = Modifier
                             .size(16.dp)
                             .background(
-                                color = Color(android.graphics.Color.parseColor(event.color)),
+                                color = Color(event.color),
                                 shape = androidx.compose.foundation.shape.CircleShape
                             )
                     )
@@ -179,7 +180,7 @@ private fun EventDetailsContent(event: EventEntity) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = event.description,
+                        text = event.description!!,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -201,7 +202,7 @@ private fun EventDetailsContent(event: EventEntity) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = event.location,
+                        text = event.location!!,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -223,7 +224,7 @@ private fun EventDetailsContent(event: EventEntity) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Repeats ${recurrenceRule.frequency.name.lowercase()}",
+                        text = "Repeats ${recurrenceRule}",
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -231,7 +232,7 @@ private fun EventDetailsContent(event: EventEntity) {
         }
         
         // Reminders
-        if (event.reminderMinutes.isNotEmpty()) {
+        if (event.reminderMinutes != null) {
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -244,12 +245,10 @@ private fun EventDetailsContent(event: EventEntity) {
                         fontWeight = FontWeight.Medium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    event.reminderMinutes.forEach { minutes ->
-                        Text(
-                            text = "${minutes} minutes before",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                    Text(
+                        text = "${event.reminderMinutes} minutes before",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
         }

@@ -13,8 +13,10 @@ import com.moderncalendar.core.data.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.moderncalendar.core.common.Result
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -53,7 +55,12 @@ class AgendaWidgetProvider : AppWidgetProvider() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val today = LocalDate.now()
-                val events = eventRepository.getEventsForDate(today)
+                val dateFmt = DateTimeFormatter.ofPattern("MMM dd")
+                val timeFmt = DateTimeFormatter.ofPattern("HH:mm")
+                val start = today.atStartOfDay()
+                val end = start.plusDays(1)
+                val result: Result<List<EventEntity>>? = eventRepository.getEventsByDateRange(start, end).firstOrNull()
+                val events: List<EventEntity> = if (result is Result.Success<List<EventEntity>>) result.data else emptyList()
                 
                 // Update widget with events
                 val eventText = if (events.isNotEmpty()) {
@@ -61,7 +68,7 @@ class AgendaWidgetProvider : AppWidgetProvider() {
                         val time = if (event.isAllDay) {
                             "All day"
                         } else {
-                            event.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                            event.startDateTime.format(timeFmt)
                         }
                         "$time - ${event.title}"
                     }
@@ -69,16 +76,17 @@ class AgendaWidgetProvider : AppWidgetProvider() {
                     "No events today"
                 }
                 
-                views.setTextViewText(R.id.widget_date, today.format(DateTimeFormatter.ofPattern("MMM dd")))
+                views.setTextViewText(R.id.widget_date, today.format(dateFmt))
                 
                 // Set up remote views service for list
                 val serviceIntent = Intent(context, AgendaWidgetService::class.java)
                 serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 views.setRemoteAdapter(R.id.widget_agenda_list, serviceIntent)
                 
+                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_agenda_list)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             } catch (e: Exception) {
-                views.setTextViewText(R.id.widget_date, "Error loading events")
+                views.setTextViewText(R.id.widget_date, "Error")
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
         }

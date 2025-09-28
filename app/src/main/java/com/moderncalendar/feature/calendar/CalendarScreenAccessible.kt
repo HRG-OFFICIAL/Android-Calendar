@@ -1,14 +1,19 @@
 package com.moderncalendar.feature.calendar
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.*
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.kizitonwose.calendar.core.CalendarDay
 import com.moderncalendar.core.accessibility.AccessibilityManager
-import com.moderncalendar.core.accessibility.AccessibilityMatchers
-import com.moderncalendar.core.accessibility.AccessibilityActions
 import com.moderncalendar.core.data.entity.EventEntity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -20,33 +25,35 @@ fun CalendarScreenAccessible(
     onCreateEventClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    viewModel: CalendarViewModel = hiltViewModel(),
-    accessibilityManager: AccessibilityManager = hiltViewModel<AccessibilityViewModel>().accessibilityManager
+    viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val selectedDate by viewModel.selectedDate.collectAsState()
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    
+    val accessibilityVm = hiltViewModel<AccessibilityViewModel>()
+    val accessibilityManager = accessibilityVm.getAccessibilityManager()
     
     val isAccessibilityEnabled by remember { 
         derivedStateOf { accessibilityManager.isAccessibilityEnabled() }
     }
     
     val shouldUseHighContrast by remember { 
-        derivedStateOf { accessibilityManager.shouldUseHighContrast() }
+        derivedStateOf { accessibilityManager.isTalkBackEnabled() }
     }
     
     val shouldUseLargeText by remember { 
-        derivedStateOf { accessibilityManager.shouldUseLargeText() }
+        derivedStateOf { accessibilityManager.isScreenReaderEnabled() }
     }
     
     Box(modifier = modifier.fillMaxSize()) {
         // Main calendar content with accessibility enhancements
         CalendarScreen(
             modifier = Modifier.fillMaxSize(),
-            onEventClick = onEventClick,
-            onCreateEventClick = onCreateEventClick,
-            onSearchClick = onSearchClick,
-            onSettingsClick = onSettingsClick,
+            onNavigateToEventDetails = onEventClick,
+            onNavigateToEventCreation = onCreateEventClick,
+            onNavigateToSearch = onSearchClick,
+            onNavigateToSettings = onSettingsClick,
             viewModel = viewModel
         )
         
@@ -200,7 +207,7 @@ fun AccessibleEventItem(
                         stateDescription = "Color: ${event.color}"
                     }
                     .background(
-                        color = androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(event.color)),
+                        color = androidx.compose.ui.graphics.Color(event.color),
                         shape = androidx.compose.foundation.shape.CircleShape
                     )
             )
@@ -284,4 +291,40 @@ fun AccessibleCalendarDay(
             }
         )
     }
+}
+
+// Local semantics helpers
+private fun SemanticsPropertyReceiver.eventSemantics(
+    eventTitle: String, 
+    eventTime: String, 
+    eventLocation: String?, 
+    isAllDay: Boolean
+) {
+    contentDescription = buildString {
+        append("Event: ")
+        append(eventTitle)
+        append(". Time: ")
+        append(eventTime)
+        if (isAllDay) append(". All day")
+        if (!eventLocation.isNullOrBlank()) {
+            append(". Location: ")
+            append(eventLocation)
+        }
+    }
+}
+
+private fun SemanticsPropertyReceiver.calendarDaySemantics(
+    dayNumber: String, 
+    isSelected: Boolean, 
+    isToday: Boolean, 
+    hasEvents: Boolean
+) {
+    contentDescription = buildString {
+        append("Day ")
+        append(dayNumber)
+        if (isToday) append(", today")
+        if (isSelected) append(", selected")
+        if (hasEvents) append(", has events")
+    }
+    stateDescription = "Calendar day"
 }

@@ -7,23 +7,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.core.auth.AuthRepository
+import com.moderncalendar.core.common.Result
 import com.moderncalendar.ui.theme.ModernCalendarTheme
 import com.moderncalendar.feature.auth.AuthScreen
+import com.moderncalendar.feature.auth.AuthViewModel
 import com.moderncalendar.navigation.ModernCalendarNavigation
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
 @Composable
 fun MainApp(
-    modifier: Modifier = Modifier,
-    authRepository: AuthRepository
+    modifier: Modifier = Modifier
 ) {
-    val isUserSignedIn by remember { 
-        derivedStateOf { authRepository.isUserSignedIn } 
-    }
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val uiState by authViewModel.uiState.collectAsState()
     
     ModernCalendarTheme {
-        if (isUserSignedIn) {
+        if (uiState.isAuthenticated) {
             ModernCalendarNavigation()
         } else {
             AuthScreen(

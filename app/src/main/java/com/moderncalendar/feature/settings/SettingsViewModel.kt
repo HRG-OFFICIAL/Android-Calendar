@@ -29,6 +29,9 @@ class SettingsViewModel @Inject constructor(
     private val _notificationsEnabled = MutableStateFlow(true)
     val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
     
+    private val _dynamicColorsEnabled = MutableStateFlow(false)
+    val dynamicColorsEnabled: StateFlow<Boolean> = _dynamicColorsEnabled.asStateFlow()
+    
     private val _reminderTime = MutableStateFlow(15) // minutes
     val reminderTime: StateFlow<Int> = _reminderTime.asStateFlow()
     
@@ -154,5 +157,17 @@ class SettingsViewModel @Inject constructor(
             settingsRepository.importSettings(settingsData)
             loadSettings() // Reload after import
         }
+    }
+    
+    fun toggleDarkMode() {
+        _theme.value = if (_theme.value == "dark") "light" else "dark"
+    }
+    
+    fun toggleDynamicColors() {
+        _dynamicColorsEnabled.value = !_dynamicColorsEnabled.value
+    }
+    
+    fun toggleEventReminders() {
+        _notificationsEnabled.value = !_notificationsEnabled.value
     }
 }

@@ -22,17 +22,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun MainApp(
-    viewModel: MainActivityViewModel = hiltViewModel()
-) {
-    val isUserSignedIn by viewModel.isUserSignedIn.collectAsState()
-    
-    ModernCalendarTheme {
-        if (isUserSignedIn) {
-            ModernCalendarNavigation()
-        } else {
-            AuthScreen()
-        }
-    }
-}

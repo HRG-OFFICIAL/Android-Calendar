@@ -23,20 +23,19 @@ class WorkManagerReminderManager @Inject constructor(
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     
     fun scheduleReminder(event: EventEntity) {
-        if (event.reminderMinutes.isEmpty()) return
+        val reminderMinutes = event.reminderMinutes
+        if (reminderMinutes == null) return
         
-        event.reminderMinutes.forEach { minutesBefore ->
-            val reminderTime = event.startDateTime.minusMinutes(minutesBefore.toLong())
-            if (reminderTime.isAfter(LocalDateTime.now())) {
-                scheduleReminderWork(
-                    eventId = event.id,
-                    eventTitle = event.title,
-                    eventDescription = event.description,
-                    eventLocation = event.location,
-                    reminderMinutes = minutesBefore,
-                    reminderTime = reminderTime
-                )
-            }
+        val reminderTime = event.startDateTime.minusMinutes(reminderMinutes.toLong())
+        if (reminderTime.isAfter(LocalDateTime.now())) {
+            scheduleReminderWork(
+                eventId = event.id,
+                eventTitle = event.title,
+                eventDescription = event.description,
+                eventLocation = event.location,
+                reminderMinutes = reminderMinutes,
+                reminderTime = reminderTime
+            )
         }
     }
     
@@ -117,7 +116,7 @@ class WorkManagerReminderManager @Inject constructor(
     }
     
     fun schedulePeriodicSync() {
-        val periodicWorkRequest = PeriodicWorkRequestBuilder<SyncWorker>(
+        val periodicWorkRequest = PeriodicWorkRequestBuilder<ReminderWorker>(
             1, TimeUnit.HOURS
         )
             .setConstraints(
