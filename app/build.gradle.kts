@@ -3,9 +3,9 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -45,6 +45,12 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
+}
+
 dependencies {
     // Core modules
     implementation(project(":core:common"))
@@ -67,6 +73,12 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
     
+    // Hilt-Compose integration
+    implementation(libs.hilt.navigation.compose)
+    
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
+    
     // Calendar
     implementation(libs.calendar.compose)
     
@@ -83,7 +95,22 @@ dependencies {
     // WorkManager
     implementation(libs.work.runtime.ktx)
     implementation(libs.work.hilt)
-    ksp(libs.hilt.compiler)
+    // AndroidX Hilt compiler for @HiltWorker
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    
+    // Paging
+    implementation(libs.paging.runtime.ktx)
+    implementation(libs.paging.compose)
+    
+    // Accompanist
+    implementation(libs.accompanist.permissions)
+    implementation(libs.accompanist.systemuicontroller)
+    
+    // Coil
+    implementation(libs.coil.compose)
+    
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
     
     // Firebase
     implementation(platform(libs.firebase.bom))
