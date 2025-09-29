@@ -21,7 +21,8 @@ import javax.annotation.processing.Generated;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class AuthModule_ProvideFirebaseAuthFactory implements Factory<FirebaseAuth> {
   @Override
@@ -38,6 +39,6 @@ public final class AuthModule_ProvideFirebaseAuthFactory implements Factory<Fire
   }
 
   private static final class InstanceHolder {
-    private static final AuthModule_ProvideFirebaseAuthFactory INSTANCE = new AuthModule_ProvideFirebaseAuthFactory();
+    static final AuthModule_ProvideFirebaseAuthFactory INSTANCE = new AuthModule_ProvideFirebaseAuthFactory();
   }
 }

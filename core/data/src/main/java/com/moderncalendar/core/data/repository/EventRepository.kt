@@ -11,7 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class EventRepository @Inject constructor(
+class RoomEventRepository @Inject constructor(
     private val eventDao: EventDao
 ) {
     

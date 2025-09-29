@@ -21,7 +21,8 @@ import javax.annotation.processing.Generated;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class SyncModule_ProvideCloudSyncRepositoryFactory implements Factory<CloudSyncRepository> {
   @Override
@@ -38,6 +39,6 @@ public final class SyncModule_ProvideCloudSyncRepositoryFactory implements Facto
   }
 
   private static final class InstanceHolder {
-    private static final SyncModule_ProvideCloudSyncRepositoryFactory INSTANCE = new SyncModule_ProvideCloudSyncRepositoryFactory();
+    static final SyncModule_ProvideCloudSyncRepositoryFactory INSTANCE = new SyncModule_ProvideCloudSyncRepositoryFactory();
   }
 }

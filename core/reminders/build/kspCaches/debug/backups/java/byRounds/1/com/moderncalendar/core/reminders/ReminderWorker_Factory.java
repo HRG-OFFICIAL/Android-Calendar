@@ -20,7 +20,8 @@ import javax.annotation.processing.Generated;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class ReminderWorker_Factory {
   public ReminderWorker get(Context context, WorkerParameters workerParams) {
@@ -36,6 +37,6 @@ public final class ReminderWorker_Factory {
   }
 
   private static final class InstanceHolder {
-    private static final ReminderWorker_Factory INSTANCE = new ReminderWorker_Factory();
+    static final ReminderWorker_Factory INSTANCE = new ReminderWorker_Factory();
   }
 }

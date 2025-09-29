@@ -1,8 +1,5 @@
 package com.moderncalendar.core.sync.di
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.moderncalendar.core.auth.AuthRepository
 import com.moderncalendar.core.sync.CloudSyncRepository
 import dagger.Module
 import dagger.Provides

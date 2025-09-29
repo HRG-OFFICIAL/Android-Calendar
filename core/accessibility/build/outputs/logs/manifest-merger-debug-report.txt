@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml:2:13-83
-INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml:2:13-83
+ADDED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml:2:13-83
+INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml:2:13-83
 	package
-		INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml
+		INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml
 	xmlns:android
-		ADDED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml:2:23-81
+		ADDED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml:2:23-81
 uses-sdk
-INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml reason: use-sdk injection requested
-INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml
-INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml
+INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml reason: use-sdk injection requested
+INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml
+INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml
 	android:targetSdkVersion
-		INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml
+		INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml
 	android:minSdkVersion
-		INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest6108042034585826082.xml
+		INJECTED from C:\Users\harsh\AndroidStudioProjects\Calender\core\accessibility\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest1343626895084424608.xml

@@ -3,7 +3,6 @@ package com.moderncalendar.di
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
-import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,11 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
-        WorkManager.getInstance(context)
 
     @Provides
     @Singleton

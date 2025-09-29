@@ -19,7 +19,8 @@ import javax.annotation.processing.Generated;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class PerformanceMonitor_Factory implements Factory<PerformanceMonitor> {
   @Override
@@ -36,6 +37,6 @@ public final class PerformanceMonitor_Factory implements Factory<PerformanceMoni
   }
 
   private static final class InstanceHolder {
-    private static final PerformanceMonitor_Factory INSTANCE = new PerformanceMonitor_Factory();
+    static final PerformanceMonitor_Factory INSTANCE = new PerformanceMonitor_Factory();
   }
 }
