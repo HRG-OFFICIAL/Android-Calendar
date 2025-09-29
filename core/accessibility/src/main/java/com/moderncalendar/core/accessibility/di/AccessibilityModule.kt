@@ -1,7 +1,7 @@
-package com.moderncalendar.di
+package com.moderncalendar.core.accessibility.di
 
 import android.content.Context
-import com.google.firebase.storage.FirebaseStorage
+import com.moderncalendar.core.accessibility.AccessibilityManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,15 +11,13 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object FirebaseModule {
+object AccessibilityModule {
     
     @Provides
     @Singleton
-    fun provideContext(@ApplicationContext context: Context): Context = context
-    
-    @Provides
-    @Singleton
-    fun provideFirebaseStorage(): FirebaseStorage {
-        return FirebaseStorage.getInstance()
+    fun provideAccessibilityManager(
+        @ApplicationContext context: Context
+    ): AccessibilityManager {
+        return AccessibilityManager(context)
     }
 }
