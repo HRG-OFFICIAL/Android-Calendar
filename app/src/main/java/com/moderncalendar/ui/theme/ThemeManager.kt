@@ -20,7 +20,7 @@ class ThemeManager @Inject constructor() {
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
     
-    private val _accentColor = MutableStateFlow(AccentColor.Purple)
+    private val _accentColor = MutableStateFlow(AccentColor.Teal)
     val accentColor: StateFlow<AccentColor> = _accentColor.asStateFlow()
     
     private val _themeStyle = MutableStateFlow(ThemeStyle.Material3)
@@ -150,12 +150,12 @@ enum class AccentColor(val colors: ColorPalette) {
         error = Color(0xFFBA1A1A)
     )),
     Blue(ColorPalette(
-        primary = Color(0xFF1976D2),
-        secondary = Color(0xFF424242),
-        tertiary = Color(0xFF1976D2),
-        surface = Color(0xFF1E1E1E),
-        background = Color(0xFF1E1E1E),
-        error = Color(0xFFBA1A1A)
+        primary = Color(0xFF2196F3),
+        secondary = Color(0xFF03DAC6),
+        tertiary = Color(0xFF00BCD4),
+        surface = Color(0xFFF5F5F5),
+        background = Color(0xFFFFFFFF),
+        error = Color(0xFFE57373)
     )),
     Green(ColorPalette(
         primary = Color(0xFF388E3C),
@@ -180,6 +180,14 @@ enum class AccentColor(val colors: ColorPalette) {
         surface = Color(0xFF1E1E1E),
         background = Color(0xFF1E1E1E),
         error = Color(0xFFBA1A1A)
+    )),
+    Teal(ColorPalette(
+        primary = Color(0xFF009688),
+        secondary = Color(0xFF4DB6AC),
+        tertiary = Color(0xFF26A69A),
+        surface = Color(0xFFF8F9FA),
+        background = Color(0xFFFFFFFF),
+        error = Color(0xFFE57373)
     ))
 }
 

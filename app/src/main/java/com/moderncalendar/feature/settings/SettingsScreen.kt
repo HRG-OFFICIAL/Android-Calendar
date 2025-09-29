@@ -56,19 +56,26 @@ fun SettingsScreen(
                 icon = Icons.Default.Palette
             ) {
                 // Dark Mode Toggle
-                SettingsItem(
+                SettingsItemWithToggle(
                     title = "Dark Mode",
                     subtitle = "Use dark theme",
                     icon = if (theme == "dark") Icons.Default.DarkMode else Icons.Default.LightMode,
-                    onClick = { viewModel.toggleDarkMode() }
+                    checked = theme == "dark",
+                    onCheckedChange = { 
+                        viewModel.toggleDarkMode()
+                        viewModel.updateTheme(if (theme == "dark") "light" else "dark")
+                    }
                 )
                 
                 // Dynamic Color Toggle
-                SettingsItem(
+                SettingsItemWithToggle(
                     title = "Dynamic Colors",
                     subtitle = "Use system color scheme",
                     icon = Icons.Default.Palette,
-                    onClick = { viewModel.toggleDynamicColors() }
+                    checked = dynamicColorsEnabled,
+                    onCheckedChange = { 
+                        viewModel.toggleDynamicColors()
+                    }
                 )
             }
             
@@ -80,11 +87,14 @@ fun SettingsScreen(
                 icon = Icons.Default.Notifications
             ) {
                 // Event Reminders Toggle
-                SettingsItem(
+                SettingsItemWithToggle(
                     title = "Event Reminders",
                     subtitle = "Get notified about upcoming events",
                     icon = Icons.Default.Notifications,
-                    onClick = { viewModel.toggleEventReminders() }
+                    checked = notificationsEnabled,
+                    onCheckedChange = { 
+                        viewModel.toggleEventReminders()
+                    }
                 )
             }
             
@@ -210,5 +220,50 @@ private fun SettingsItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+@Composable
+private fun SettingsItemWithToggle(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        icon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+        }
+        
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
     }
 }

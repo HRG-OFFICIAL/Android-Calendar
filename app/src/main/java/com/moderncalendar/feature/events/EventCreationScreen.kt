@@ -32,27 +32,28 @@ fun EventCreationScreen(
     var startDate by remember { mutableStateOf(LocalDate.now()) }
     var startTime by remember { mutableStateOf(LocalTime.of(9, 0)) }
     var endTime by remember { mutableStateOf(LocalTime.of(10, 0)) }
-    var selectedColor by remember { mutableStateOf("#6750A4") }
+    var selectedColor by remember { mutableStateOf("#009688") }
     var isRecurring by remember { mutableStateOf(false) }
     var recurrenceFrequency by remember { mutableStateOf(RecurrenceFrequency.WEEKLY) }
     var reminderMinutes by remember { mutableStateOf(listOf<Int>()) }
     
     val eventColors = listOf(
-        "#6750A4", "#E57373", "#81C784", "#64B5F6", "#FFB74D",
-        "#BA68C8", "#4DB6AC", "#F06292", "#9575CD", "#4FC3F7"
+        "#009688", "#2196F3", "#4CAF50", "#FF9800", "#E91E63",
+        "#9C27B0", "#00BCD4", "#FF5722", "#795548", "#607D8B"
     )
     
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
+            .padding(top = 24.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = "Create Event",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         )
         
         // Title
