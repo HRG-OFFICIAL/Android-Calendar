@@ -3,53 +3,61 @@ package com.moderncalendar.common
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.moderncalendar.core.reminders.ReminderManager
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class MidnightReceiver : BroadcastReceiver() {
-    
-    @Inject
-    lateinit var reminderManager: ReminderManager
     
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
-                // Reschedule all reminders after boot
+                // Schedule midnight alarm after boot
                 CoroutineScope(Dispatchers.IO).launch {
-                    // TODO: Implement rescheduleAllReminders
+                    scheduleMidnightAlarm(context)
+                }
+            }
+            "android.intent.action.TIME_SET" -> {
+                // Reschedule midnight alarm when time changes
+                CoroutineScope(Dispatchers.IO).launch {
+                    scheduleMidnightAlarm(context)
                 }
             }
             Intent.ACTION_TIMEZONE_CHANGED -> {
-                // Reschedule reminders when timezone changes
+                // Reschedule midnight alarm when timezone changes
                 CoroutineScope(Dispatchers.IO).launch {
-                    // TODO: Implement rescheduleAllReminders
+                    scheduleMidnightAlarm(context)
                 }
             }
             Intent.ACTION_LOCALE_CHANGED -> {
-                // Update reminders when locale changes
+                // Reschedule midnight alarm when locale changes
                 CoroutineScope(Dispatchers.IO).launch {
-                    // TODO: Implement updateReminderLocales
+                    scheduleMidnightAlarm(context)
                 }
             }
             "com.moderncalendar.action.MIDNIGHT" -> {
-                // Handle midnight events (daily refresh)
+                // Handle midnight event
                 CoroutineScope(Dispatchers.IO).launch {
-                    handleMidnightRefresh()
+                    handleMidnightEvent(context)
                 }
             }
         }
     }
     
-    private suspend fun handleMidnightRefresh() {
-        // Perform daily refresh tasks
-        // - Update widget data
-        // - Refresh cached events
-        // - Update reminder schedules
-        // - Clean up old data
+    private suspend fun scheduleMidnightAlarm(context: Context) {
+        // TODO: Implement midnight alarm scheduling
+        // This would typically:
+        // 1. Calculate next midnight time
+        // 2. Schedule alarm for midnight
+        // 3. Set up recurring daily alarm
+    }
+    
+    private suspend fun handleMidnightEvent(context: Context) {
+        // TODO: Implement midnight event handling
+        // This would typically:
+        // 1. Update daily statistics
+        // 2. Clean up old data
+        // 3. Schedule next day's reminders
+        // 4. Update app shortcuts
     }
 }

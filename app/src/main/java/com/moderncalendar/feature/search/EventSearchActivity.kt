@@ -3,29 +3,29 @@ package com.moderncalendar.feature.search
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.ui.theme.ModernCalendarTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class EventSearchActivity : ComponentActivity() {
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        
         setContent {
             ModernCalendarTheme {
-                EventSearchScreen()
+                EventSearchScreen(
+                    onBackClick = { finish() }
+                )
             }
         }
     }
@@ -33,31 +33,21 @@ class EventSearchActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventSearchScreen() {
+fun EventSearchScreen(
+    onBackClick: () -> Unit,
+    viewModel: EventSearchViewModel = hiltViewModel()
+) {
     var searchQuery by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf(listOf<String>()) }
-    
-    // Mock search results
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotBlank()) {
-            searchResults = listOf(
-                "Team Meeting - Conference Room A",
-                "Project Deadline - Office",
-                "Lunch with Client - Restaurant",
-                "Weekly Standup - Meeting Room B"
-            ).filter { it.contains(searchQuery, ignoreCase = true) }
-        } else {
-            searchResults = emptyList()
-        }
-    }
+    val searchResults by viewModel.searchResults.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Search Events") },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -69,45 +59,97 @@ fun EventSearchScreen() {
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
+            // Search Bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Search events...") },
-                leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
+                onValueChange = { 
+                    searchQuery = it
+                    viewModel.searchEvents(it)
                 },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Search events...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            if (searchQuery.isBlank()) {
-                Text(
-                    text = "Enter a search term to find events",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else if (searchResults.isEmpty()) {
-                Text(
-                    text = "No events found for \"$searchQuery\"",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+            // Search Results
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(searchResults) { result ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = result,
-                                modifier = Modifier.padding(16.dp),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
+                    CircularProgressIndicator()
+                }
+            } else if (searchResults.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (searchQuery.isEmpty()) "Enter a search term" else "No events found",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            } else {
+                LazyColumn {
+                    items(searchResults) { event ->
+                        EventSearchItem(
+                            event = event,
+                            onClick = { /* TODO: Navigate to event details */ }
+                        )
                     }
                 }
             }
         }
     }
 }
+
+@Composable
+fun EventSearchItem(
+    event: EventSearchResult,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium
+            )
+            
+            if (event.description.isNotEmpty()) {
+                Text(
+                    text = event.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            if (event.location.isNotEmpty()) {
+                Text(
+                    text = event.location,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+data class EventSearchResult(
+    val id: String,
+    val title: String,
+    val description: String,
+    val location: String,
+    val startTime: String,
+    val endTime: String
+)
