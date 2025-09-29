@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -11,119 +12,107 @@
     
     <!-- Calendar header -->
     <path
-        android:fillColor="#009688"
+        android:fillColor="#FFFFFF"
         android:pathData="M25,20h58v15h-58z" />
     
     <!-- Calendar binding holes -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#000000"
         android:pathData="M30,25 A2,2 0 1,1 30,29 A2,2 0 1,1 30,25 Z" />
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#000000"
         android:pathData="M78,25 A2,2 0 1,1 78,29 A2,2 0 1,1 78,25 Z" />
     
-    <!-- Calendar rings -->
+    <!-- Calendar grid lines -->
     <path
         android:fillColor="#00000000"
         android:pathData="M25,20h58"
         android:strokeWidth="2"
-        android:strokeColor="#FFFFFF" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M25,30h58"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M25,40h58"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M25,50h58"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M25,60h58"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M25,70h58"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M25,80h58"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     
     <!-- Vertical lines -->
     <path
         android:fillColor="#00000000"
         android:pathData="M35,30v50"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M45,30v50"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M55,30v50"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M65,30v50"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     <path
         android:fillColor="#00000000"
         android:pathData="M75,30v50"
         android:strokeWidth="1"
-        android:strokeColor="#E0E0E0" />
+        android:strokeColor="#000000" />
     
     <!-- Calendar numbers -->
     <path
-        android:fillColor="#009688"
+        android:fillColor="#000000"
         android:pathData="M30,25h8v8h-8z" />
     <path
-        android:fillColor="#009688"
+        android:fillColor="#000000"
         android:pathData="M40,25h8v8h-8z" />
     <path
-        android:fillColor="#009688"
+        android:fillColor="#000000"
         android:pathData="M50,25h8v8h-8z" />
     <path
-        android:fillColor="#009688"
+        android:fillColor="#000000"
         android:pathData="M60,25h8v8h-8z" />
     <path
-        android:fillColor="#009688"
+        android:fillColor="#000000"
         android:pathData="M70,25h8v8h-8z" />
     
     <!-- Event indicators -->
     <path
-        android:fillColor="#FF5722"
+        android:fillColor="#000000"
         android:pathData="M40,42 A3,3 0 1,1 40,48 A3,3 0 1,1 40,42 Z" />
     <path
-        android:fillColor="#4CAF50"
+        android:fillColor="#000000"
         android:pathData="M60,52 A3,3 0 1,1 60,58 A3,3 0 1,1 60,52 Z" />
     <path
-        android:fillColor="#2196F3"
+        android:fillColor="#000000"
         android:pathData="M50,62 A3,3 0 1,1 50,68 A3,3 0 1,1 50,62 Z" />
-    
-    <!-- Calendar spiral binding -->
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M30,20c0,0 0,5 0,5"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M78,20c0,0 0,5 0,5"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF" />
     
 </vector>
