@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +37,32 @@ fun AuthScreen(
     var showConfirmPassword by remember { mutableStateOf(false) }
     
     val uiState by viewModel.uiState.collectAsState()
+    
+    // Auto-type mock credentials for demo
+    LaunchedEffect(Unit) {
+        delay(1000) // Wait 1 second before starting
+        
+        // Auto-type email
+        val mockEmail = "demo@calendar.com"
+        for (i in 1..mockEmail.length) {
+            email = mockEmail.substring(0, i)
+            delay(100) // Simulate typing speed
+        }
+        
+        delay(500) // Pause between fields
+        
+        // Auto-type password
+        val mockPassword = "password123"
+        for (i in 1..mockPassword.length) {
+            password = mockPassword.substring(0, i)
+            delay(80) // Slightly faster for password
+        }
+        
+        delay(1000) // Wait before auto-submitting
+        
+        // Auto-submit the form
+        viewModel.signIn(email, password)
+    }
     
     LaunchedEffect(uiState.isAuthenticated) {
         if (uiState.isAuthenticated) {
