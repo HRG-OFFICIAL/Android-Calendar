@@ -20,7 +20,7 @@ class ThemeManager @Inject constructor() {
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
     
-    private val _accentColor = MutableStateFlow(AccentColor.Teal)
+    private val _accentColor = MutableStateFlow(AccentColor.Blue)
     val accentColor: StateFlow<AccentColor> = _accentColor.asStateFlow()
     
     private val _themeStyle = MutableStateFlow(ThemeStyle.Material3)

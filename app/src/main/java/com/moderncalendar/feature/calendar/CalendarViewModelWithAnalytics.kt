@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.analytics.AnalyticsManager
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.common.model.Event
 import com.moderncalendar.core.data.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -22,20 +22,20 @@ class CalendarViewModelWithAnalytics @Inject constructor(
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
     
-    private val _events = MutableStateFlow<Result<List<EventEntity>>>(Result.Loading)
-    val events: StateFlow<Result<List<EventEntity>>> = _events.asStateFlow()
+    private val _events = MutableStateFlow<Result<List<Event>>>(Result.Loading)
+    val events: StateFlow<Result<List<Event>>> = _events.asStateFlow()
     
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
     init {
-        analyticsManager.trackAppOpened()
+        analyticsManager.trackEvent("app_opened")
         loadEventsForSelectedDate()
     }
     
     fun selectDate(date: LocalDate) {
         _selectedDate.value = date
-        analyticsManager.trackDateSelected(date.toString())
+        analyticsManager.trackEvent("date_selected", "date" to date.toString())
         loadEventsForSelectedDate()
     }
     
@@ -53,17 +53,14 @@ class CalendarViewModelWithAnalytics @Inject constructor(
                     
                     when (result) {
                         is Result.Success -> {
-                            analyticsManager.trackEvent("events_loaded", mapOf(
+                            analyticsManager.trackEvent(
+                                "events_loaded",
                                 "date" to _selectedDate.value.toString(),
                                 "event_count" to result.data.size
-                            ))
+                            )
                         }
                         is Result.Error -> {
-                            analyticsManager.trackError(
-                                "load_events_error",
-                                result.exception.message ?: "Unknown error",
-                                "calendar_screen"
-                            )
+                            analyticsManager.trackException(result.exception, "calendar_screen")
                         }
                         is Result.Loading -> {
                             // Loading state
@@ -73,59 +70,47 @@ class CalendarViewModelWithAnalytics @Inject constructor(
         }
     }
     
-    fun createEvent(event: EventEntity) {
+    fun createEvent(event: Event) {
         viewModelScope.launch {
             _isLoading.value = true
             
-            eventRepository.insertEvent(event).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        analyticsManager.trackEventCreated(
-                            event.id,
-                            if (event.isAllDay) "all_day" else "timed",
-                            event.recurrenceRule != null
-                        )
-                        loadEventsForSelectedDate()
-                    }
-                    is Result.Error -> {
-                        analyticsManager.trackError(
-                            "create_event_error",
-                            result.exception.message ?: "Unknown error",
-                            "calendar_screen"
-                        )
-                    }
-                    is Result.Loading -> {
-                        // Loading state
-                    }
+            when (val result = eventRepository.insertEvent(event)) {
+                is Result.Success -> {
+                    analyticsManager.trackEventCreated(
+                        event.id,
+                        if (event.isAllDay) "all_day" else "timed",
+                        event.recurrenceRule != null
+                    )
+                    loadEventsForSelectedDate()
                 }
-                _isLoading.value = false
+                is Result.Error -> {
+                    analyticsManager.trackException(result.exception, "calendar_screen")
+                }
+                is Result.Loading -> {
+                    // Loading state
+                }
             }
+            _isLoading.value = false
         }
     }
     
-    fun updateEvent(event: EventEntity) {
+    fun updateEvent(event: Event) {
         viewModelScope.launch {
             _isLoading.value = true
             
-            eventRepository.updateEvent(event).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        analyticsManager.trackEventEdited(event.id, "update")
-                        loadEventsForSelectedDate()
-                    }
-                    is Result.Error -> {
-                        analyticsManager.trackError(
-                            "update_event_error",
-                            result.exception.message ?: "Unknown error",
-                            "calendar_screen"
-                        )
-                    }
-                    is Result.Loading -> {
-                        // Loading state
-                    }
+            when (val result = eventRepository.updateEvent(event)) {
+                is Result.Success -> {
+                    analyticsManager.trackEventUpdated(event.id, "update")
+                    loadEventsForSelectedDate()
                 }
-                _isLoading.value = false
+                is Result.Error -> {
+                    analyticsManager.trackException(result.exception, "calendar_screen")
+                }
+                is Result.Loading -> {
+                    // Loading state
+                }
             }
+            _isLoading.value = false
         }
     }
     
@@ -133,48 +118,42 @@ class CalendarViewModelWithAnalytics @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             
-            eventRepository.deleteEvent(eventId).collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        analyticsManager.trackEventDeleted(eventId)
-                        loadEventsForSelectedDate()
-                    }
-                    is Result.Error -> {
-                        analyticsManager.trackError(
-                            "delete_event_error",
-                            result.exception.message ?: "Unknown error",
-                            "calendar_screen"
-                        )
-                    }
-                    is Result.Loading -> {
-                        // Loading state
-                    }
+            when (val result = eventRepository.deleteEvent(eventId)) {
+                is Result.Success -> {
+                    analyticsManager.trackEventDeleted(eventId, "user_action")
+                    loadEventsForSelectedDate()
                 }
-                _isLoading.value = false
+                is Result.Error -> {
+                    analyticsManager.trackException(result.exception, "calendar_screen")
+                }
+                is Result.Loading -> {
+                    // Loading state
+                }
             }
+            _isLoading.value = false
         }
     }
     
     fun changeCalendarView(viewType: String) {
-        analyticsManager.trackCalendarViewChanged(viewType)
+        analyticsManager.trackEvent("calendar_view_changed", "view_type" to viewType)
     }
     
     fun navigateToToday() {
         val today = LocalDate.now()
         selectDate(today)
-        analyticsManager.trackEvent("navigate_to_today", emptyMap())
+        analyticsManager.trackEvent("navigate_to_today")
     }
     
     fun navigateToPreviousDay() {
         val previousDay = _selectedDate.value.minusDays(1)
         selectDate(previousDay)
-        analyticsManager.trackEvent("navigate_previous_day", emptyMap())
+        analyticsManager.trackEvent("navigate_previous_day")
     }
     
     fun navigateToNextDay() {
         val nextDay = _selectedDate.value.plusDays(1)
         selectDate(nextDay)
-        analyticsManager.trackEvent("navigate_next_day", emptyMap())
+        analyticsManager.trackEvent("navigate_next_day")
     }
     
     override fun onCleared() {

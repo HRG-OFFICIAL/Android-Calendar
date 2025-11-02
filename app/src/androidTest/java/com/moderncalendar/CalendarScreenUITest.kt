@@ -23,10 +23,10 @@ class CalendarScreenUITest : BaseUITest() {
         // When
         setContent {
             CalendarScreen(
-                onEventClick = { onEventClickCalled = true },
-                onCreateEventClick = { onCreateEventClickCalled = true },
-                onSearchClick = { onSearchClickCalled = true },
-                onSettingsClick = { onSettingsClickCalled = true },
+                onNavigateToEventDetails = { _ -> onEventClickCalled = true },
+                onNavigateToEventCreation = { _ -> onCreateEventClickCalled = true },
+                onNavigateToSearch = { onSearchClickCalled = true },
+                onNavigateToSettings = { onSettingsClickCalled = true },
                 viewModel = mockViewModel
             )
         }
@@ -46,7 +46,7 @@ class CalendarScreenUITest : BaseUITest() {
         
         setContent {
             CalendarScreen(
-                onCreateEventClick = { onCreateEventClickCalled = true },
+                onNavigateToEventCreation = { _ -> onCreateEventClickCalled = true },
                 viewModel = mockViewModel
             )
         }
@@ -66,7 +66,7 @@ class CalendarScreenUITest : BaseUITest() {
         
         setContent {
             CalendarScreen(
-                onSearchClick = { onSearchClickCalled = true },
+                onNavigateToSearch = { onSearchClickCalled = true },
                 viewModel = mockViewModel
             )
         }
@@ -86,7 +86,7 @@ class CalendarScreenUITest : BaseUITest() {
         
         setContent {
             CalendarScreen(
-                onSettingsClick = { onSettingsClickCalled = true },
+                onNavigateToSettings = { onSettingsClickCalled = true },
                 viewModel = mockViewModel
             )
         }

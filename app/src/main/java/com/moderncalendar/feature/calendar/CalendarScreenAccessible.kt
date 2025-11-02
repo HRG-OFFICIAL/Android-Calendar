@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kizitonwose.calendar.core.CalendarDay
 import com.moderncalendar.core.accessibility.AccessibilityManager
-import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.common.model.Event
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 fun CalendarScreenAccessible(
     modifier: Modifier = Modifier,
     onEventClick: (String) -> Unit = {},
-    onCreateEventClick: () -> Unit = {},
+    onCreateEventClick: (LocalDate) -> Unit = {},
     onSearchClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     viewModel: CalendarViewModel = hiltViewModel()
@@ -35,15 +35,15 @@ fun CalendarScreenAccessible(
     val accessibilityManager = accessibilityVm.getAccessibilityManager()
     
     val isAccessibilityEnabled by remember { 
-        derivedStateOf { accessibilityManager.isAccessibilityEnabled() }
+        derivedStateOf { accessibilityManager.isAccessibilityEnabled }
     }
     
     val shouldUseHighContrast by remember { 
-        derivedStateOf { accessibilityManager.isTalkBackEnabled() }
+        derivedStateOf { accessibilityManager.isHighContrastEnabled }
     }
     
     val shouldUseLargeText by remember { 
-        derivedStateOf { accessibilityManager.isScreenReaderEnabled() }
+        derivedStateOf { accessibilityManager.isLargeTextEnabled }
     }
     
     Box(modifier = modifier.fillMaxSize()) {
@@ -76,11 +76,11 @@ fun CalendarScreenAccessible(
 @Composable
 private fun AccessibilityEnhancements(
     selectedDate: LocalDate,
-    events: com.moderncalendar.core.common.Result<List<EventEntity>>,
+    events: com.moderncalendar.core.common.Result<List<Event>>,
     isLoading: Boolean,
     shouldUseHighContrast: Boolean,
     shouldUseLargeText: Boolean,
-    onCreateEventClick: () -> Unit,
+    onCreateEventClick: (LocalDate) -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
@@ -167,7 +167,7 @@ private fun ErrorAnnouncement(errorMessage: String) {
 // Enhanced Event Item with Accessibility
 @Composable
 fun AccessibleEventItem(
-    event: EventEntity,
+    event: Event,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -207,7 +207,7 @@ fun AccessibleEventItem(
                         stateDescription = "Color: ${event.color}"
                     }
                     .background(
-                        color = androidx.compose.ui.graphics.Color(event.color),
+                        color = com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color),
                         shape = androidx.compose.foundation.shape.CircleShape
                     )
             )

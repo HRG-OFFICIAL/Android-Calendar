@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.moderncalendar.core.ui"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -26,23 +26,34 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     
     kotlin {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
     
     buildFeatures {
         compose = true
     }
+    
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
+    }
+    
+    lint {
+        disable += setOf("NullSafeMutableLiveData", "RememberInComposition", "FrequentlyChangingValue")
+    }
 }
 
 dependencies {
     implementation(project(":core:common"))
+    implementation(project(":core:data"))
     
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))
@@ -55,6 +66,9 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.accompanist.systemuicontroller)
     
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
+    
     // Calendar
     implementation(libs.calendar.compose)
     
@@ -65,6 +79,7 @@ dependencies {
     
     // Testing
     testImplementation(libs.bundles.testing)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.bundles.android.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

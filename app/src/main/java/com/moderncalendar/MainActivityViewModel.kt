@@ -23,16 +23,13 @@ class MainActivityViewModel @Inject constructor(
     }
     
     private fun checkAuthStatus() {
-        viewModelScope.launch {
-            authRepository.isUserSignedIn().collect { isSignedIn ->
-                _isUserSignedIn.value = isSignedIn
-            }
-        }
+        _isUserSignedIn.value = authRepository.isUserSignedIn
     }
     
     fun signOut() {
         viewModelScope.launch {
             authRepository.signOut()
+            _isUserSignedIn.value = false
         }
     }
 }

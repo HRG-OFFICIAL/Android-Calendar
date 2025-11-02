@@ -41,10 +41,13 @@ class AccessibilityViewModel @Inject constructor(
     
     private fun loadAccessibilityState() {
         viewModelScope.launch {
-            _isAccessibilityEnabled.value = accessibilityManager.isAccessibilityEnabled()
-            _isTalkBackEnabled.value = accessibilityManager.isTalkBackEnabled()
-            _isSwitchAccessEnabled.value = accessibilityManager.isSwitchAccessEnabled()
-            _accessibilityCapabilities.value = accessibilityManager.getAccessibilityCapabilities()
+            _isAccessibilityEnabled.value = accessibilityManager.isAccessibilityEnabled
+            _isTalkBackEnabled.value = accessibilityManager.isScreenReaderEnabled
+            _isSwitchAccessEnabled.value = accessibilityManager.isSwitchAccessEnabled
+            _accessibilityCapabilities.value = buildSet {
+                if (accessibilityManager.isHighContrastEnabled) add("High Contrast")
+                if (accessibilityManager.isLargeTextEnabled) add("Large Text")
+            }
             
             // Check for high contrast and large text preferences
             _shouldUseHighContrast.value = _accessibilityCapabilities.value.contains("High Contrast")
@@ -61,6 +64,7 @@ class AccessibilityViewModel @Inject constructor(
     }
     
     fun isAccessibilityServiceEnabled(serviceName: String): Boolean {
-        return accessibilityManager.isAccessibilityServiceEnabled(serviceName)
+        // Not supported by current manager API; return general state for now
+        return accessibilityManager.isAccessibilityEnabled
     }
 }

@@ -20,10 +20,12 @@ class ReminderWorker @AssistedInject constructor(
     companion object {
         const val CHANNEL_ID = "event_reminders"
         const val NOTIFICATION_ID = 1000
+        const val KEY_EVENT_ID = "event_id"
         const val KEY_EVENT_TITLE = "event_title"
         const val KEY_EVENT_DESCRIPTION = "event_description"
         const val KEY_EVENT_TIME = "event_time"
         const val KEY_EVENT_LOCATION = "event_location"
+        const val KEY_REMINDER_MINUTES = "reminder_minutes"
     }
 
     override suspend fun doWork(): Result {

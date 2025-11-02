@@ -27,11 +27,7 @@ class AuthViewModel @Inject constructor(
     }
     
     private fun checkAuthStatus() {
-        viewModelScope.launch {
-            authRepository.isUserSignedIn().collect { isSignedIn ->
-                _uiState.value = _uiState.value.copy(isAuthenticated = isSignedIn)
-            }
-        }
+        _uiState.value = _uiState.value.copy(isAuthenticated = authRepository.isUserSignedIn)
     }
     
     fun signInWithGoogle() {
@@ -84,20 +80,30 @@ class AuthViewModel @Inject constructor(
     
     fun signOut() {
         viewModelScope.launch {
-            authRepository.signOut()
-            _uiState.value = _uiState.value.copy(isAuthenticated = false)
+            val result = authRepository.signOut()
+            if (result is Result.Success) {
+                _uiState.value = _uiState.value.copy(isAuthenticated = false)
+            }
         }
     }
     
     fun resetPassword(email: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            _authResult.value = Result.Loading
-
-            authRepository.resetPassword(email).collect { result ->
-                _authResult.value = result
-                _uiState.value = _uiState.value.copy(isLoading = false)
-            }
+            val result = authRepository.resetPassword(email)
+            _authResult.value = result
+            _uiState.value = _uiState.value.copy(isLoading = false)
+        }
+    }
+    
+    fun signInAsGuest() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            // Simply set authenticated to true to bypass authentication
+            _uiState.value = _uiState.value.copy(
+                isAuthenticated = true,
+                isLoading = false
+            )
         }
     }
     

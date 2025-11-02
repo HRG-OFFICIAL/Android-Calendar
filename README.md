@@ -1,262 +1,203 @@
 # Modern Calendar App
 
-A comprehensive, modern calendar application built with Kotlin and Jetpack Compose for Android. This app provides a clean, modular, and scalable solution for managing events, reminders, and calendar functionality.
+A modern calendar application built with Kotlin and Jetpack Compose for Android, demonstrating Clean Architecture principles and contemporary Android development practices.
 
-## 🚀 Features
+## Features
 
-### Core Features
-- **Event Management**: Create, edit, delete events with full CRUD operations
-- **Recurring Events**: Support for daily, weekly, monthly, and yearly recurrence patterns
-- **Multiple Calendar Views**: Day, week, month, and year views
-- **Material 3 Design**: Modern UI with dynamic theming and Material You support
-- **Offline-First**: Local database with Room for reliable data storage
-- **Real-time Updates**: Live data updates with StateFlow and Compose
+### Core Functionality
+- **Event Management**: Create, edit, and delete events with validation
+- **Calendar Views**: Month view with smooth navigation
+- **Material 3 Design**: Modern UI with dynamic theming and dark mode support
+- **Local Storage**: Room database for offline-first data persistence
+- **Search Functionality**: Find events by title, description, or date range
 
-### Advanced Features
-- **Multi-Calendar Support**: Personal, work, and shared calendars
-- **Event Reminders**: Customizable reminder notifications
-- **Search & Filter**: Find events quickly with search functionality
-- **Event Sharing**: Share events via deep links
-- **Cloud Sync**: Firebase integration for cross-device synchronization
-- **Accessibility**: Full accessibility support with TalkBack
-- **Animations**: Smooth Lottie animations and transitions
+### Coming Soon
+- **Authentication**: User login and registration **(Coming Soon)**
+- **Week and Day Views**: Additional calendar view modes **(Coming Soon)**
+- **Cloud Sync**: Firebase integration for data synchronization **(Coming Soon)**
+- **Push Notifications**: Event reminders and alerts **(Coming Soon)**
+- **Settings Management**: Customizable preferences **(Coming Soon)**
+- **Analytics**: Usage tracking and performance monitoring **(Coming Soon)**
+- **Accessibility**: Enhanced accessibility features **(Coming Soon)**
 
-## 🏗️ Architecture
+### Technical Features
+- **Clean Architecture**: Separation of concerns with MVVM pattern
+- **Reactive UI**: StateFlow and Compose for real-time updates
+- **Dependency Injection**: Hilt for modular component management
+- **Modern UI Components**: Custom calendar components with Material 3
 
-The app follows **Clean Architecture** principles with **MVVM** pattern:
+## Screenshots
+
+<div align="center">
+
+### Calendar Views
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/01_calendar_dark_mode.png" width="250" alt="Calendar Dark Mode"/>
+      <br/>
+      <b>Dark Mode Calendar</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/02_calendar_light_mode.png" width="250" alt="Calendar Light Mode"/>
+      <br/>
+      <b>Light Mode Calendar</b>
+    </td>
+  </tr>
+</table>
+
+### Event Management
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/03_event_details.png" width="250" alt="Event Details"/>
+      <br/>
+      <b>Event Details</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/04_search_functionality.png" width="250" alt="Search Functionality"/>
+      <br/>
+      <b>Search Events</b>
+    </td>
+  </tr>
+</table>
+
+### Additional Views
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/05_week_view.png" width="250" alt="Week View"/>
+      <br/>
+      <b>Week View</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/06_day_view.png" width="250" alt="Day View"/>
+      <br/>
+      <b>Day View</b>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+## Architecture
+
+The application follows Clean Architecture principles with MVVM pattern:
 
 ```
-📁 app/                    # Main application module
-📁 core/                   # Core modules
-  ├── common/              # Common utilities and data classes
-  ├── ui/                  # UI components and theming
-  ├── data/                # Data layer (Room, repositories)
-  ├── domain/              # Business logic and use cases
-  └── network/             # Network layer (Retrofit, APIs)
-📁 feature/                # Feature modules
-  ├── calendar/            # Calendar UI and logic
-  ├── events/              # Event management
-  ├── settings/            # Settings and preferences
-  ├── auth/                # Authentication
-  └── sync/                # Cloud synchronization
+app/                       # Main application module
+├── feature/               # Feature-specific UI and ViewModels
+│   ├── calendar/          # Calendar views and navigation
+│   ├── events/            # Event creation and editing
+│   ├── search/            # Search functionality
+│   ├── auth/              # Authentication (Coming Soon)
+│   └── settings/          # Application settings (Coming Soon)
+├── di/                    # Dependency injection modules
+├── navigation/            # Navigation configuration
+└── data/                  # Mock data services for development
+
+core/                      # Shared core modules
+├── common/                # Common utilities and models
+├── data/                  # Data layer with Room and repositories
+├── ui/                    # Shared UI components and theming
+├── auth/                  # Authentication module (Coming Soon)
+├── sync/                  # Cloud synchronization (Coming Soon)
+├── analytics/             # Analytics integration (Coming Soon)
+├── accessibility/         # Accessibility features (Coming Soon)
+├── performance/           # Performance monitoring (Coming Soon)
+├── reminders/             # Notification system (Coming Soon)
+└── settings/              # Settings management (Coming Soon)
 ```
 
-## 🛠️ Tech Stack
+## Technology Stack
 
-- **Language**: Kotlin
-- **UI**: Jetpack Compose with Material 3
-- **Architecture**: MVVM + Clean Architecture
+- **Language**: Kotlin 2.0.20
+- **UI Framework**: Jetpack Compose with Material 3
+- **Architecture**: MVVM with Clean Architecture
 - **Dependency Injection**: Hilt
 - **Database**: Room with SQLite
-- **Networking**: Retrofit + OkHttp
-- **Calendar Library**: [kizitonwose/Calendar](https://github.com/kizitonwose/Calendar)
-- **Firebase**: Authentication, Firestore, Analytics, Crashlytics
-- **Animations**: Lottie
-- **Image Loading**: Coil
-- **Testing**: JUnit, MockK, Turbine, Espresso
+- **Build System**: Gradle with Kotlin DSL
+- **Testing**: JUnit, MockK (Coming Soon)
+- **Firebase**: Authentication, Firestore, Analytics (Coming Soon)
+- **Performance**: Firebase Performance Monitoring (Coming Soon)
 
-## 📱 Screenshots
+## Build Requirements
 
-*Screenshots will be added once the app is fully implemented*
+- Android Studio Hedgehog (2023.1.1) or later
+- JDK 17 or later
+- Android SDK API 26 (minimum) / API 34 (target)
+- Kotlin 2.0.20
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Android Studio Hedgehog or later
-- JDK 11 or later
-- Android SDK 26 or later
-- Kotlin 2.0.21 or later
+## Getting Started
 
 ### Installation
 
-1. **Clone the repository**
+1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/modern-calendar.git
-   cd modern-calendar
+   git clone https://github.com/HRG-OFFICIAL/Android-Calendar.git
+   cd Android-Calendar
    ```
 
-2. **Open in Android Studio**
-   - Open Android Studio
+2. Open the project in Android Studio:
+   - Launch Android Studio
    - Select "Open an existing project"
-   - Navigate to the cloned directory and select it
+   - Navigate to the cloned directory
+   - Wait for Gradle sync to complete
 
-3. **Sync Project**
-   - Android Studio will automatically sync the project
-   - Wait for the sync to complete
+3. Build and run:
+   - Connect an Android device or start an emulator (API 26+)
+   - Click "Run" or use `Ctrl+R` (Windows/Linux) / `Cmd+R` (macOS)
 
-4. **Run the App**
-   - Connect an Android device or start an emulator
-   - Click the "Run" button or press `Shift + F10`
+### Development Setup
 
-### Firebase Setup (Optional)
+The app uses mock data for development and testing. No additional configuration is required for basic functionality. Firebase integration and authentication features are planned for future releases.
 
-To enable cloud sync and authentication:
+## Usage
 
-1. **Create a Firebase Project**
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Create a new project
+### Basic Operations
 
-2. **Add Android App**
-   - Click "Add app" and select Android
-   - Enter package name: `com.moderncalendar`
-   - Download `google-services.json`
-   - Place it in `app/` directory
+- **View Calendar**: Navigate through months using the calendar interface
+- **Create Events**: Tap the floating action button (+) to create new events
+- **Edit Events**: Tap on any event to view details and edit
+- **Search Events**: Use the search functionality to find specific events
+- **Theme Toggle**: Switch between light and dark themes
 
-3. **Enable Services**
-   - Authentication (Email/Password, Google Sign-In)
-   - Firestore Database
-   - Analytics
-   - Crashlytics
+### Current Limitations
 
-## 📚 Usage
+This is a development version with mock data. User authentication, cloud sync, and advanced features are planned for future releases.
 
-### Creating Events
+## Testing
 
-1. Open the app
-2. Navigate to the calendar view
-3. Tap on a date to select it
-4. Tap the "+" button to create a new event
-5. Fill in event details:
-   - Title (required)
-   - Description (optional)
-   - Location (optional)
-   - Date and time
-   - Color
-   - Recurrence pattern (optional)
-6. Tap "Create Event"
+Build the project:
+```bash
+./gradlew build
+```
 
-### Managing Events
-
-- **View Events**: Tap on any date to see events for that day
-- **Edit Events**: Tap on an event to edit its details
-- **Delete Events**: Long press on an event and select delete
-- **Search Events**: Use the search bar to find specific events
-
-### Calendar Views
-
-- **Month View**: Default view showing the entire month
-- **Week View**: Focused view of a single week
-- **Day View**: Detailed view of a single day
-- **Year View**: Overview of the entire year
-
-## 🧪 Testing
-
-The app includes comprehensive testing:
-
-### Unit Tests
+Run unit tests (Coming Soon):
 ```bash
 ./gradlew test
 ```
 
-### Instrumented Tests
+Run instrumented tests (Coming Soon):
 ```bash
 ./gradlew connectedAndroidTest
 ```
 
-### Test Coverage
-```bash
-./gradlew jacocoTestReport
-```
+## Project Structure
 
-## 🔧 Configuration
+The project demonstrates several Android development best practices:
 
-### Build Variants
+- **Modular Architecture**: Separation between app and core modules
+- **Clean Architecture**: Clear separation of concerns across layers
+- **MVVM Pattern**: ViewModels manage UI state and business logic
+- **Dependency Injection**: Hilt provides dependencies across modules
+- **Reactive Programming**: StateFlow for reactive UI updates
+- **Material Design**: Modern UI following Material 3 guidelines
 
-- **Debug**: Development build with logging enabled
-- **Release**: Production build with optimizations
+## Development Status
 
-### ProGuard
+This project is currently in active development. The core calendar functionality is implemented with mock data for demonstration purposes. Several advanced features are planned for future releases and are marked as "Coming Soon" throughout the documentation.
 
-Release builds use ProGuard for code obfuscation and optimization. Rules are defined in `proguard-rules.pro`.
-
-## 📦 Dependencies
-
-### Core Dependencies
-- **Jetpack Compose**: Modern UI toolkit
-- **Room**: Local database
-- **Hilt**: Dependency injection
-- **Navigation**: Navigation between screens
-- **WorkManager**: Background tasks
-- **DataStore**: Preferences storage
-
-### UI Dependencies
-- **Material 3**: Design system
-- **Lottie**: Animations
-- **Coil**: Image loading
-- **Calendar Library**: Calendar components
-
-### Network Dependencies
-- **Retrofit**: HTTP client
-- **OkHttp**: Network interceptor
-- **Moshi**: JSON serialization
-
-### Firebase Dependencies
-- **Firebase Auth**: Authentication
-- **Firestore**: Cloud database
-- **Analytics**: Usage analytics
-- **Crashlytics**: Crash reporting
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Style
-
-The project uses:
-- **Kotlin Coding Conventions**
-- **ktlint** for code formatting
-- **detekt** for static analysis
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [kizitonwose/Calendar](https://github.com/kizitonwose/Calendar) - Calendar library
-- [Jetpack Compose](https://developer.android.com/jetpack/compose) - UI toolkit
-- [Material Design](https://material.io/) - Design system
-- [Firebase](https://firebase.google.com/) - Backend services
-
-## 📞 Support
-
-If you have any questions or need help, please:
-
-1. Check the [Issues](https://github.com/yourusername/modern-calendar/issues) page
-2. Create a new issue if your problem isn't already reported
-3. Contact the maintainers
-
-## 🗺️ Roadmap
-
-### Version 1.0 (Current) ✅
-- [x] Basic calendar functionality
-- [x] Event creation and management
-- [x] Material 3 theming
-- [x] Offline storage
-- [x] Event reminders and notifications
-- [x] Cloud synchronization
-- [x] User authentication
-- [x] Search functionality
-- [x] Settings and preferences
-- [x] Event details and editing
-
-### Version 1.1 (Planned)
-- [ ] Event sharing via deep links
-- [ ] Calendar import/export
-- [ ] Advanced recurring patterns
-- [ ] Multi-calendar management
-
-### Version 1.2 (Future)
-- [ ] Widget support
-- [ ] Wear OS companion app
-- [ ] Advanced analytics
-- [ ] Team collaboration features
-
----
-
-**Made with ❤️ using Kotlin and Jetpack Compose**

@@ -2,8 +2,9 @@ package com.moderncalendar.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moderncalendar.core.data.repository.SettingsRepository
+import com.moderncalendar.core.common.settings.SettingsRepository
 import com.moderncalendar.core.data.repository.UserPreferencesRepository
+import com.moderncalendar.data.MockDataService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val mockDataService: MockDataService
 ) : ViewModel() {
     
     private val _settings = MutableStateFlow<Map<String, Any>>(emptyMap())
@@ -44,6 +46,9 @@ class SettingsViewModel @Inject constructor(
     private val _dateFormat = MutableStateFlow("MM/dd/yyyy")
     val dateFormat: StateFlow<String> = _dateFormat.asStateFlow()
     
+    private val _mockDataMessage = MutableStateFlow<String?>(null)
+    val mockDataMessage: StateFlow<String?> = _mockDataMessage.asStateFlow()
+    
     init {
         loadSettings()
     }
@@ -52,35 +57,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             
-            // Load theme preference
-            userPreferencesRepository.getTheme().collect { theme ->
-                _theme.value = theme
-            }
-            
-            // Load notification settings
-            userPreferencesRepository.getNotificationsEnabled().collect { enabled ->
-                _notificationsEnabled.value = enabled
-            }
-            
-            // Load reminder time
-            userPreferencesRepository.getReminderTime().collect { time ->
-                _reminderTime.value = time
-            }
-            
-            // Load week start preference
-            userPreferencesRepository.getWeekStartsOn().collect { day ->
-                _weekStartsOn.value = day
-            }
-            
-            // Load time format
-            userPreferencesRepository.getTimeFormat().collect { format ->
-                _timeFormat.value = format
-            }
-            
-            // Load date format
-            userPreferencesRepository.getDateFormat().collect { format ->
-                _dateFormat.value = format
-            }
+            launch { userPreferencesRepository.getTheme().collect { _theme.value = it } }
+            launch { userPreferencesRepository.getNotificationsEnabled().collect { _notificationsEnabled.value = it } }
+            launch { userPreferencesRepository.getReminderTime().collect { _reminderTime.value = it } }
+            launch { userPreferencesRepository.getWeekStartsOn().collect { _weekStartsOn.value = it } }
+            launch { userPreferencesRepository.getTimeFormat().collect { _timeFormat.value = it } }
+            launch { userPreferencesRepository.getDateFormat().collect { _dateFormat.value = it } }
             
             _isLoading.value = false
         }
@@ -89,85 +71,107 @@ class SettingsViewModel @Inject constructor(
     fun updateTheme(theme: String) {
         viewModelScope.launch {
             _theme.value = theme
-            userPreferencesRepository.setTheme(theme)
+            userPreferencesRepository.setTheme(theme).collect { }
         }
     }
     
     fun updateNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             _notificationsEnabled.value = enabled
-            userPreferencesRepository.setNotificationsEnabled(enabled)
+            userPreferencesRepository.setNotificationsEnabled(enabled).collect { }
         }
     }
     
     fun updateReminderTime(minutes: Int) {
         viewModelScope.launch {
             _reminderTime.value = minutes
-            userPreferencesRepository.setReminderTime(minutes)
+            userPreferencesRepository.setReminderTime(minutes).collect { }
         }
     }
     
     fun updateWeekStartsOn(day: Int) {
         viewModelScope.launch {
             _weekStartsOn.value = day
-            userPreferencesRepository.setWeekStartsOn(day)
+            userPreferencesRepository.setWeekStartsOn(day).collect { }
         }
     }
     
     fun updateTimeFormat(format: String) {
         viewModelScope.launch {
             _timeFormat.value = format
-            userPreferencesRepository.setTimeFormat(format)
+            userPreferencesRepository.setTimeFormat(format).collect { }
         }
     }
     
     fun updateDateFormat(format: String) {
         viewModelScope.launch {
             _dateFormat.value = format
-            userPreferencesRepository.setDateFormat(format)
+            userPreferencesRepository.setDateFormat(format).collect { }
         }
     }
     
     fun resetToDefaults() {
         viewModelScope.launch {
             _isLoading.value = true
-            
-            userPreferencesRepository.resetToDefaults()
-            
-            _theme.value = "light"
+            userPreferencesRepository.resetToDefaults().collect { }
+            _theme.value = "system"
             _notificationsEnabled.value = true
             _reminderTime.value = 15
             _weekStartsOn.value = 1
-            _timeFormat.value = "12"
-            _dateFormat.value = "MM/dd/yyyy"
-            
+            _timeFormat.value = "24h"
+            _dateFormat.value = "dd/MM/yyyy"
             _isLoading.value = false
         }
     }
     
-    fun exportSettings() {
+    fun addMockEvents() {
         viewModelScope.launch {
-            settingsRepository.exportSettings()
+            _mockDataMessage.value = "Adding mock events..."
+            mockDataService.addMockEventsIfNotExist()
+            _mockDataMessage.value = "✅ Mock events added (duplicates skipped)!"
+            
+            // Clear message after 3 seconds
+            kotlinx.coroutines.delay(3000)
+            _mockDataMessage.value = null
         }
     }
     
-    fun importSettings(settingsData: String) {
+    fun resetMockDataFlag() {
+        mockDataService.resetMockDataFlag()
+        _mockDataMessage.value = "✅ Mock data flag reset!"
+        
         viewModelScope.launch {
-            _isLoading.value = true
-            settingsRepository.importSettings(settingsData)
-            loadSettings() // Reload after import
+            // Clear message after 2 seconds
+            kotlinx.coroutines.delay(2000)
+            _mockDataMessage.value = null
         }
     }
     
-    fun toggleDarkMode() {
-        _theme.value = if (_theme.value == "dark") "light" else "dark"
+    fun clearMockDataMessage() {
+        _mockDataMessage.value = null
     }
     
-    fun toggleDynamicColors() {
-        _dynamicColorsEnabled.value = !_dynamicColorsEnabled.value
+    fun refreshMockEventsForToday() {
+        viewModelScope.launch {
+            _mockDataMessage.value = "Refreshing events for today..."
+            mockDataService.refreshMockEventsForToday()
+            _mockDataMessage.value = "✅ Mock events refreshed for today!"
+            
+            // Clear message after 3 seconds
+            kotlinx.coroutines.delay(3000)
+            _mockDataMessage.value = null
+        }
     }
     
-    fun toggleEventReminders() {
-        _notificationsEnabled.value = !_notificationsEnabled.value
+    fun cleanupDuplicateEvents() {
+        viewModelScope.launch {
+            _mockDataMessage.value = "Cleaning up duplicate events..."
+            mockDataService.cleanupDuplicateEvents()
+            _mockDataMessage.value = "✅ Duplicate events cleaned up!"
+            
+            // Clear message after 3 seconds
+            kotlinx.coroutines.delay(3000)
+            _mockDataMessage.value = null
+        }
     }
 }

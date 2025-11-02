@@ -18,32 +18,32 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = CalendarPrimary,
     onPrimary = CalendarOnPrimary,
-    primaryContainer = CalendarPrimaryContainer,
-    onPrimaryContainer = CalendarOnPrimaryContainer,
+    primaryContainer = CalendarDarkPrimaryContainer,
+    onPrimaryContainer = CalendarDarkOnPrimaryContainer,
     secondary = CalendarSecondary,
     onSecondary = CalendarOnSecondary,
-    secondaryContainer = CalendarSecondaryContainer,
-    onSecondaryContainer = CalendarOnSecondaryContainer,
+    secondaryContainer = CalendarDarkSecondaryContainer,
+    onSecondaryContainer = CalendarDarkOnSecondaryContainer,
     tertiary = CalendarTertiary,
     onTertiary = CalendarOnTertiary,
-    tertiaryContainer = CalendarTertiaryContainer,
-    onTertiaryContainer = CalendarOnTertiaryContainer,
+    tertiaryContainer = CalendarDarkTertiaryContainer,
+    onTertiaryContainer = CalendarDarkOnTertiaryContainer,
     error = CalendarError,
     errorContainer = CalendarErrorContainer,
     onError = CalendarOnError,
     onErrorContainer = CalendarOnErrorContainer,
-    background = CalendarBackground,
-    onBackground = CalendarOnBackground,
-    surface = CalendarSurface,
-    onSurface = CalendarOnSurface,
-    surfaceVariant = CalendarSurfaceVariant,
-    onSurfaceVariant = CalendarOnSurfaceVariant,
-    outline = CalendarOutline,
+    background = CalendarDarkBackground,
+    onBackground = CalendarDarkOnBackground,
+    surface = CalendarDarkSurface,
+    onSurface = CalendarDarkOnSurface,
+    surfaceVariant = CalendarDarkSurfaceVariant,
+    onSurfaceVariant = CalendarDarkOnSurfaceVariant,
+    outline = CalendarDarkOutline,
     inverseOnSurface = CalendarInverseOnSurface,
     inverseSurface = CalendarInverseSurface,
     inversePrimary = CalendarInversePrimary,
     surfaceTint = CalendarSurfaceTint,
-    outlineVariant = CalendarOutlineVariant,
+    outlineVariant = CalendarDarkOutlineVariant,
     scrim = CalendarScrim,
 )
 
@@ -81,10 +81,15 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun ModernCalendarTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
+    dynamicColor: Boolean = false, // Disabled to use our blue theme
     content: @Composable () -> Unit
 ) {
+    val darkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -99,8 +104,13 @@ fun ModernCalendarTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            // Use transparent status bar for modern edge-to-edge design
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+            
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            insetsController.isAppearanceLightStatusBars = !darkTheme
+            insetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

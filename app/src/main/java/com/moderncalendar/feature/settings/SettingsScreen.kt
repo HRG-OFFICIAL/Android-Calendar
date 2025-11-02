@@ -1,147 +1,210 @@
 package com.moderncalendar.feature.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.ExitToApp
+
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.*
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.moderncalendar.core.ui.components.ModernCard
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.moderncalendar.core.ui.components.CalendarScaffold
+import com.moderncalendar.core.ui.components.SwitchField
+import com.moderncalendar.core.ui.theme.ThemeMode
+import com.moderncalendar.core.ui.theme.ThemeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
     onSignOut: () -> Unit = {},
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    themeViewModel: ThemeViewModel = hiltViewModel(),
+    navController: NavController = rememberNavController(),
+
 ) {
-    val theme by viewModel.theme.collectAsState()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsState()
-    val dynamicColorsEnabled by viewModel.dynamicColorsEnabled.collectAsState()
+    val reminderTime by viewModel.reminderTime.collectAsState()
+    val weekStartsOn by viewModel.weekStartsOn.collectAsState()
+    val timeFormat by viewModel.timeFormat.collectAsState()
+    val mockDataMessage by viewModel.mockDataMessage.collectAsState()
     
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        // Top App Bar
-        TopAppBar(
-            title = { Text("Settings") },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                }
+    val themeMode by themeViewModel.themeMode.collectAsState()
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    
+    // Show snackbar when mock data message changes
+    LaunchedEffect(mockDataMessage) {
+        mockDataMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearMockDataMessage()
+        }
+    }
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        CalendarScaffold(
+            navController = navController,
+            title = "Settings",
+            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+            onNavigationClick = onBackClick,
+            topBarActions = {
+                // Removed duplicate theme toggle button
             }
-        )
-        
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            // Theme Section
+        ) { paddingValues ->
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+            // Appearance Section
             SettingsSection(
                 title = "Appearance",
                 icon = Icons.Default.Palette
             ) {
-                // Dark Mode Toggle
-                SettingsItemWithToggle(
-                    title = "Dark Mode",
-                    subtitle = "Use dark theme",
-                    icon = if (theme == "dark") Icons.Default.DarkMode else Icons.Default.LightMode,
-                    checked = theme == "dark",
-                    onCheckedChange = { 
-                        viewModel.toggleDarkMode()
-                        viewModel.updateTheme(if (theme == "dark") "light" else "dark")
+                SwitchField(
+                    checked = themeMode == ThemeMode.DARK,
+                    onCheckedChange = { isDark ->
+                        themeViewModel.setThemeMode(if (isDark) ThemeMode.DARK else ThemeMode.LIGHT)
+                    },
+                    label = "Dark Mode",
+                    description = "Use dark theme"
+                )
+                
+                // Week starts on
+                SettingsDropdown(
+                    title = "Week starts on",
+                    selectedValue = if (weekStartsOn == 1) "Monday" else "Sunday",
+                    options = listOf("Sunday", "Monday"),
+                    onValueSelected = { value ->
+                        viewModel.updateWeekStartsOn(if (value == "Monday") 1 else 7)
                     }
                 )
                 
-                // Dynamic Color Toggle
-                SettingsItemWithToggle(
-                    title = "Dynamic Colors",
-                    subtitle = "Use system color scheme",
-                    icon = Icons.Default.Palette,
-                    checked = dynamicColorsEnabled,
-                    onCheckedChange = { 
-                        viewModel.toggleDynamicColors()
+                // Time format
+                SettingsDropdown(
+                    title = "Time format",
+                    selectedValue = if (timeFormat == "24h") "24 hour" else "12 hour",
+                    options = listOf("12 hour", "24 hour"),
+                    onValueSelected = { value ->
+                        viewModel.updateTimeFormat(if (value == "24 hour") "24h" else "12h")
                     }
                 )
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
             
             // Notifications Section
             SettingsSection(
                 title = "Notifications",
                 icon = Icons.Default.Notifications
             ) {
-                // Event Reminders Toggle
-                SettingsItemWithToggle(
-                    title = "Event Reminders",
-                    subtitle = "Get notified about upcoming events",
-                    icon = Icons.Default.Notifications,
+                SwitchField(
                     checked = notificationsEnabled,
-                    onCheckedChange = { 
-                        viewModel.toggleEventReminders()
+                    onCheckedChange = { viewModel.updateNotificationsEnabled(it) },
+                    label = "Event Reminders",
+                    description = "Get notified about upcoming events"
+                )
+                
+                if (notificationsEnabled) {
+                    SettingsDropdown(
+                        title = "Default reminder time",
+                        selectedValue = "$reminderTime minutes before",
+                        options = listOf("5 minutes before", "10 minutes before", "15 minutes before", "30 minutes before", "1 hour before"),
+                        onValueSelected = { value ->
+                            val minutes = when (value) {
+                                "5 minutes before" -> 5
+                                "10 minutes before" -> 10
+                                "15 minutes before" -> 15
+                                "30 minutes before" -> 30
+                                "1 hour before" -> 60
+                                else -> 15
+                            }
+                            viewModel.updateReminderTime(minutes)
+                        }
+                    )
+                }
+            }
+            
+            // Developer Section
+            SettingsSection(
+                title = "Developer",
+                icon = Icons.Default.BugReport
+            ) {
+                SettingsItem(
+                    title = "Add Mock Events",
+                    subtitle = "Add 5 sample calendar events for testing",
+                    onClick = {
+                        viewModel.addMockEvents()
+                    }
+                )
+                
+                SettingsItem(
+                    title = "Refresh Mock Events",
+                    subtitle = "Update mock events to today's date",
+                    onClick = {
+                        viewModel.refreshMockEventsForToday()
+                    }
+                )
+                
+                SettingsItem(
+                    title = "Reset Mock Data Flag",
+                    subtitle = "Allow mock data to be added again",
+                    onClick = {
+                        viewModel.resetMockDataFlag()
                     }
                 )
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Account Section
-            SettingsSection(
-                title = "Account",
-                icon = Icons.Default.ExitToApp
-            ) {
-                SettingsItem(
-                    title = "Sign Out",
-                    subtitle = "Sign out of your account",
-                    icon = Icons.Default.ExitToApp,
-                    onClick = onSignOut
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
             // About Section
             SettingsSection(
                 title = "About",
-                icon = Icons.Default.Notifications
+                icon = Icons.Default.Info
             ) {
                 SettingsItem(
                     title = "Version",
-                    subtitle = "1.0.0",
-                    icon = null,
-                    onClick = { }
+                    subtitle = "1.0.0"
                 )
                 
                 SettingsItem(
                     title = "Privacy Policy",
-                    subtitle = "View our privacy policy",
-                    icon = null,
-                    onClick = { }
+                    subtitle = "View our privacy policy"
                 )
                 
                 SettingsItem(
                     title = "Terms of Service",
-                    subtitle = "View terms of service",
-                    icon = null,
-                    onClick = { }
+                    subtitle = "View terms of service"
                 )
             }
+            }
         }
+        
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
@@ -154,31 +217,36 @@ private fun SettingsSection(
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 12.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
         
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+        ModernCard(
+            elevation = 2
         ) {
-            Column {
-                content()
-            }
+            content()
         }
     }
 }
@@ -187,33 +255,27 @@ private fun SettingsSection(
 private fun SettingsItem(
     title: String,
     subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector?,
-    onClick: () -> Unit
+    onClick: () -> Unit = {}
 ) {
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 2.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .clickable { onClick() },
+        color = Color.Transparent
     ) {
-        icon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-        }
-        
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.padding(16.dp)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
@@ -223,47 +285,53 @@ private fun SettingsItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsItemWithToggle(
+private fun SettingsDropdown(
     title: String,
-    subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector?,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    selectedValue: String,
+    options: List<String>,
+    onValueSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        icon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-        }
-        
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
+    var expanded by remember { mutableStateOf(false) }
+    
+    Column(modifier = modifier.padding(vertical = 4.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
+        
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = selectedValue,
+                onValueChange = { },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+            )
+            
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            onValueSelected(option)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }

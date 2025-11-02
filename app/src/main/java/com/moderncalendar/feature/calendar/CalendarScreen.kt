@@ -8,12 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.moderncalendar.core.ui.utils.ColorUtils
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
@@ -30,345 +30,264 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import java.time.YearMonth
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.common.model.Event
+import com.moderncalendar.core.ui.components.*
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.Locale
-
-enum class CalendarViewType {
-    MONTH, WEEK, DAY, YEAR, HEATMAP
+enum class CalendarViewMode {
+    MONTH, WEEK, DAY
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreen(
     modifier: Modifier = Modifier,
-    onNavigateToEventCreation: () -> Unit = {},
+    onNavigateToEventCreation: (LocalDate) -> Unit = {},
     onNavigateToEventDetails: (String) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
+    navController: NavController = rememberNavController()
 ) {
     val selectedDate by viewModel.selectedDate.collectAsState()
     val events by viewModel.events.collectAsState()
-    var calendarViewType by remember { mutableStateOf(CalendarViewType.MONTH) }
+    val monthEvents by viewModel.monthEvents.collectAsState()
+    var currentMonth by remember { mutableStateOf(java.time.YearMonth.now()) }
+    var viewMode by remember { mutableStateOf(CalendarViewMode.MONTH) }
     
-    val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth }
-    val endMonth = remember { currentMonth }
-    val firstDayOfWeek = remember { WeekFields.of(Locale.getDefault()).firstDayOfWeek }
-
-    val monthCalendarState = rememberCalendarState(
-        startMonth = startMonth,
-        endMonth = endMonth,
-        firstVisibleMonth = startMonth,
-        firstDayOfWeek = firstDayOfWeek,
-    )
-
-    val disabledDates = remember { mutableStateOf(emptySet<LocalDate>()) }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Modern Calendar") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Menu, contentDescription = "Settings")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onNavigateToSearch) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick = { viewModel.selectDate(LocalDate.now()) }) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = "Today")
-                    }
-                    IconButton(onClick = onNavigateToEventCreation) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Event")
-                    }
+    // Load events for the current month when it changes
+    LaunchedEffect(currentMonth) {
+        viewModel.loadEventsForMonth(currentMonth)
+    }
+    
+    CalendarScaffold(
+        navController = navController,
+        title = "Calendar",
+        showFab = true,
+        onFabClick = { onNavigateToEventCreation(selectedDate) },
+        topBarActions = {
+            // View mode toggle
+            TextButton(onClick = { 
+                viewMode = when (viewMode) {
+                    CalendarViewMode.MONTH -> CalendarViewMode.WEEK
+                    CalendarViewMode.WEEK -> CalendarViewMode.DAY
+                    CalendarViewMode.DAY -> CalendarViewMode.MONTH
                 }
-            )
-        },
-        content = { paddingValues ->
-            Column(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Calendar View
-        when (calendarViewType) {
-            CalendarViewType.MONTH -> {
-                HorizontalCalendar(
-                    state = monthCalendarState,
-                    dayContent = { day ->
-                        EnhancedDayContent(
-                            day = day,
-                            isSelected = selectedDate == day.date,
-                                    isDisabled = day.date in disabledDates.value,
-                            onClick = { 
-                                        if (day.date !in disabledDates.value) {
-                                    viewModel.selectDate(day.date)
-                                }
-                            }
-                        )
-                    },
-                    monthHeader = { month ->
-                        EnhancedMonthHeader(month = month)
-                    }
+            }) {
+                Text(
+                    text = viewMode.name,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            CalendarViewType.DAY -> {
-                DayView(
-                    selectedDate = selectedDate,
-                    onDateChange = { viewModel.selectDate(it) },
-                            disabledDates = disabledDates.value
+            
+            IconButton(onClick = onNavigateToSearch) {
+                Icon(
+                    imageVector = Icons.Default.Search, 
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            CalendarViewType.YEAR -> {
-                YearCalendar(
-                    selectedDate = selectedDate,
-                    onDateClick = { viewModel.selectDate(it) },
-                            disabledDates = disabledDates.value
+            
+            IconButton(onClick = onNavigateToSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings, 
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
-            }
-            CalendarViewType.HEATMAP -> {
-                        val heatmapData = remember(selectedDate) {
-                    generateHeatmapData(selectedDate)
-                }
-                HeatMapCalendar(
-                    data = heatmapData,
-                    onDateClick = { viewModel.selectDate(it) }
-                )
-            }
-                    else -> {
-                        Text("View type not implemented")
             }
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Events for selected date
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (viewMode) {
+                CalendarViewMode.MONTH -> {
+                    // Calendar Header
+                    CalendarHeader(
+                        currentMonth = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")),
+                        onPreviousMonth = { 
+                            currentMonth = currentMonth.minusMonths(1)
+                        },
+                        onNextMonth = { 
+                            currentMonth = currentMonth.plusMonths(1)
+                        }
+                    )
+                    
+                    // Simple Month Grid
+                    SimpleMonthView(
+                        yearMonth = currentMonth,
+                        selectedDate = selectedDate,
+                        eventsForMonth = when (val monthEventsResult = monthEvents) {
+                            is Result.Success -> monthEventsResult.data
+                            else -> emptyList()
+                        },
+                        onDateSelected = { date ->
+                            viewModel.selectDate(date)
+                        }
+                    )
+                }
+                
+                CalendarViewMode.WEEK -> {
+                    WeekView(
+                        selectedDate = selectedDate,
+                        onDateSelected = { date ->
+                            viewModel.selectDate(date)
+                        },
+                        eventsForWeek = when (val monthEventsResult = monthEvents) {
+                            is Result.Success -> monthEventsResult.data
+                            else -> emptyList()
+                        }
+                    )
+                }
+                
+                CalendarViewMode.DAY -> {
+                    DayView(
+                        selectedDate = selectedDate,
+                        onDateSelected = { date ->
+                            viewModel.selectDate(date)
+                        },
+                        eventsForDay = when (val eventsResult = events) {
+                            is Result.Success -> eventsResult.data
+                            else -> emptyList()
+                        }
+                    )
+                }
+            }
+            
+            // Only show events list for month view (week and day views have their own event display)
+            if (viewMode == CalendarViewMode.MONTH) {
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Events for selected date
                 Text(
                     text = "Events for ${selectedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 
+                Spacer(modifier = Modifier.height(8.dp))
+                
                 when (val eventsResult = events) {
                     is Result.Loading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                        LoadingIndicator()
                     }
                     is Result.Success -> {
                         if (eventsResult.data.isEmpty()) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                            Text(
-                                    text = "No events for this date.",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            EmptyState(
+                                title = "No Events",
+                                description = "No events scheduled for today.",
+                                actionText = "Add Event",
+                                onAction = { onNavigateToEventCreation(selectedDate) }
                             )
-                            }
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                contentPadding = PaddingValues(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 items(eventsResult.data) { event ->
-                                    EventItem(
-                                        event = event,
-                                        onClick = { onNavigateToEventDetails(event.id.toString()) }
+                                    EventCard(
+                                        title = event.title,
+                                        time = if (event.isAllDay) "All day" else 
+                                            "${event.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${event.endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                                        description = event.description,
+                                        color = ColorUtils.parseColorSafely(event.color),
+                                        isCompleted = event.isCompleted,
+                                        onClick = { 
+                                            val encodedId = try {
+                                                java.net.URLEncoder.encode(event.id, "UTF-8")
+                                            } catch (e: Exception) {
+                                                event.id
+                                            }
+                                            onNavigateToEventDetails(encodedId) 
+                                        }
                                     )
                                 }
                             }
                         }
                     }
                     is Result.Error -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                        Text(
-                                text = "Error loading events: ${eventsResult.exception.localizedMessage}",
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
+                        ErrorMessage(
+                            message = "Error loading events: ${eventsResult.exception.localizedMessage}",
+                            onRetry = { viewModel.selectDate(selectedDate) }
+                        )
                     }
                 }
             }
         }
-    )
-}
-
-@Composable
-fun EnhancedDayContent(
-    day: CalendarDay,
-    isSelected: Boolean,
-    isDisabled: Boolean,
-    onClick: () -> Unit
-) {
-    val isToday = day.date == LocalDate.now()
-    val isWeekend = day.date.dayOfWeek == DayOfWeek.SATURDAY || day.date.dayOfWeek == DayOfWeek.SUNDAY
-    
-    Box(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .padding(2.dp)
-            .clip(CircleShape)
-            .background(
-                when {
-                    isDisabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                    isSelected -> MaterialTheme.colorScheme.primary
-                    isToday -> MaterialTheme.colorScheme.primaryContainer
-                    else -> Color.Transparent
-                }
-            )
-            .clickable(enabled = !isDisabled) { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = day.date.dayOfMonth.toString(),
-            color = when {
-                isDisabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                isSelected -> MaterialTheme.colorScheme.onPrimary
-                isToday -> MaterialTheme.colorScheme.onPrimaryContainer
-                isWeekend -> MaterialTheme.colorScheme.onSurfaceVariant
-                day.position == DayPosition.MonthDate -> MaterialTheme.colorScheme.onSurface
-                else -> MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (isToday || isSelected) FontWeight.Bold else FontWeight.Normal
-        )
     }
 }
 
 @Composable
-fun DayView(
+fun SimpleMonthView(
+    yearMonth: java.time.YearMonth,
     selectedDate: LocalDate,
-    onDateChange: (LocalDate) -> Unit,
-    disabledDates: Set<LocalDate> = emptySet()
+    onDateSelected: (LocalDate) -> Unit,
+    eventsForMonth: List<Event> = emptyList(),
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Day View for ${selectedDate}",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-                modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                    text = "Events for ${selectedDate}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                    text = "No events scheduled for this day",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun EventItem(
-    event: EventEntity,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
+    val firstDayOfMonth = yearMonth.atDay(1)
+    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // Convert to 0-6 where Sunday = 0
+    val daysInMonth = yearMonth.lengthOfMonth()
+    
+    // Group events by date
+    val eventsByDate = eventsForMonth.groupBy { it.startDateTime.toLocalDate() }
+    
+    Column(modifier = modifier.padding(horizontal = 16.dp)) {
+        // Week days header
         Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .background(Color(event.color))
-            )
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach { day ->
                 Text(
-                    text = event.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium
+                    text = day,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
-                
-                if (!event.isAllDay) {
-                    Text(
-                        text = "${event.startDateTime.hour}:${event.startDateTime.minute.toString().padStart(2, '0')} - ${event.endDateTime.hour}:${event.endDateTime.minute.toString().padStart(2, '0')}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    Text(
-                        text = "All day",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                
-                if (!event.location.isNullOrEmpty()) {
-                    Text(
-                        text = event.location ?: "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Calendar grid
+        val weeks = (daysInMonth + firstDayOfWeek + 6) / 7
+        
+        for (week in 0 until weeks) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                for (dayOfWeek in 0..6) {
+                    val dayOfMonth = week * 7 + dayOfWeek - firstDayOfWeek + 1
+                    
+                    if (dayOfMonth in 1..daysInMonth) {
+                        val date = yearMonth.atDay(dayOfMonth)
+                        val eventsForDate = eventsByDate[date] ?: emptyList()
+                        
+                        CalendarDateCell(
+                            date = date,
+                            isSelected = date == selectedDate,
+                            isToday = date == LocalDate.now(),
+                            isCurrentMonth = true,
+                            isWeekend = dayOfWeek == 0 || dayOfWeek == 6,
+                            hasEvents = eventsForDate.isNotEmpty(),
+                            eventCount = eventsForDate.size,
+                            onClick = onDateSelected,
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun EnhancedMonthHeader(month: CalendarMonth) {
-    val ym = month.yearMonth
-    Text(
-        text = "${ym.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${ym.year}",
-        style = MaterialTheme.typography.headlineSmall,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(16.dp)
-    )
-}
-
-fun generateHeatmapData(selectedDate: LocalDate): Map<LocalDate, Int> {
-    val data = mutableMapOf<LocalDate, Int>()
-    for (i in 0..30) {
-        data[selectedDate.minusDays(i.toLong())] = (0..5).random()
-    }
-    return data
-}

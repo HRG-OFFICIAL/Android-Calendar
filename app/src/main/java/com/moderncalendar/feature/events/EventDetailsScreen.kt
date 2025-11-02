@@ -3,9 +3,10 @@ package com.moderncalendar.feature.events
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -16,10 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.moderncalendar.core.data.entity.EventEntity
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.moderncalendar.core.common.Result
+import com.moderncalendar.core.common.model.Event
+import com.moderncalendar.core.ui.components.CalendarScaffold
+import com.moderncalendar.core.ui.components.LoadingIndicator
+import com.moderncalendar.core.ui.components.ErrorMessage
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailsScreen(
     eventId: String,
@@ -27,141 +33,138 @@ fun EventDetailsScreen(
     onBackClick: () -> Unit = {},
     onEditClick: (String) -> Unit = {},
     onDeleteClick: () -> Unit = {},
-    viewModel: EventViewModel = hiltViewModel()
+    viewModel: EventViewModel = hiltViewModel(),
+    navController: NavController = rememberNavController()
 ) {
-    val events by viewModel.events.collectAsState()
+    val selectedEvent by viewModel.selectedEvent.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     
     LaunchedEffect(eventId) {
         viewModel.getEventById(eventId)
     }
     
-    // Avoid smart cast on delegated state by binding to local val first
-    val eventsLocal = events
-    val event: EventEntity? = when (eventsLocal) {
-        is com.moderncalendar.core.common.Result.Success -> eventsLocal.data.firstOrNull()
-        else -> null
-    }
-    
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        // Top App Bar
-        TopAppBar(
-            title = { Text("Event Details") },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+    CalendarScaffold(
+        navController = navController,
+        title = "Event Details",
+        navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        onNavigationClick = onBackClick,
+        topBarActions = {
+            selectedEvent?.let { event ->
+                IconButton(onClick = { onEditClick(event.id) }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
-            },
-            actions = {
-                event?.let {
-                    IconButton(onClick = { onEditClick(it.id.toString()) }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
-                    }
-                    IconButton(onClick = { 
-                        viewModel.deleteEvent(it.id.toString())
-                        onDeleteClick()
-                    }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    }
+                IconButton(onClick = { 
+                    viewModel.deleteEvent(event.id)
+                    onDeleteClick()
+                }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
             }
-        )
-        
+        }
+    ) { paddingValues ->
         when {
             isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingIndicator()
             }
-            event == null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Event not found",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+            selectedEvent == null -> {
+                ErrorMessage(
+                    message = "Event not found",
+                    onRetry = { viewModel.getEventById(eventId) }
+                )
             }
             else -> {
-                EventDetailsContent(event = event)
+                EventDetailsContent(
+                    event = selectedEvent!!,
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun EventDetailsContent(event: EventEntity) {
+private fun EventDetailsContent(
+    event: Event,
+    modifier: Modifier = Modifier
+) {
     val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Event Header
+        // Event Header with colored background
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color)
             )
         ) {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Event color indicator
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .background(
-                                color = Color(event.color),
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
+                // Title without color dot
+                Text(
+                    text = event.title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = com.moderncalendar.core.ui.utils.ColorUtils.getContrastingTextColor(
+                        com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color)
                     )
-                    
-                    Spacer(modifier = Modifier.width(12.dp))
-                    
-                    Text(
-                        text = event.title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
+                )
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = event.startDateTime.format(dateFormatter),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = com.moderncalendar.core.ui.utils.ColorUtils.getContrastingTextColor(
+                        com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color)
+                    )
                 )
                 
                 if (!event.isAllDay) {
                     Text(
                         text = "${event.startDateTime.format(timeFormatter)} - ${event.endDateTime.format(timeFormatter)}",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = com.moderncalendar.core.ui.utils.ColorUtils.getContrastingTextColor(
+                            com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color)
+                        )
                     )
                 } else {
                     Text(
                         text = "All day",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = com.moderncalendar.core.ui.utils.ColorUtils.getContrastingTextColor(
+                            com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color)
+                        )
                     )
                 }
+            }
+        }
+        
+        // Priority Badge
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Priority:",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                AssistChip(
+                    onClick = { },
+                    label = { Text(event.priority.name) }
+                )
             }
         }
         
@@ -224,30 +227,30 @@ private fun EventDetailsContent(event: EventEntity) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Repeats ${recurrenceRule}",
+                        text = "Repeats ${recurrenceRule.frequency.name.lowercase()}",
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
         }
         
-        // Reminders
-        if (event.reminderMinutes != null) {
+        // Event Status
+        if (event.isCompleted) {
             Card(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Reminders",
+                        text = "✓ Completed",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "${event.reminderMinutes} minutes before",
-                        style = MaterialTheme.typography.bodyLarge
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }

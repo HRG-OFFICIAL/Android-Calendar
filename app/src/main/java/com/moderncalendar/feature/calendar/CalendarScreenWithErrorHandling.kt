@@ -7,9 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.moderncalendar.core.common.ErrorHandler
-import com.moderncalendar.core.common.ResultWithRetry
-import com.moderncalendar.core.common.toResultWithRetry
+import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.data.entity.EventEntity
 import kotlinx.coroutines.launch
 
@@ -20,7 +18,7 @@ import kotlinx.coroutines.launch
 fun CalendarScreenWithErrorHandling(
     modifier: Modifier = Modifier,
     onEventClick: (String) -> Unit = {},
-    onCreateEventClick: () -> Unit = {},
+    onCreateEventClick: (java.time.LocalDate) -> Unit = {},
     onSearchClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     viewModel: CalendarViewModel = hiltViewModel()
@@ -34,16 +32,7 @@ fun CalendarScreenWithErrorHandling(
     
     // Avoid smart casts on delegated state by binding to local val first
     val eventsLocal = events
-    val eventsWithRetry = remember(eventsLocal) {
-        when (eventsLocal) {
-            is com.moderncalendar.core.common.Result.Success -> ResultWithRetry.Success(eventsLocal.data)
-            is com.moderncalendar.core.common.Result.Error -> ResultWithRetry.Error(
-                eventsLocal.exception, 
-                ErrorHandler.isRetryable(eventsLocal.exception)
-            )
-            is com.moderncalendar.core.common.Result.Loading -> ResultWithRetry.Loading
-        }
-    }
+    val eventsWithRetry = remember(eventsLocal) { eventsLocal }
     
     Box(modifier = modifier.fillMaxSize()) {
         // Main calendar content
@@ -58,10 +47,10 @@ fun CalendarScreenWithErrorHandling(
         
         // Error handling overlay
         when (eventsWithRetry) {
-            is ResultWithRetry.Error -> {
+            is Result.Error -> {
                 ErrorOverlay(
-                    error = ErrorHandler.getErrorMessage(eventsWithRetry.exception),
-                    isRetryable = eventsWithRetry.isRetryable,
+                    error = eventsWithRetry.exception.message ?: "Unknown error",
+                    isRetryable = true,
                     onRetry = {
                         coroutineScope.launch {
                             viewModel.selectDate(selectedDate)
@@ -72,12 +61,12 @@ fun CalendarScreenWithErrorHandling(
                     }
                 )
             }
-            is ResultWithRetry.Loading -> {
+            is Result.Loading -> {
                 if (isLoading) {
                     LoadingOverlay()
                 }
             }
-            is ResultWithRetry.Success -> {
+            is Result.Success -> {
                 // Success state - no overlay needed
             }
         }

@@ -1,264 +1,243 @@
 package com.moderncalendar.feature.events
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.moderncalendar.core.data.entity.EventEntity
-import com.moderncalendar.core.data.entity.RecurrenceFrequency
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.moderncalendar.core.common.model.Event
+import com.moderncalendar.core.common.model.EventPriority
+import com.moderncalendar.core.common.model.RecurrenceFrequency
+import com.moderncalendar.core.ui.components.CalendarScaffold
+import com.moderncalendar.core.ui.components.CalendarTextField
+import com.moderncalendar.core.ui.components.DatePickerField
+import com.moderncalendar.core.ui.components.TimePickerField
+import com.moderncalendar.core.ui.components.TimeRangeField
+import com.moderncalendar.core.ui.components.ColorPickerField
+import com.moderncalendar.core.ui.components.SwitchField
+import com.moderncalendar.core.ui.components.DateTimeValidation
+import com.moderncalendar.core.ui.theme.EventColors
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.UUID
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventCreationScreen(
     modifier: Modifier = Modifier,
     onEventCreated: () -> Unit = {},
-    viewModel: EventViewModel = hiltViewModel()
+    viewModel: EventViewModel = hiltViewModel(),
+    navController: NavController = rememberNavController(),
+    initialDate: LocalDate? = null
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var isAllDay by remember { mutableStateOf(false) }
-    var startDate by remember { mutableStateOf(LocalDate.now()) }
+    var startDate by remember { mutableStateOf(initialDate ?: LocalDate.now()) }
     var startTime by remember { mutableStateOf(LocalTime.of(9, 0)) }
     var endTime by remember { mutableStateOf(LocalTime.of(10, 0)) }
-    var selectedColor by remember { mutableStateOf("#009688") }
+    var selectedColor by remember { mutableStateOf(EventColors[0]) }
+    var priority by remember { mutableStateOf(EventPriority.MEDIUM) }
     var isRecurring by remember { mutableStateOf(false) }
-    var recurrenceFrequency by remember { mutableStateOf(RecurrenceFrequency.WEEKLY) }
-    var reminderMinutes by remember { mutableStateOf(listOf<Int>()) }
     
-    val eventColors = listOf(
-        "#009688", "#2196F3", "#4CAF50", "#FF9800", "#E91E63",
-        "#9C27B0", "#00BCD4", "#FF5722", "#795548", "#607D8B"
-    )
+    // Validation states
+    var titleError by remember { mutableStateOf<String?>(null) }
     
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .padding(top = 24.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Text(
-            text = "Create Event",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-        
-        // Title
-        OutlinedTextField(
-            value = title,
-            onValueChange = { title = it },
-            label = { Text("Event Title") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Description
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Location
-        OutlinedTextField(
-            value = location,
-            onValueChange = { location = it },
-            label = { Text("Location") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // All Day Toggle
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    // Validate date is not in the past
+    val dateError = DateTimeValidation.validateFutureDate(startDate, allowToday = true)
+    
+    // Validate time range
+    val timeRangeError = if (!isAllDay) {
+        DateTimeValidation.validateTimeRange(startTime, endTime)
+    } else null
+    
+    CalendarScaffold(
+        navController = navController,
+        title = "Create Event",
+        navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+        onNavigationClick = { navController.popBackStack() }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Checkbox(
-                checked = isAllDay,
-                onCheckedChange = { isAllDay = it }
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Title
+            CalendarTextField(
+                value = title,
+                onValueChange = { 
+                    title = it
+                    titleError = if (it.isBlank()) "Title is required" else null
+                },
+                label = "Event Title",
+                isError = titleError != null,
+                errorMessage = titleError,
+                placeholder = "Enter event title"
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("All Day Event")
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Date and Time Selection
-        if (!isAllDay) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedTextField(
-                    value = startTime.toString(),
-                    onValueChange = { },
-                    label = { Text("Start Time") },
-                    modifier = Modifier.weight(1f),
-                    readOnly = true
-                )
-                
-                OutlinedTextField(
-                    value = endTime.toString(),
-                    onValueChange = { },
-                    label = { Text("End Time") },
-                    modifier = Modifier.weight(1f),
-                    readOnly = true
+            
+            // Description
+            CalendarTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = "Description",
+                placeholder = "Add description (optional)",
+                maxLines = 3
+            )
+            
+            // Location
+            CalendarTextField(
+                value = location,
+                onValueChange = { location = it },
+                label = "Location",
+                placeholder = "Add location (optional)"
+            )
+            
+            // Date Selection
+            DatePickerField(
+                selectedDate = startDate,
+                onDateSelected = { startDate = it },
+                label = "Date",
+                isError = dateError != null,
+                errorMessage = dateError,
+                minDate = LocalDate.now() // Prevent selecting past dates
+            )
+            
+            // All Day Toggle
+            SwitchField(
+                checked = isAllDay,
+                onCheckedChange = { isAllDay = it },
+                label = "All Day Event",
+                description = "Event lasts the entire day"
+            )
+            
+            // Time Selection (only if not all day)
+            if (!isAllDay) {
+                TimeRangeField(
+                    startTime = startTime,
+                    endTime = endTime,
+                    onStartTimeSelected = { startTime = it },
+                    onEndTimeSelected = { endTime = it },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
+            
+            // Color Selection
+            ColorPickerField(
+                selectedColor = selectedColor,
+                onColorSelected = { selectedColor = it },
+                label = "Event Color"
+            )
+            
+            // Priority Selection
+            PrioritySelector(
+                selectedPriority = priority,
+                onPrioritySelected = { priority = it }
+            )
+            
+            // Recurring Event Toggle
+            SwitchField(
+                checked = isRecurring,
+                onCheckedChange = { isRecurring = it },
+                label = "Recurring Event",
+                description = "Repeat this event"
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Create Button
+            Button(
+                onClick = {
+                    if (title.isBlank()) {
+                        titleError = "Title is required"
+                        return@Button
+                    }
+                    
+                    // Validate all fields before creating event
+                    if (dateError != null || timeRangeError != null) {
+                        return@Button
+                    }
+                    
+                    val startDateTime = if (isAllDay) {
+                        startDate.atStartOfDay()
+                    } else {
+                        LocalDateTime.of(startDate, startTime)
+                    }
+                    
+                    val endDateTime = if (isAllDay) {
+                        startDate.atTime(23, 59, 59)
+                    } else {
+                        LocalDateTime.of(startDate, endTime)
+                    }
+                    
+                    val event = Event(
+                        id = UUID.randomUUID().toString(),
+                        title = title.trim(),
+                        description = description.trim().ifEmpty { null },
+                        location = location.trim().ifEmpty { null },
+                        startDateTime = startDateTime,
+                        endDateTime = endDateTime,
+                        isAllDay = isAllDay,
+                        color = "#${selectedColor.value.toString(16).padStart(8, '0').substring(2)}",
+                        priority = priority,
+                        recurrenceRule = null // TODO: Implement recurrence
+                    )
+                    
+                    viewModel.createEvent(event)
+                    onEventCreated()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = title.isNotBlank() && dateError == null && timeRangeError == null
+            ) {
+                Text("Create Event")
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Color Selection
+    }
+}
+
+@Composable
+private fun PrioritySelector(
+    selectedPriority: EventPriority,
+    onPrioritySelected: (EventPriority) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
         Text(
-            text = "Event Color",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Medium
+            text = "Priority",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-        
-        Spacer(modifier = Modifier.height(8.dp))
         
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            eventColors.forEach { color ->
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(color)),
-                            shape = androidx.compose.foundation.shape.CircleShape
-                        )
-                        .clickable { selectedColor = color }
-                ) {
-                    if (selectedColor == color) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.3f),
-                                    shape = androidx.compose.foundation.shape.CircleShape
-                                )
-                        )
-                    }
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Recurring Event
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = isRecurring,
-                onCheckedChange = { isRecurring = it }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Recurring Event")
-        }
-        
-        if (isRecurring) {
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            var expanded by remember { mutableStateOf(false) }
-            
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                OutlinedTextField(
-                    value = recurrenceFrequency.name.lowercase().replaceFirstChar { it.uppercase() },
-                    onValueChange = { },
-                    readOnly = true,
-                    label = { Text("Repeat") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
+            EventPriority.values().forEach { priority ->
+                FilterChip(
+                    onClick = { onPrioritySelected(priority) },
+                    label = { Text(priority.name) },
+                    selected = selectedPriority == priority,
+                    modifier = Modifier.weight(1f)
                 )
-                
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    RecurrenceFrequency.values().forEach { frequency ->
-                        DropdownMenuItem(
-                            text = { Text(frequency.name.lowercase().replaceFirstChar { it.uppercase() }) },
-                            onClick = {
-                                recurrenceFrequency = frequency
-                                expanded = false
-                            }
-                        )
-                    }
-                }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        // Create Button
-        Button(
-            onClick = {
-                val startDateTime = if (isAllDay) {
-                    startDate.atStartOfDay()
-                } else {
-                    LocalDateTime.of(startDate, startTime)
-                }
-                
-                val endDateTime = if (isAllDay) {
-                    startDate.atTime(23, 59, 59)
-                } else {
-                    LocalDateTime.of(startDate, endTime)
-                }
-                
-                val event = EventEntity(
-                    id = java.util.UUID.randomUUID().toString(),
-                    title = title,
-                    description = description.ifEmpty { null },
-                    startDateTime = startDateTime,
-                    endDateTime = endDateTime,
-                    isAllDay = isAllDay,
-                    location = location.ifEmpty { null },
-                    color = selectedColor.toIntOrNull() ?: 0xFF6750A4.toInt(),
-                    calendarId = "default", // TODO: Get from user selection
-                    recurrenceRule = if (isRecurring) {
-                        recurrenceFrequency.name
-                    } else null,
-                    reminderMinutes = reminderMinutes.firstOrNull()
-                )
-                
-                viewModel.createEvent(event)
-                onEventCreated()
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = title.isNotEmpty()
-        ) {
-            Text("Create Event")
         }
     }
 }

@@ -201,7 +201,7 @@ fun EventItem(
                 modifier = Modifier
                     .size(12.dp)
                     .clip(CircleShape)
-                    .background(Color(event.color))
+                    .background(com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color))
             )
 
             Spacer(modifier = Modifier.width(12.dp))

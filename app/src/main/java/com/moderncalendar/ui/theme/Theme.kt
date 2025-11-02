@@ -13,15 +13,15 @@ import com.moderncalendar.core.analytics.AnalyticsManager
 import javax.inject.Inject
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF6750A4),
-    secondary = Color(0xFF625B71),
-    tertiary = Color(0xFF7D5260)
+    primary = Color(0xFF2196F3),
+    secondary = Color(0xFF0D47A1),
+    tertiary = Color(0xFF03A9F4)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6750A4),
-    secondary = Color(0xFF625B71),
-    tertiary = Color(0xFF7D5260)
+    primary = Color(0xFF2196F3),
+    secondary = Color(0xFF0D47A1),
+    tertiary = Color(0xFF03A9F4)
 )
 
 @Composable

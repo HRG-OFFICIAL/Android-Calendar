@@ -120,7 +120,7 @@ fun CalendarImportScreen() {
                         )
                         
                         LinearProgressIndicator(
-                            progress = importProgress,
+                            progress = { importProgress },
                             modifier = Modifier.fillMaxWidth()
                         )
                         

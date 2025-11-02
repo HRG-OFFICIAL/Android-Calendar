@@ -1,13 +1,15 @@
 package com.moderncalendar.di
 
 import com.moderncalendar.core.auth.AuthRepository
+import com.moderncalendar.core.common.settings.SettingsRepository
+import com.moderncalendar.core.data.repository.CalendarRepository
+import com.moderncalendar.core.data.repository.CalendarRepositoryImpl
+import com.moderncalendar.core.data.repository.DataStoreSettingsRepository
 import com.moderncalendar.core.data.repository.EventRepository
-import com.moderncalendar.core.data.repository.SettingsRepository
+import com.moderncalendar.core.data.repository.RoomEventRepository
 import com.moderncalendar.core.data.repository.UserPreferencesRepository
+import com.moderncalendar.core.data.repository.UserPreferencesRepositoryImpl
 import com.moderncalendar.data.repository.AuthRepositoryImpl
-import com.moderncalendar.data.repository.EventRepositoryImpl
-import com.moderncalendar.data.repository.SettingsRepositoryImpl
-import com.moderncalendar.data.repository.UserPreferencesRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -23,17 +25,22 @@ abstract class RepositoryModule {
     ): AuthRepository
     
     @Binds
-    abstract fun bindEventRepository(
-        eventRepositoryImpl: EventRepositoryImpl
-    ): EventRepository
-    
-    @Binds
     abstract fun bindSettingsRepository(
-        settingsRepositoryImpl: SettingsRepositoryImpl
+        settingsRepositoryImpl: DataStoreSettingsRepository
     ): SettingsRepository
     
     @Binds
+    abstract fun bindEventRepository(
+        eventRepositoryImpl: RoomEventRepository
+    ): EventRepository
+    
+    @Binds
+    abstract fun bindCalendarRepository(
+        calendarRepository: CalendarRepositoryImpl
+    ): CalendarRepository
+    
+    @Binds
     abstract fun bindUserPreferencesRepository(
-        userPreferencesRepositoryImpl: UserPreferencesRepositoryImpl
+        userPreferencesRepository: UserPreferencesRepositoryImpl
     ): UserPreferencesRepository
 }

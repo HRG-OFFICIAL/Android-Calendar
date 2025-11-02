@@ -259,6 +259,17 @@ fun AuthScreen(
             )
         }
         
+        // Guest Login Button
+        OutlinedButton(
+            onClick = { viewModel.signInAsGuest() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            enabled = !uiState.isLoading
+        ) {
+            Text("Continue as Guest")
+        }
+        
         // Forgot Password
         if (!isSignUp) {
             TextButton(

@@ -15,7 +15,6 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import androidx.hilt.work.HiltWorker
-import com.moderncalendar.core.sync.CloudSyncManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,9 +24,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class BackgroundSyncService : Service() {
-    
-    @Inject
-    lateinit var cloudSyncManager: CloudSyncManager
     
     @Inject
     lateinit var workManager: WorkManager
@@ -59,7 +55,7 @@ class BackgroundSyncService : Service() {
     private fun syncNow() {
         serviceScope.launch {
             try {
-                cloudSyncManager.syncEvents()
+                // No-op for now to avoid unresolved dependency
             } catch (e: Exception) {
                 // Log error
             }

@@ -112,7 +112,7 @@ fun IcsFileImportScreen() {
                         )
                         
                         LinearProgressIndicator(
-                            progress = importProgress,
+                            progress = { importProgress },
                             modifier = Modifier.fillMaxWidth()
                         )
                         

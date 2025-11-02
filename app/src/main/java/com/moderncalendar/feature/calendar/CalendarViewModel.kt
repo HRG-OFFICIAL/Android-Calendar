@@ -2,8 +2,12 @@ package com.moderncalendar.feature.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moderncalendar.core.common.CalendarError
+import com.moderncalendar.core.common.DefaultErrorStateManager
+import com.moderncalendar.core.common.RecoveryAction
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.common.RetryConfig
+import com.moderncalendar.core.common.model.Event
 import com.moderncalendar.core.data.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -17,6 +21,18 @@ class CalendarViewModel @Inject constructor(
     private val eventRepository: EventRepository
 ) : ViewModel() {
     
+    // Error state management
+    private val errorStateManager = DefaultErrorStateManager()
+    val errorState = errorStateManager.errorState
+    
+    fun clearError() = errorStateManager.clearError()
+    fun handleError(error: CalendarError) = errorStateManager.handleError(error)
+    fun handleError(throwable: Throwable) = errorStateManager.handleError(throwable)
+    suspend fun retryLastOperation() = errorStateManager.retryLastOperation()
+    fun hasError() = errorStateManager.hasError()
+    fun isCurrentErrorRecoverable() = errorStateManager.isCurrentErrorRecoverable()
+    fun getCurrentErrorRecoveryActions() = errorStateManager.getCurrentErrorRecoveryActions()
+    
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
     
@@ -26,8 +42,11 @@ class CalendarViewModel @Inject constructor(
     private val _selectedDateRange = MutableStateFlow<ClosedRange<LocalDate>?>(null)
     val selectedDateRange: StateFlow<ClosedRange<LocalDate>?> = _selectedDateRange.asStateFlow()
     
-    private val _events = MutableStateFlow<Result<List<EventEntity>>>(Result.Loading)
-    val events: StateFlow<Result<List<EventEntity>>> = _events.asStateFlow()
+    private val _events = MutableStateFlow<Result<List<Event>>>(Result.Loading)
+    val events: StateFlow<Result<List<Event>>> = _events.asStateFlow()
+    
+    private val _monthEvents = MutableStateFlow<Result<List<Event>>>(Result.Loading)
+    val monthEvents: StateFlow<Result<List<Event>>> = _monthEvents.asStateFlow()
     
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -47,6 +66,7 @@ class CalendarViewModel @Inject constructor(
     private fun loadEventsForSelectedDate() {
         viewModelScope.launch {
             _isLoading.value = true
+            clearError() // Clear any previous errors
             
             val startOfDay = _selectedDate.value.atStartOfDay()
             val endOfDay = _selectedDate.value.atTime(23, 59, 59)
@@ -55,6 +75,11 @@ class CalendarViewModel @Inject constructor(
                 .collect { result ->
                     _events.value = result
                     _isLoading.value = false
+                    
+                    // Handle errors from repository
+                    if (result is Result.Error) {
+                        handleError(result.exception)
+                    }
                 }
         }
     }
@@ -62,6 +87,7 @@ class CalendarViewModel @Inject constructor(
     fun loadEventsForDateRange(startDate: LocalDate, endDate: LocalDate) {
         viewModelScope.launch {
             _isLoading.value = true
+            clearError()
             
             val startDateTime = startDate.atStartOfDay()
             val endDateTime = endDate.atTime(23, 59, 59)
@@ -70,28 +96,114 @@ class CalendarViewModel @Inject constructor(
                 .collect { result ->
                     _events.value = result
                     _isLoading.value = false
+                    
+                    if (result is Result.Error) {
+                        handleError(result.exception)
+                    }
                 }
         }
     }
     
-    fun createEvent(event: EventEntity) {
+    fun loadEventsForMonth(yearMonth: java.time.YearMonth) {
         viewModelScope.launch {
-            eventRepository.insertEvent(event)
-            loadEventsForSelectedDate()
+            val startDate = yearMonth.atDay(1)
+            val endDate = yearMonth.atEndOfMonth()
+            
+            val startDateTime = startDate.atStartOfDay()
+            val endDateTime = endDate.atTime(23, 59, 59)
+            
+            eventRepository.getEventsByDateRange(startDateTime, endDateTime)
+                .collect { result ->
+                    _monthEvents.value = result
+                    
+                    if (result is Result.Error) {
+                        handleError(result.exception)
+                    }
+                }
         }
     }
     
-    fun updateEvent(event: EventEntity) {
+    fun createEvent(event: Event) {
         viewModelScope.launch {
-            eventRepository.updateEvent(event)
-            loadEventsForSelectedDate()
+            val result = com.moderncalendar.core.common.ErrorHandler.retryWithBackoff(
+                maxRetries = RetryConfig.DATABASE.maxRetries,
+                initialDelayMs = RetryConfig.DATABASE.initialDelayMs,
+                maxDelayMs = RetryConfig.DATABASE.maxDelayMs,
+                backoffFactor = RetryConfig.DATABASE.backoffFactor
+            ) {
+                eventRepository.insertEvent(event)
+            }
+            
+            when (result) {
+                is Result.Success -> {
+                    clearError()
+                    loadEventsForSelectedDate()
+                    // Also refresh month events to update calendar view
+                    loadEventsForMonth(java.time.YearMonth.from(_selectedDate.value))
+                }
+                is Result.Error -> {
+                    handleError(result.exception)
+                }
+                is Result.Loading -> {
+                    // Should not happen in this context
+                }
+            }
+        }
+    }
+    
+    fun updateEvent(event: Event) {
+        viewModelScope.launch {
+            val result = com.moderncalendar.core.common.ErrorHandler.retryWithBackoff(
+                maxRetries = RetryConfig.DATABASE.maxRetries,
+                initialDelayMs = RetryConfig.DATABASE.initialDelayMs,
+                maxDelayMs = RetryConfig.DATABASE.maxDelayMs,
+                backoffFactor = RetryConfig.DATABASE.backoffFactor
+            ) {
+                eventRepository.updateEvent(event)
+            }
+            
+            when (result) {
+                is Result.Success -> {
+                    clearError()
+                    loadEventsForSelectedDate()
+                    // Also refresh month events to update calendar view
+                    loadEventsForMonth(java.time.YearMonth.from(_selectedDate.value))
+                }
+                is Result.Error -> {
+                    handleError(result.exception)
+                }
+                is Result.Loading -> {
+                    // Should not happen in this context
+                }
+            }
         }
     }
     
     fun deleteEvent(eventId: String) {
         viewModelScope.launch {
-            eventRepository.deleteEvent(eventId)
-            loadEventsForSelectedDate()
+            val result = com.moderncalendar.core.common.ErrorHandler.retryWithBackoff(
+                maxRetries = RetryConfig.DATABASE.maxRetries,
+                initialDelayMs = RetryConfig.DATABASE.initialDelayMs,
+                maxDelayMs = RetryConfig.DATABASE.maxDelayMs,
+                backoffFactor = RetryConfig.DATABASE.backoffFactor
+            ) {
+                eventRepository.deleteEvent(eventId)
+            }
+            
+            when (result) {
+                is Result.Success -> {
+                    clearError()
+                    loadEventsForSelectedDate()
+                    // Also refresh month events to update calendar view
+                    loadEventsForMonth(java.time.YearMonth.from(_selectedDate.value))
+                }
+                is Result.Error -> {
+                    handleError(result.exception)
+                }
+                is Result.Loading -> {
+                    // Should not happen in this context
+                }
+            }
         }
     }
     
@@ -163,4 +275,54 @@ class CalendarViewModel @Inject constructor(
             navigateToDate(nextDay)
         }
     }
+    
+    /**
+     * Handle recovery actions from UI
+     */
+    fun handleRecoveryAction(action: RecoveryAction) {
+        viewModelScope.launch {
+            when (action) {
+                is RecoveryAction.Retry -> {
+                    retryLastOperation()
+                }
+                is RecoveryAction.RefreshData -> {
+                    refreshData()
+                }
+                is RecoveryAction.Dismiss -> {
+                    clearError()
+                }
+                else -> {
+                    handleRecoveryAction(action)
+                }
+            }
+        }
+    }
+    
+    /**
+     * Refresh data to reload current view
+     */
+    private suspend fun refreshData(): Boolean {
+        return try {
+            loadEventsForSelectedDate()
+            true
+        } catch (e: Exception) {
+            handleError(e)
+            false
+        }
+    }
+    
+    /**
+     * Get current error for UI display
+     */
+    fun getCurrentError(): CalendarError? = errorState.value
+    
+    /**
+     * Check if there's an active error
+     */
+    fun hasActiveError(): Boolean = hasError()
+    
+    /**
+     * Get available recovery actions for current error
+     */
+    fun getAvailableRecoveryActions(): List<RecoveryAction> = getCurrentErrorRecoveryActions()
 }
