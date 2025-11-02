@@ -19,6 +19,7 @@
             <option value="$PROJECT_DIR$/core/data" />
             <option value="$PROJECT_DIR$/core/performance" />
             <option value="$PROJECT_DIR$/core/reminders" />
+            <option value="$PROJECT_DIR$/core/settings" />
             <option value="$PROJECT_DIR$/core/sync" />
             <option value="$PROJECT_DIR$/core/ui" />
           </set>

@@ -14,21 +14,83 @@ import javax.inject.Singleton
 class FirebaseAuthRepository @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore
-) {
+) : AuthRepository {
     
-    val currentUser: FirebaseUser?
+    override val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
     
-    val isUserSignedIn: Boolean
+    override val isUserSignedIn: Boolean
         get() = currentUser != null
     
-    fun getAuthState(): Flow<Result<FirebaseUser?>> = flow {
+    override fun getAuthState(): Flow<Result<FirebaseUser?>> = flow {
         emit(Result.Loading)
         try {
             val user = firebaseAuth.currentUser
             emit(Result.Success(user))
         } catch (exception: Exception) {
             emit(Result.Error(exception))
+        }
+    }
+    
+    override fun signInWithGoogle(): Flow<Result<Unit>> = flow {
+        emit(Result.Error(Exception("Google Sign-In not yet implemented")))
+    }
+    
+    override fun signInWithEmail(email: String, password: String): Flow<Result<Unit>> = flow {
+        try {
+            if (email.isBlank() || password.isBlank()) {
+                emit(Result.Error(Exception("Email and password are required")))
+                return@flow
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emit(Result.Error(Exception("Invalid email format")))
+                return@flow
+            }
+
+            emit(Result.Loading)
+            firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            emit(Result.Success(Unit))
+        } catch (e: Exception) {
+            val errorMessage = when (e.message) {
+                "There is no user record corresponding to this identifier. The user may have been deleted." -> "No account found with this email"
+                "The email address is badly formatted." -> "Invalid email format"
+                "The password is invalid." -> "Incorrect password"
+                else -> e.message ?: "Login failed"
+            }
+            emit(Result.Error(Exception(errorMessage)))
+        }
+    }
+    
+    override fun signUpWithEmail(email: String, password: String): Flow<Result<Unit>> = flow {
+        try {
+            if (email.isBlank() || password.isBlank()) {
+                emit(Result.Error(Exception("Email and password are required")))
+                return@flow
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emit(Result.Error(Exception("Invalid email format")))
+                return@flow
+            }
+
+            if (password.length < 6) {
+                emit(Result.Error(Exception("Password must be at least 6 characters")))
+                return@flow
+            }
+
+            emit(Result.Loading)
+            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            emit(Result.Success(Unit))
+        } catch (e: Exception) {
+            val errorMessage = when (e.message) {
+                "The email address is already in use by another account." -> "An account with this email already exists"
+                "The email address is badly formatted." -> "Invalid email format"
+                "The given password is invalid." -> "Password is too weak"
+                "Password should be at least 6 characters" -> "Password must be at least 6 characters"
+                else -> e.message ?: "Registration failed"
+            }
+            emit(Result.Error(Exception(errorMessage)))
         }
     }
     
@@ -62,7 +124,7 @@ class FirebaseAuthRepository @Inject constructor(
         }
     }
     
-    suspend fun signOut(): Result<Unit> {
+    override suspend fun signOut(): Result<Unit> {
         return try {
             firebaseAuth.signOut()
             Result.Success(Unit)
@@ -71,7 +133,7 @@ class FirebaseAuthRepository @Inject constructor(
         }
     }
     
-    suspend fun resetPassword(email: String): Result<Unit> {
+    override suspend fun resetPassword(email: String): Result<Unit> {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
             Result.Success(Unit)

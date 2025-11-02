@@ -4,29 +4,27 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
-import com.moderncalendar.core.data.converter.DateTimeConverter
-import com.moderncalendar.core.data.dao.CalendarDao
 import com.moderncalendar.core.data.dao.EventDao
-import com.moderncalendar.core.data.entity.CalendarEntity
+import com.moderncalendar.core.data.dao.CalendarDao
 import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.data.entity.CalendarEntity
+import com.moderncalendar.core.data.entity.Converters
 
 @Database(
     entities = [EventEntity::class, CalendarEntity::class],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
-@TypeConverters(
-    DateTimeConverter::class
-)
+@TypeConverters(Converters::class)
 abstract class CalendarDatabase : RoomDatabase() {
     
     abstract fun eventDao(): EventDao
     abstract fun calendarDao(): CalendarDao
     
     companion object {
-        const val DATABASE_NAME = "calendar_database"
-        
         @Volatile
         private var INSTANCE: CalendarDatabase? = null
         
@@ -35,12 +33,21 @@ abstract class CalendarDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     CalendarDatabase::class.java,
-                    DATABASE_NAME
+                    "calendar_database"
                 )
-                    .fallbackToDestructiveMigration()
-                    .build()
+                .addMigrations(MIGRATION_1_2) // Add migrations as needed
+                .fallbackToDestructiveMigration() // For development only
+                .build()
                 INSTANCE = instance
                 instance
+            }
+        }
+        
+        // Migration from version 1 to 2 (example)
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add new columns or tables here
+                // database.execSQL("ALTER TABLE events ADD COLUMN new_column TEXT")
             }
         }
     }
