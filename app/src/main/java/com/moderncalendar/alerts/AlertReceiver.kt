@@ -3,15 +3,15 @@ package com.moderncalendar.alerts
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AlertReceiver : BroadcastReceiver() {
-    
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
                 // Reschedule all reminders after boot
@@ -51,7 +51,7 @@ class AlertReceiver : BroadcastReceiver() {
             }
         }
     }
-    
+
     private suspend fun rescheduleAllReminders(context: Context) {
         // TODO: Implement reminder rescheduling logic
         // This would typically:
@@ -59,8 +59,11 @@ class AlertReceiver : BroadcastReceiver() {
         // 2. Calculate reminder times
         // 3. Schedule alarms for upcoming reminders
     }
-    
-    private suspend fun handleEventReminder(context: Context, intent: Intent) {
+
+    private suspend fun handleEventReminder(
+        context: Context,
+        intent: Intent,
+    ) {
         // TODO: Implement event reminder handling
         // This would typically:
         // 1. Extract event data from intent

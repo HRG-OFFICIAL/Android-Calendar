@@ -3,14 +3,15 @@ package com.moderncalendar.common
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.pm.ShortcutManagerCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ShortcutsReceiver : BroadcastReceiver() {
-    
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
                 // Update shortcuts after boot
@@ -32,7 +33,7 @@ class ShortcutsReceiver : BroadcastReceiver() {
             }
         }
     }
-    
+
     private suspend fun updateShortcuts(context: Context) {
         // Update app shortcuts based on recent events and user preferences
         // This would typically create shortcuts for:

@@ -8,5 +8,5 @@ enum class CalendarViewType {
     WEEK,
     DAY,
     YEAR,
-    HEATMAP
+    HEATMAP,
 }

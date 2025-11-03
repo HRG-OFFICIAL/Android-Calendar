@@ -11,25 +11,26 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(
-    private val authRepository: AuthRepository
-) : ViewModel() {
-    
-    private val _isUserSignedIn = MutableStateFlow(false)
-    val isUserSignedIn: StateFlow<Boolean> = _isUserSignedIn.asStateFlow()
-    
-    init {
-        checkAuthStatus()
-    }
-    
-    private fun checkAuthStatus() {
-        _isUserSignedIn.value = authRepository.isUserSignedIn
-    }
-    
-    fun signOut() {
-        viewModelScope.launch {
-            authRepository.signOut()
-            _isUserSignedIn.value = false
+class MainActivityViewModel
+    @Inject
+    constructor(
+        private val authRepository: AuthRepository,
+    ) : ViewModel() {
+        private val _isUserSignedIn = MutableStateFlow(false)
+        val isUserSignedIn: StateFlow<Boolean> = _isUserSignedIn.asStateFlow()
+
+        init {
+            checkAuthStatus()
+        }
+
+        private fun checkAuthStatus() {
+            _isUserSignedIn.value = authRepository.isUserSignedIn
+        }
+
+        fun signOut() {
+            viewModelScope.launch {
+                authRepository.signOut()
+                _isUserSignedIn.value = false
+            }
         }
     }
-}

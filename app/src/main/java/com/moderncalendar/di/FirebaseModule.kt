@@ -12,11 +12,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
-    
     @Provides
     @Singleton
-    fun provideContext(@ApplicationContext context: Context): Context = context
-    
+    fun provideContext(
+        @ApplicationContext context: Context,
+    ): Context = context
+
     @Provides
     @Singleton
     fun provideFirebaseStorage(): FirebaseStorage {

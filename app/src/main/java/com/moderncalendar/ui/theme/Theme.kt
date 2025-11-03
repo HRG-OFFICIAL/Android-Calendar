@@ -4,40 +4,39 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.moderncalendar.core.analytics.AnalyticsManager
-import javax.inject.Inject
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF2196F3),
-    secondary = Color(0xFF0D47A1),
-    tertiary = Color(0xFF03A9F4)
-)
+private val DarkColorScheme =
+    darkColorScheme(
+        primary = Color(0xFF2196F3),
+        secondary = Color(0xFF0D47A1),
+        tertiary = Color(0xFF03A9F4),
+    )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF2196F3),
-    secondary = Color(0xFF0D47A1),
-    tertiary = Color(0xFF03A9F4)
-)
+private val LightColorScheme =
+    lightColorScheme(
+        primary = Color(0xFF2196F3),
+        secondary = Color(0xFF0D47A1),
+        tertiary = Color(0xFF03A9F4),
+    )
 
 @Composable
 fun ModernCalendarTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) {
-        DarkColorScheme
-    } else {
-        LightColorScheme
-    }
+    val colorScheme =
+        if (darkTheme) {
+            DarkColorScheme
+        } else {
+            LightColorScheme
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content
+        content = content,
     )
 }
 
@@ -45,48 +44,47 @@ fun ModernCalendarTheme(
 fun ModernCalendarThemeWithManager(
     darkTheme: Boolean = isSystemInDarkTheme(),
     viewModel: ThemeManagerViewModel = hiltViewModel(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val themeManager = viewModel.getThemeManager()
     val isDarkMode by themeManager.isDarkMode.collectAsState()
     val accentColor by themeManager.accentColor.collectAsState()
     val themeStyle by themeManager.themeStyle.collectAsState()
-    
+
     val colorScheme = themeManager.getColorScheme(isDarkMode)
-    
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = when (themeStyle) {
-            ThemeStyle.Material3 -> MaterialTheme.typography
-            ThemeStyle.Material2 -> MaterialTheme.typography
-            ThemeStyle.Custom -> MaterialTheme.typography
-        },
-        content = content
+        typography =
+            when (themeStyle) {
+                ThemeStyle.Material3 -> MaterialTheme.typography
+                ThemeStyle.Material2 -> MaterialTheme.typography
+                ThemeStyle.Custom -> MaterialTheme.typography
+            },
+        content = content,
     )
 }
 
 @Composable
-fun ThemeSettingsScreen(
-    viewModel: ThemeManagerViewModel = hiltViewModel()
-) {
+fun ThemeSettingsScreen(viewModel: ThemeManagerViewModel = hiltViewModel()) {
     val themeManager = viewModel.getThemeManager()
     val isDarkMode by themeManager.isDarkMode.collectAsState()
     val accentColor by themeManager.accentColor.collectAsState()
     val themeStyle by themeManager.themeStyle.collectAsState()
-    
+
     Column {
         // Dark mode toggle
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text("Dark Mode")
             Switch(
                 checked = isDarkMode,
-                onCheckedChange = { themeManager.toggleDarkMode() }
+                onCheckedChange = { themeManager.toggleDarkMode() },
             )
         }
-        
+
         // Accent color selection
         Text("Accent Color")
         Row {
@@ -94,18 +92,18 @@ fun ThemeSettingsScreen(
                 ColorButton(
                     color = color.colors.primary,
                     isSelected = accentColor == color,
-                    onClick = { themeManager.setAccentColor(color) }
+                    onClick = { themeManager.setAccentColor(color) },
                 )
             }
         }
-        
+
         // Theme style selection
         Text("Theme Style")
         Row {
             ThemeStyle.values().forEach { style ->
                 Button(
                     onClick = { themeManager.setThemeStyle(style) },
-                    enabled = themeStyle != style
+                    enabled = themeStyle != style,
                 ) {
                     Text(style.name)
                 }
@@ -118,13 +116,14 @@ fun ThemeSettingsScreen(
 private fun ColorButton(
     color: Color,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) color else Color.Transparent
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = if (isSelected) color else Color.Transparent,
+            ),
     ) {
         Text("")
     }

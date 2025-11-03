@@ -7,16 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kizitonwose.calendar.core.CalendarDay
-import com.moderncalendar.core.accessibility.AccessibilityManager
 import com.moderncalendar.core.common.model.Event
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarScreenAccessible(
@@ -25,27 +22,27 @@ fun CalendarScreenAccessible(
     onCreateEventClick: (LocalDate) -> Unit = {},
     onSearchClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val selectedDate by viewModel.selectedDate.collectAsState()
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     val accessibilityVm = hiltViewModel<AccessibilityViewModel>()
     val accessibilityManager = accessibilityVm.getAccessibilityManager()
-    
-    val isAccessibilityEnabled by remember { 
+
+    val isAccessibilityEnabled by remember {
         derivedStateOf { accessibilityManager.isAccessibilityEnabled }
     }
-    
-    val shouldUseHighContrast by remember { 
+
+    val shouldUseHighContrast by remember {
         derivedStateOf { accessibilityManager.isHighContrastEnabled }
     }
-    
-    val shouldUseLargeText by remember { 
+
+    val shouldUseLargeText by remember {
         derivedStateOf { accessibilityManager.isLargeTextEnabled }
     }
-    
+
     Box(modifier = modifier.fillMaxSize()) {
         // Main calendar content with accessibility enhancements
         CalendarScreen(
@@ -54,9 +51,9 @@ fun CalendarScreenAccessible(
             onNavigateToEventCreation = onCreateEventClick,
             onNavigateToSearch = onSearchClick,
             onNavigateToSettings = onSettingsClick,
-            viewModel = viewModel
+            viewModel = viewModel,
         )
-        
+
         // Accessibility enhancements
         if (isAccessibilityEnabled) {
             AccessibilityEnhancements(
@@ -67,7 +64,7 @@ fun CalendarScreenAccessible(
                 shouldUseLargeText = shouldUseLargeText,
                 onCreateEventClick = onCreateEventClick,
                 onSearchClick = onSearchClick,
-                onSettingsClick = onSettingsClick
+                onSettingsClick = onSettingsClick,
             )
         }
     }
@@ -82,23 +79,23 @@ private fun AccessibilityEnhancements(
     shouldUseLargeText: Boolean,
     onCreateEventClick: (LocalDate) -> Unit,
     onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
 ) {
     // High contrast overlay
     if (shouldUseHighContrast) {
         HighContrastOverlay()
     }
-    
+
     // Large text overlay
     if (shouldUseLargeText) {
         LargeTextOverlay()
     }
-    
+
     // Loading state announcement
     if (isLoading) {
         LoadingAnnouncement()
     }
-    
+
     // Event count announcement
     when (events) {
         is com.moderncalendar.core.common.Result.Success -> {
@@ -131,10 +128,11 @@ private fun LargeTextOverlay() {
 private fun LoadingAnnouncement() {
     // Announce loading state to screen readers
     Box(
-        modifier = Modifier.semantics {
-            contentDescription = "Loading events"
-            stateDescription = "Please wait while events are being loaded"
-        }
+        modifier =
+            Modifier.semantics {
+                contentDescription = "Loading events"
+                stateDescription = "Please wait while events are being loaded"
+            },
     )
 }
 
@@ -142,14 +140,16 @@ private fun LoadingAnnouncement() {
 private fun EventCountAnnouncement(eventCount: Int) {
     // Announce event count to screen readers
     Box(
-        modifier = Modifier.semantics {
-            contentDescription = when (eventCount) {
-                0 -> "No events scheduled"
-                1 -> "1 event scheduled"
-                else -> "$eventCount events scheduled"
-            }
-            stateDescription = "Use arrow keys to navigate through events"
-        }
+        modifier =
+            Modifier.semantics {
+                contentDescription =
+                    when (eventCount) {
+                        0 -> "No events scheduled"
+                        1 -> "1 event scheduled"
+                        else -> "$eventCount events scheduled"
+                    }
+                stateDescription = "Use arrow keys to navigate through events"
+            },
     )
 }
 
@@ -157,10 +157,11 @@ private fun EventCountAnnouncement(eventCount: Int) {
 private fun ErrorAnnouncement(errorMessage: String) {
     // Announce error to screen readers
     Box(
-        modifier = Modifier.semantics {
-            contentDescription = "Error loading events: $errorMessage"
-            stateDescription = "Press refresh to try again"
-        }
+        modifier =
+            Modifier.semantics {
+                contentDescription = "Error loading events: $errorMessage"
+                stateDescription = "Press refresh to try again"
+            },
     )
 }
 
@@ -169,80 +170,93 @@ private fun ErrorAnnouncement(errorMessage: String) {
 fun AccessibleEventItem(
     event: Event,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    val eventTime = if (event.isAllDay) {
-        "All day"
-    } else {
-        "${event.startDateTime.hour}:${event.startDateTime.minute.toString().padStart(2, '0')} - ${event.endDateTime.hour}:${event.endDateTime.minute.toString().padStart(2, '0')}"
-    }
-    
+    val eventTime =
+        if (event.isAllDay) {
+            "All day"
+        } else {
+            "${event.startDateTime.hour}:${event.startDateTime.minute.toString().padStart(
+                2,
+                '0',
+            )} - ${event.endDateTime.hour}:${event.endDateTime.minute.toString().padStart(2, '0')}"
+        }
+
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics {
-                eventSemantics(
-                    eventTitle = event.title,
-                    eventTime = eventTime,
-                    eventLocation = event.location,
-                    isAllDay = event.isAllDay
-                )
-                onClick { onClick(); true }
-            }
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics {
+                    eventSemantics(
+                        eventTitle = event.title,
+                        eventTime = eventTime,
+                        eventLocation = event.location,
+                        isAllDay = event.isAllDay,
+                    )
+                    onClick {
+                        onClick()
+                        true
+                    }
+                }
+                .clickable { onClick() },
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Event color indicator with accessibility
             Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .semantics {
-                        contentDescription = "Event color indicator"
-                        stateDescription = "Color: ${event.color}"
-                    }
-                    .background(
-                        color = com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color),
-                        shape = androidx.compose.foundation.shape.CircleShape
-                    )
+                modifier =
+                    Modifier
+                        .size(12.dp)
+                        .semantics {
+                            contentDescription = "Event color indicator"
+                            stateDescription = "Color: ${event.color}"
+                        }
+                        .background(
+                            color = com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color),
+                            shape = androidx.compose.foundation.shape.CircleShape,
+                        ),
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text(
                     text = event.title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.semantics {
-                        contentDescription = "Event title: ${event.title}"
-                    }
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = "Event title: ${event.title}"
+                        },
                 )
-                
+
                 Text(
                     text = eventTime,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.semantics {
-                        contentDescription = "Event time: $eventTime"
-                    }
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = "Event time: $eventTime"
+                        },
                 )
-                
+
                 event.location?.let { location ->
                     Text(
                         text = location,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Event location: $location"
-                        }
+                        modifier =
+                            Modifier.semantics {
+                                contentDescription = "Event location: $location"
+                            },
                     )
                 }
             }
@@ -258,73 +272,81 @@ fun AccessibleCalendarDay(
     isToday: Boolean,
     hasEvents: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val dayNumber = day.date.dayOfMonth.toString()
-    val isWeekend = day.date.dayOfWeek == java.time.DayOfWeek.SATURDAY || 
-                   day.date.dayOfWeek == java.time.DayOfWeek.SUNDAY
-    
+    val isWeekend =
+        day.date.dayOfWeek == java.time.DayOfWeek.SATURDAY ||
+            day.date.dayOfWeek == java.time.DayOfWeek.SUNDAY
+
     Box(
-        modifier = modifier
-            .aspectRatio(1f)
-            .semantics {
-                calendarDaySemantics(
-                    dayNumber = dayNumber,
-                    isSelected = isSelected,
-                    isToday = isToday,
-                    hasEvents = hasEvents
-                )
-                onClick { onClick(); true }
-            }
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .aspectRatio(1f)
+                .semantics {
+                    calendarDaySemantics(
+                        dayNumber = dayNumber,
+                        isSelected = isSelected,
+                        isToday = isToday,
+                        hasEvents = hasEvents,
+                    )
+                    onClick {
+                        onClick()
+                        true
+                    }
+                }
+                .clickable { onClick() },
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = dayNumber,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (isToday || isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = when {
-                isSelected -> MaterialTheme.colorScheme.onPrimary
-                isToday -> MaterialTheme.colorScheme.onPrimaryContainer
-                isWeekend -> MaterialTheme.colorScheme.onSurfaceVariant
-                else -> MaterialTheme.colorScheme.onSurface
-            }
+            color =
+                when {
+                    isSelected -> MaterialTheme.colorScheme.onPrimary
+                    isToday -> MaterialTheme.colorScheme.onPrimaryContainer
+                    isWeekend -> MaterialTheme.colorScheme.onSurfaceVariant
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
         )
     }
 }
 
 // Local semantics helpers
 private fun SemanticsPropertyReceiver.eventSemantics(
-    eventTitle: String, 
-    eventTime: String, 
-    eventLocation: String?, 
-    isAllDay: Boolean
+    eventTitle: String,
+    eventTime: String,
+    eventLocation: String?,
+    isAllDay: Boolean,
 ) {
-    contentDescription = buildString {
-        append("Event: ")
-        append(eventTitle)
-        append(". Time: ")
-        append(eventTime)
-        if (isAllDay) append(". All day")
-        if (!eventLocation.isNullOrBlank()) {
-            append(". Location: ")
-            append(eventLocation)
+    contentDescription =
+        buildString {
+            append("Event: ")
+            append(eventTitle)
+            append(". Time: ")
+            append(eventTime)
+            if (isAllDay) append(". All day")
+            if (!eventLocation.isNullOrBlank()) {
+                append(". Location: ")
+                append(eventLocation)
+            }
         }
-    }
 }
 
 private fun SemanticsPropertyReceiver.calendarDaySemantics(
-    dayNumber: String, 
-    isSelected: Boolean, 
-    isToday: Boolean, 
-    hasEvents: Boolean
+    dayNumber: String,
+    isSelected: Boolean,
+    isToday: Boolean,
+    hasEvents: Boolean,
 ) {
-    contentDescription = buildString {
-        append("Day ")
-        append(dayNumber)
-        if (isToday) append(", today")
-        if (isSelected) append(", selected")
-        if (hasEvents) append(", has events")
-    }
+    contentDescription =
+        buildString {
+            append("Day ")
+            append(dayNumber)
+            if (isToday) append(", today")
+            if (isSelected) append(", selected")
+            if (hasEvents) append(", has events")
+        }
     stateDescription = "Calendar day"
 }

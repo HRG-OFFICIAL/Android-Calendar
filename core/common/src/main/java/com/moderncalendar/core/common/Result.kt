@@ -5,7 +5,9 @@ package com.moderncalendar.core.common
  */
 sealed class Result<out T> {
     data class Success<out T>(val data: T) : Result<T>()
+
     data class Error(val exception: Throwable) : Result<Nothing>()
+
     object Loading : Result<Nothing>()
 }
 
@@ -62,6 +64,7 @@ inline fun <T, R> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> {
         is Result.Loading -> this
     }
 }
+
 /**
  * Enhanced Result extensions for better error handling
  */
@@ -102,7 +105,9 @@ inline fun <T> Result<T>.onLoading(action: () -> Unit): Result<T> {
 fun <T> Result<T>.getErrorOrNull(): CalendarError? {
     return if (this is Result.Error) {
         exception as? CalendarError ?: ErrorHandler.handleException(exception)
-    } else null
+    } else {
+        null
+    }
 }
 
 /**

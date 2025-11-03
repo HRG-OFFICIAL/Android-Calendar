@@ -12,13 +12,16 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DismissAlarmsService : Service() {
-    
     @Inject
     lateinit var reminderManager: ReminderManager
-    
+
     override fun onBind(intent: Intent?): IBinder? = null
-    
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         when (intent?.action) {
             ACTION_DISMISS_ALARMS -> {
                 dismissAlarms()
@@ -26,14 +29,15 @@ class DismissAlarmsService : Service() {
         }
         return START_NOT_STICKY
     }
-    
+
     private fun dismissAlarms() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Dismiss all active alarms via reflection to avoid classpath symbol ambiguity
                 try {
-                    val method = reminderManager::class.java.methods.firstOrNull { it.name == "cancelAllPublic" }
-                        ?: reminderManager::class.java.methods.firstOrNull { it.name == "cancelAllReminders" }
+                    val method =
+                        reminderManager::class.java.methods.firstOrNull { it.name == "cancelAllPublic" }
+                            ?: reminderManager::class.java.methods.firstOrNull { it.name == "cancelAllReminders" }
                     method?.invoke(reminderManager)
                 } catch (_: Throwable) {
                     // ignore
@@ -43,7 +47,7 @@ class DismissAlarmsService : Service() {
             }
         }
     }
-    
+
     companion object {
         const val ACTION_DISMISS_ALARMS = "com.moderncalendar.action.DISMISS_ALARMS"
     }

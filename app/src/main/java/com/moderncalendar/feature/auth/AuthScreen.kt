@@ -26,7 +26,7 @@ import kotlinx.coroutines.delay
 fun AuthScreen(
     modifier: Modifier = Modifier,
     onAuthSuccess: () -> Unit = {},
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -35,77 +35,79 @@ fun AuthScreen(
     var isSignUp by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
     var showConfirmPassword by remember { mutableStateOf(false) }
-    
+
     val uiState by viewModel.uiState.collectAsState()
-    
+
     // Auto-type mock credentials for demo
     LaunchedEffect(Unit) {
         delay(1000) // Wait 1 second before starting
-        
+
         // Auto-type email
         val mockEmail = "demo@calendar.com"
         for (i in 1..mockEmail.length) {
             email = mockEmail.substring(0, i)
             delay(100) // Simulate typing speed
         }
-        
+
         delay(500) // Pause between fields
-        
+
         // Auto-type password
         val mockPassword = "password123"
         for (i in 1..mockPassword.length) {
             password = mockPassword.substring(0, i)
             delay(80) // Slightly faster for password
         }
-        
+
         delay(1000) // Wait before auto-submitting
-        
+
         // Auto-submit the form
         viewModel.signIn(email, password)
     }
-    
+
     LaunchedEffect(uiState.isAuthenticated) {
         if (uiState.isAuthenticated) {
             onAuthSuccess()
         }
     }
-    
+
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         // App Logo/Title
         Text(
             text = "Modern Calendar",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 8.dp),
         )
-        
+
         Text(
             text = if (isSignUp) "Create your account" else "Welcome back",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 32.dp)
+            modifier = Modifier.padding(bottom = 32.dp),
         )
-        
+
         // Display Name (Sign Up only)
         if (isSignUp) {
             OutlinedTextField(
                 value = displayName,
                 onValueChange = { displayName = it },
                 label = { Text("Display Name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                singleLine = true
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                singleLine = true,
             )
         }
-        
+
         // Email Field
         OutlinedTextField(
             value = email,
@@ -115,24 +117,26 @@ fun AuthScreen(
                 Icon(Icons.Default.Email, contentDescription = "Email")
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
             singleLine = true,
-            isError = uiState.emailError != null
+            isError = uiState.emailError != null,
         )
-        
+
         uiState.emailError?.let { error ->
             Text(
                 text = error,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
             )
         }
-        
+
         // Password Field
         OutlinedTextField(
             value = password,
@@ -145,30 +149,32 @@ fun AuthScreen(
                 IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(
                         if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (showPassword) "Hide password" else "Show password"
+                        contentDescription = if (showPassword) "Hide password" else "Show password",
                     )
                 }
             },
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
             singleLine = true,
-            isError = uiState.passwordError != null
+            isError = uiState.passwordError != null,
         )
-        
+
         uiState.passwordError?.let { error ->
             Text(
                 text = error,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
             )
         }
-        
+
         // Confirm Password (Sign Up only)
         if (isSignUp) {
             OutlinedTextField(
@@ -182,49 +188,53 @@ fun AuthScreen(
                     IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
                         Icon(
                             if (showConfirmPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = if (showConfirmPassword) "Hide password" else "Show password"
+                            contentDescription = if (showConfirmPassword) "Hide password" else "Show password",
                         )
                     }
                 },
                 visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
                 singleLine = true,
-                isError = uiState.confirmPasswordError != null
+                isError = uiState.confirmPasswordError != null,
             )
-            
+
             uiState.confirmPasswordError?.let { error ->
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
                 )
             }
         }
-        
+
         // Error Message
         uiState.errorMessage?.let { error ->
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                )
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                    ),
             ) {
                 Text(
                     text = error,
                     color = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 )
             }
         }
-        
+
         // Auth Button
         Button(
             onClick = {
@@ -234,46 +244,48 @@ fun AuthScreen(
                     viewModel.signIn(email, password)
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            enabled = !uiState.isLoading
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+            enabled = !uiState.isLoading,
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary,
                 )
             } else {
                 Text(if (isSignUp) "Sign Up" else "Sign In")
             }
         }
-        
+
         // Toggle Auth Mode
         TextButton(
             onClick = { isSignUp = !isSignUp },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
         ) {
             Text(
-                if (isSignUp) "Already have an account? Sign In" else "Don't have an account? Sign Up"
+                if (isSignUp) "Already have an account? Sign In" else "Don't have an account? Sign Up",
             )
         }
-        
+
         // Guest Login Button
         OutlinedButton(
             onClick = { viewModel.signInAsGuest() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            enabled = !uiState.isLoading
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+            enabled = !uiState.isLoading,
         ) {
             Text("Continue as Guest")
         }
-        
+
         // Forgot Password
         if (!isSignUp) {
             TextButton(
-                onClick = { viewModel.resetPassword(email) }
+                onClick = { viewModel.resetPassword(email) },
             ) {
                 Text("Forgot Password?")
             }

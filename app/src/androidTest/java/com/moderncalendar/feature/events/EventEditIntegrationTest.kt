@@ -16,21 +16,21 @@ import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
 class EventEditIntegrationTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val sampleEvent = Event(
-        id = "1",
-        title = "Team Meeting",
-        description = "Weekly team sync",
-        location = "Conference Room",
-        startDateTime = LocalDateTime.of(2024, 1, 15, 9, 0),
-        endDateTime = LocalDateTime.of(2024, 1, 15, 10, 0),
-        isAllDay = false,
-        color = "#FF0000",
-        priority = EventPriority.HIGH
-    )
+    private val sampleEvent =
+        Event(
+            id = "1",
+            title = "Team Meeting",
+            description = "Weekly team sync",
+            location = "Conference Room",
+            startDateTime = LocalDateTime.of(2024, 1, 15, 9, 0),
+            endDateTime = LocalDateTime.of(2024, 1, 15, 10, 0),
+            isAllDay = false,
+            color = "#FF0000",
+            priority = EventPriority.HIGH,
+        )
 
     @Test
     fun eventEdit_prePopulatesFields_withExistingEventData() {
@@ -40,7 +40,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -74,7 +74,7 @@ class EventEditIntegrationTest {
                 EventEditScreen(
                     eventId = "1",
                     viewModel = mockViewModel,
-                    onEventUpdated = { eventUpdated = true }
+                    onEventUpdated = { eventUpdated = true },
                 )
             }
         }
@@ -107,7 +107,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -140,7 +140,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -173,7 +173,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -202,7 +202,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -227,7 +227,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -262,7 +262,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -291,7 +291,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -317,7 +317,7 @@ class EventEditIntegrationTest {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = "1",
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -333,9 +333,9 @@ class EventEditIntegrationTest {
 
     private fun createMockEventViewModel(event: Event): EventViewModel {
         val mockViewModel = mockk<EventViewModel>(relaxed = true)
-        
+
         every { mockViewModel.selectedEvent } returns MutableStateFlow(event)
-        
+
         return mockViewModel
     }
 }

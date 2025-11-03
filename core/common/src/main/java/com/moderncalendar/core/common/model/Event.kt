@@ -25,9 +25,12 @@ data class Event(
     val updatedAt: LocalDateTime = LocalDateTime.now(),
     val userId: String? = null,
     val isSynced: Boolean = false,
-    val serverId: String? = null
+    val serverId: String? = null,
 )
 
 enum class EventPriority {
-    LOW, MEDIUM, HIGH, URGENT
+    LOW,
+    MEDIUM,
+    HIGH,
+    URGENT,
 }

@@ -10,10 +10,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CalendarScreenTest {
-    
     @get:Rule
     val composeTestRule = createComposeRule()
-    
+
     @Test
     fun calendarScreen_displaysCurrentMonth() {
         composeTestRule.setContent {
@@ -22,17 +21,17 @@ class CalendarScreenTest {
                 // For now, this is a basic structure test
             }
         }
-        
+
         // Basic test to ensure the compose rule works
         // In a real implementation, you'd test specific UI elements
     }
-    
+
     @Test
     fun calendarScreen_canSwitchViewModes() {
         // This would test the view mode switching functionality
         // Implementation would depend on having proper test setup
     }
-    
+
     @Test
     fun calendarScreen_canSelectDates() {
         // This would test date selection functionality

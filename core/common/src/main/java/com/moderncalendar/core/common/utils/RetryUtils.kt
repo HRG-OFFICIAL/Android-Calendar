@@ -1,7 +1,6 @@
 package com.moderncalendar.core.common.utils
 
 import kotlinx.coroutines.delay
-import kotlin.math.pow
 
 /**
  * Utility functions for retry operations with backoff
@@ -14,11 +13,11 @@ suspend fun <T> retryWithBackoff(
     maxRetries: Int = 3,
     initialDelayMs: Long = 1000,
     backoffMultiplier: Double = 2.0,
-    operation: suspend () -> T
+    operation: suspend () -> T,
 ): T {
     var currentDelay = initialDelayMs
     var lastException: Exception? = null
-    
+
     repeat(maxRetries) { attempt ->
         try {
             return operation()
@@ -30,6 +29,6 @@ suspend fun <T> retryWithBackoff(
             }
         }
     }
-    
+
     throw lastException ?: Exception("Retry failed after $maxRetries attempts")
 }

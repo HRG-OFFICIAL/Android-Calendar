@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
  * Default implementation of error state management for ViewModels
  */
 class DefaultErrorStateManager {
-
     private val _errorState = MutableStateFlow<CalendarError?>(null)
     val errorState: StateFlow<CalendarError?> = _errorState.asStateFlow()
 

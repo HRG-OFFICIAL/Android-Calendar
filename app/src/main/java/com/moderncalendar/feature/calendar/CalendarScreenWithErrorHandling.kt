@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.entity.EventEntity
 import kotlinx.coroutines.launch
 
 /**
@@ -21,19 +20,19 @@ fun CalendarScreenWithErrorHandling(
     onCreateEventClick: (java.time.LocalDate) -> Unit = {},
     onSearchClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val selectedDate by viewModel.selectedDate.collectAsState()
     val events by viewModel.events.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    
+
     // Avoid smart casts on delegated state by binding to local val first
     val eventsLocal = events
     val eventsWithRetry = remember(eventsLocal) { eventsLocal }
-    
+
     Box(modifier = modifier.fillMaxSize()) {
         // Main calendar content
         CalendarScreen(
@@ -42,9 +41,9 @@ fun CalendarScreenWithErrorHandling(
             onNavigateToEventCreation = onCreateEventClick,
             onNavigateToSearch = onSearchClick,
             onNavigateToSettings = onSettingsClick,
-            viewModel = viewModel
+            viewModel = viewModel,
         )
-        
+
         // Error handling overlay
         when (eventsWithRetry) {
             is Result.Error -> {
@@ -58,7 +57,7 @@ fun CalendarScreenWithErrorHandling(
                     },
                     onDismiss = {
                         // Handle dismiss if needed
-                    }
+                    },
                 )
             }
             is Result.Loading -> {
@@ -70,11 +69,11 @@ fun CalendarScreenWithErrorHandling(
                 // Success state - no overlay needed
             }
         }
-        
+
         // Snackbar host for error messages
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
@@ -85,55 +84,59 @@ private fun ErrorOverlay(
     isRetryable: Boolean,
     onRetry: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        )
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+            ),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = "Error",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onErrorContainer
+                color = MaterialTheme.colorScheme.onErrorContainer,
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onErrorContainer
+                color = MaterialTheme.colorScheme.onErrorContainer,
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (isRetryable) {
                     Button(
                         onClick = onRetry,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                            ),
                     ) {
                         Text("Retry")
                     }
                 }
-                
+
                 OutlinedButton(
                     onClick = onDismiss,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
                 ) {
                     Text("Dismiss")
                 }
@@ -143,27 +146,26 @@ private fun ErrorOverlay(
 }
 
 @Composable
-private fun LoadingOverlay(
-    modifier: Modifier = Modifier
-) {
+private fun LoadingOverlay(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-            )
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                ),
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Loading events...",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }

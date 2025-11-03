@@ -5,16 +5,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.moderncalendar.core.common.model.EventPriority
 import com.moderncalendar.core.ui.theme.ModernCalendarTheme
-import com.moderncalendar.core.ui.theme.EventColors
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDate
-import java.time.LocalTime
 
 @RunWith(AndroidJUnit4::class)
 class EventCreationIntegrationTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -27,7 +23,7 @@ class EventCreationIntegrationTest {
             ModernCalendarTheme {
                 EventCreationScreen(
                     onEventCreated = { eventCreated = true },
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -94,7 +90,7 @@ class EventCreationIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 EventCreationScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -117,7 +113,7 @@ class EventCreationIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 EventCreationScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -152,7 +148,7 @@ class EventCreationIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 EventCreationScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -173,7 +169,7 @@ class EventCreationIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 EventCreationScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -194,7 +190,7 @@ class EventCreationIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 EventCreationScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }

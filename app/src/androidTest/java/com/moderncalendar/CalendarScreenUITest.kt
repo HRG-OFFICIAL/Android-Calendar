@@ -10,7 +10,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CalendarScreenUITest : BaseUITest() {
-    
     @Test
     fun calendarScreen_displaysCorrectly() {
         // Given
@@ -19,7 +18,7 @@ class CalendarScreenUITest : BaseUITest() {
         var onCreateEventClickCalled = false
         var onSearchClickCalled = false
         var onSettingsClickCalled = false
-        
+
         // When
         setContent {
             CalendarScreen(
@@ -27,86 +26,86 @@ class CalendarScreenUITest : BaseUITest() {
                 onNavigateToEventCreation = { _ -> onCreateEventClickCalled = true },
                 onNavigateToSearch = { onSearchClickCalled = true },
                 onNavigateToSettings = { onSettingsClickCalled = true },
-                viewModel = mockViewModel
+                viewModel = mockViewModel,
             )
         }
-        
+
         // Then
         onNodeWithText("Modern Calendar").assertIsDisplayed()
         onNodeWithContentDescription("Create Event").assertIsDisplayed()
         onNodeWithContentDescription("Search").assertIsDisplayed()
         onNodeWithContentDescription("Settings").assertIsDisplayed()
     }
-    
+
     @Test
     fun calendarScreen_clickCreateEventButton_callsOnCreateEventClick() {
         // Given
         val mockViewModel = mockk<CalendarViewModel>(relaxed = true)
         var onCreateEventClickCalled = false
-        
+
         setContent {
             CalendarScreen(
                 onNavigateToEventCreation = { _ -> onCreateEventClickCalled = true },
-                viewModel = mockViewModel
+                viewModel = mockViewModel,
             )
         }
-        
+
         // When
         performClick(onNodeWithContentDescription("Create Event"))
-        
+
         // Then
         assert(onCreateEventClickCalled)
     }
-    
+
     @Test
     fun calendarScreen_clickSearchButton_callsOnSearchClick() {
         // Given
         val mockViewModel = mockk<CalendarViewModel>(relaxed = true)
         var onSearchClickCalled = false
-        
+
         setContent {
             CalendarScreen(
                 onNavigateToSearch = { onSearchClickCalled = true },
-                viewModel = mockViewModel
+                viewModel = mockViewModel,
             )
         }
-        
+
         // When
         performClick(onNodeWithContentDescription("Search"))
-        
+
         // Then
         assert(onSearchClickCalled)
     }
-    
+
     @Test
     fun calendarScreen_clickSettingsButton_callsOnSettingsClick() {
         // Given
         val mockViewModel = mockk<CalendarViewModel>(relaxed = true)
         var onSettingsClickCalled = false
-        
+
         setContent {
             CalendarScreen(
                 onNavigateToSettings = { onSettingsClickCalled = true },
-                viewModel = mockViewModel
+                viewModel = mockViewModel,
             )
         }
-        
+
         // When
         performClick(onNodeWithContentDescription("Settings"))
-        
+
         // Then
         assert(onSettingsClickCalled)
     }
-    
+
     @Test
     fun calendarScreen_displaysCalendarViewSelector() {
         // Given
         val mockViewModel = mockk<CalendarViewModel>(relaxed = true)
-        
+
         setContent {
             CalendarScreen(viewModel = mockViewModel)
         }
-        
+
         // Then
         onNodeWithText("Month").assertIsDisplayed()
         onNodeWithText("Week").assertIsDisplayed()
@@ -114,16 +113,16 @@ class CalendarScreenUITest : BaseUITest() {
         onNodeWithText("Year").assertIsDisplayed()
         onNodeWithText("Heatmap").assertIsDisplayed()
     }
-    
+
     @Test
     fun calendarScreen_displaysSelectedDate() {
         // Given
         val mockViewModel = mockk<CalendarViewModel>(relaxed = true)
-        
+
         setContent {
             CalendarScreen(viewModel = mockViewModel)
         }
-        
+
         // Then
         onNodeWithText("Events for").assertIsDisplayed()
     }

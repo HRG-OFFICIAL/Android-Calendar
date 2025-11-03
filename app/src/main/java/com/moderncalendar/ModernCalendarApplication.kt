@@ -13,21 +13,20 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class ModernCalendarApplication : Application() {
-    
     @Inject
     lateinit var mockDataService: MockDataService
-    
+
     @Inject
     lateinit var eventRepository: EventRepository
-    
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
+
     override fun onCreate() {
         super.onCreate()
-        
+
         // Initialize any global configurations here
         // Firebase, Analytics, etc.
-        
+
         // Cleanup invalid colors in background
         applicationScope.launch {
             try {
@@ -47,7 +46,7 @@ class ModernCalendarApplication : Application() {
                 Log.e("ModernCalendarApp", "Error during color cleanup", e)
             }
         }
-        
+
         // Initialize mock data for demonstration
         if (mockDataService.shouldInitializeMockData()) {
             mockDataService.initializeMockData()

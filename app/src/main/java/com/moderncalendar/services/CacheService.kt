@@ -12,13 +12,16 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CacheService : Service() {
-    
     @Inject
     lateinit var eventRepository: EventRepository
-    
+
     override fun onBind(intent: Intent?): IBinder? = null
-    
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         when (intent?.action) {
             ACTION_CACHE_EVENTS -> {
                 cacheEvents()
@@ -26,7 +29,7 @@ class CacheService : Service() {
         }
         return START_NOT_STICKY
     }
-    
+
     private fun cacheEvents() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -37,7 +40,7 @@ class CacheService : Service() {
             }
         }
     }
-    
+
     companion object {
         const val ACTION_CACHE_EVENTS = "com.moderncalendar.action.CACHE_EVENTS"
     }

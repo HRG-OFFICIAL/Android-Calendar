@@ -24,7 +24,7 @@ class EventSearchActivity : ComponentActivity() {
         setContent {
             ModernCalendarTheme {
                 EventSearchScreen(
-                    onBackClick = { finish() }
+                    onBackClick = { finish() },
                 )
             }
         }
@@ -35,12 +35,12 @@ class EventSearchActivity : ComponentActivity() {
 @Composable
 fun EventSearchScreen(
     onBackClick: () -> Unit,
-    viewModel: EventSearchViewModel = hiltViewModel()
+    viewModel: EventSearchViewModel = hiltViewModel(),
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -49,47 +49,48 @@ fun EventSearchScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
         ) {
             // Search Bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { 
+                onValueChange = {
                     searchQuery = it
                     viewModel.searchEvents(it)
                 },
                 label = { Text("Search events...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Search Results
             if (isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
                 }
             } else if (searchResults.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = if (searchQuery.isEmpty()) "Enter a search term" else "No events found",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                 }
             } else {
@@ -97,7 +98,7 @@ fun EventSearchScreen(
                     items(searchResults) { event ->
                         EventSearchItem(
                             event = event,
-                            onClick = { /* TODO: Navigate to event details */ }
+                            onClick = { /* TODO: Navigate to event details */ },
                         )
                     }
                 }
@@ -109,36 +110,37 @@ fun EventSearchScreen(
 @Composable
 fun EventSearchItem(
     event: EventSearchResult,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        onClick = onClick
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+        onClick = onClick,
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Text(
                 text = event.title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
-            
+
             if (event.description.isNotEmpty()) {
                 Text(
                     text = event.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            
+
             if (event.location.isNotEmpty()) {
                 Text(
                     text = event.location,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

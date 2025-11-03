@@ -6,31 +6,30 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object MockDataInitializer {
-    
     /**
      * Check if an event ID belongs to a mock event
      */
     fun isMockEvent(eventId: String): Boolean {
         return eventId.startsWith("mock_")
     }
-    
+
     /**
      * Get the list of mock event IDs for a specific date
      */
     fun getMockEventIds(dateStr: String): List<String> {
         return listOf(
             "mock_yoga_$dateStr",
-            "mock_meeting_$dateStr", 
+            "mock_meeting_$dateStr",
             "mock_lunch_$dateStr",
             "mock_study_$dateStr",
-            "mock_movie_$dateStr"
+            "mock_movie_$dateStr",
         )
     }
-    
+
     fun getMockEvents(): List<Event> {
         val today = LocalDateTime.now().toLocalDate()
         val dateStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE)
-        
+
         return listOf(
             // 🌞 Morning Yoga & Meditation
             Event(
@@ -44,9 +43,8 @@ object MockDataInitializer {
                 color = "#FF9800", // Orange for morning energy
                 priority = EventPriority.MEDIUM,
                 category = "Health & Fitness",
-                reminderMinutes = listOf(15, 5) // 15 and 5 minutes before
+                reminderMinutes = listOf(15, 5), // 15 and 5 minutes before
             ),
-            
             // 💼 Team Sync Meeting
             Event(
                 id = "mock_meeting_$dateStr",
@@ -59,9 +57,8 @@ object MockDataInitializer {
                 color = "#2196F3", // Blue for work
                 priority = EventPriority.HIGH,
                 category = "Work",
-                reminderMinutes = listOf(10, 2) // 10 and 2 minutes before
+                reminderMinutes = listOf(10, 2), // 10 and 2 minutes before
             ),
-            
             // 🍔 Lunch with Friends
             Event(
                 id = "mock_lunch_$dateStr",
@@ -75,9 +72,8 @@ object MockDataInitializer {
                 priority = EventPriority.MEDIUM,
                 category = "Social",
                 attendees = listOf("Alex", "Sarah", "Mike"),
-                reminderMinutes = listOf(30, 10) // 30 and 10 minutes before
+                reminderMinutes = listOf(30, 10), // 30 and 10 minutes before
             ),
-            
             // 📖 Study Session – Data Structures
             Event(
                 id = "mock_study_$dateStr",
@@ -90,9 +86,8 @@ object MockDataInitializer {
                 color = "#9C27B0", // Purple for learning
                 priority = EventPriority.HIGH,
                 category = "Education",
-                reminderMinutes = listOf(15) // 15 minutes before
+                reminderMinutes = listOf(15), // 15 minutes before
             ),
-            
             // 🌙 Movie Night & Chill
             Event(
                 id = "mock_movie_$dateStr",
@@ -105,8 +100,8 @@ object MockDataInitializer {
                 color = "#FF5722", // Deep orange for entertainment
                 priority = EventPriority.LOW,
                 category = "Entertainment",
-                reminderMinutes = listOf(20) // 20 minutes before
-            )
+                reminderMinutes = listOf(20), // 20 minutes before
+            ),
         )
     }
 }

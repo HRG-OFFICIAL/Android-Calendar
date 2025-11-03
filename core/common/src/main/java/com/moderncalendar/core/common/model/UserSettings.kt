@@ -9,9 +9,15 @@ data class UserSettings(
     val eventReminders: Boolean = true,
     val weekStartsOn: DayOfWeek = DayOfWeek.MONDAY,
     val language: String = "en",
-    val timezone: String = "UTC"
+    val timezone: String = "UTC",
 )
 
 enum class DayOfWeek {
-    SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+    SUNDAY,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
 }

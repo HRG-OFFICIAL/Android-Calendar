@@ -30,7 +30,7 @@ class EventInfoActivity : ComponentActivity() {
                 EventInfoScreen(
                     onBackClick = { finish() },
                     onEditClick = { /* TODO: Navigate to edit screen */ },
-                    onShareClick = { /* TODO: Share event */ }
+                    onShareClick = { /* TODO: Share event */ },
                 )
             }
         }
@@ -42,23 +42,24 @@ class EventInfoActivity : ComponentActivity() {
 fun EventInfoScreen(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
-    onShareClick: () -> Unit
+    onShareClick: () -> Unit,
 ) {
     // Mock event data for demonstration
-    val event = remember {
-        EventData(
-            title = "Sample Event",
-            description = "This is a sample event description",
-            location = "Sample Location",
-            startDateTime = LocalDateTime.now(),
-            endDateTime = LocalDateTime.now().plusHours(2),
-            isAllDay = false,
-            color = Color(0xFF009688),
-            recurrenceRule = "None",
-            reminderMinutes = listOf(15, 30)
-        )
-    }
-    
+    val event =
+        remember {
+            EventData(
+                title = "Sample Event",
+                description = "This is a sample event description",
+                location = "Sample Location",
+                startDateTime = LocalDateTime.now(),
+                endDateTime = LocalDateTime.now().plusHours(2),
+                isAllDay = false,
+                color = Color(0xFF009688),
+                recurrenceRule = "None",
+                reminderMinutes = listOf(15, 30),
+            )
+        }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,151 +76,158 @@ fun EventInfoScreen(
                     IconButton(onClick = onShareClick) {
                         Icon(Icons.Default.Share, contentDescription = "Share")
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
         ) {
             // Event Title
             Text(
                 text = event.title,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
-            
+
             // Event Color Indicator
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(event.color, shape = MaterialTheme.shapes.small)
+                    modifier =
+                        Modifier
+                            .size(24.dp)
+                            .background(event.color, shape = MaterialTheme.shapes.small),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Event Color",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
-            
+
             // Time Information
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Text(
                         text = "Time",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
-                    
+
                     if (event.isAllDay) {
                         Text("All Day Event")
                     } else {
                         Text(
-                            text = "Start: ${event.startDateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' h:mm a"))}"
+                            text = "Start: ${event.startDateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' h:mm a"))}",
                         )
                         if (event.endDateTime != event.startDateTime) {
                             Text(
-                                text = "End: ${event.endDateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' h:mm a"))}"
+                                text = "End: ${event.endDateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' h:mm a"))}",
                             )
                         }
                     }
                 }
             }
-            
+
             // Location
             if (event.location.isNotEmpty()) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     ) {
                         Text(
                             text = "Location",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp),
                         )
                         Text(text = event.location)
                     }
                 }
             }
-            
+
             // Description
             if (event.description.isNotEmpty()) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     ) {
                         Text(
                             text = "Description",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp),
                         )
                         Text(text = event.description)
                     }
                 }
             }
-            
+
             // Recurrence
             if (event.recurrenceRule != "None") {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     ) {
                         Text(
                             text = "Recurrence",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp),
                         )
                         Text(text = event.recurrenceRule)
                     }
                 }
             }
-            
+
             // Reminders
             if (event.reminderMinutes.isNotEmpty()) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     ) {
                         Text(
                             text = "Reminders",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 8.dp),
                         )
                         event.reminderMinutes.forEach { minutes ->
                             Text(text = "$minutes minutes before")
@@ -240,5 +248,5 @@ data class EventData(
     val isAllDay: Boolean,
     val color: Color,
     val recurrenceRule: String,
-    val reminderMinutes: List<Int>
+    val reminderMinutes: List<Int>,
 )

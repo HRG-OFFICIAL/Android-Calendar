@@ -8,7 +8,6 @@ import kotlin.test.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 class EventDisplayIntegrationTest {
-
     @Test
     fun `color parsing works correctly with valid hex color`() {
         // Given

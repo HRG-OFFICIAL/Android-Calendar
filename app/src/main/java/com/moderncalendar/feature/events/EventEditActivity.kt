@@ -16,21 +16,20 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class EventEditActivity : ComponentActivity() {
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         val eventId = intent.getStringExtra("event_id")
         val isEdit = intent.action == Intent.ACTION_EDIT
-        
+
         setContent {
             ModernCalendarTheme {
                 EventEditScreen(
                     eventId = eventId,
                     isEdit = isEdit,
                     onEventSaved = { finish() },
-                    onEventCancelled = { finish() }
+                    onEventCancelled = { finish() },
                 )
             }
         }
@@ -43,13 +42,13 @@ fun EventEditScreen(
     eventId: String?,
     isEdit: Boolean,
     onEventSaved: () -> Unit,
-    onEventCancelled: () -> Unit
+    onEventCancelled: () -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var isAllDay by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,52 +61,53 @@ fun EventEditScreen(
                 actions = {
                     TextButton(
                         onClick = onEventSaved,
-                        enabled = title.isNotBlank()
+                        enabled = title.isNotBlank(),
                     ) {
                         Text("Save")
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("Event Title") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
-            
+
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
                 label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
             )
-            
+
             OutlinedTextField(
                 value = location,
                 onValueChange = { location = it },
                 label = { Text("Location") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text("All Day Event")
                 Switch(
                     checked = isAllDay,
-                    onCheckedChange = { isAllDay = it }
+                    onCheckedChange = { isAllDay = it },
                 )
             }
         }

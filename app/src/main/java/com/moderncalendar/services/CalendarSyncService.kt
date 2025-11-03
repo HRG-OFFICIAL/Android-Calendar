@@ -12,13 +12,16 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class CalendarSyncService : Service() {
-    
     @Inject
     lateinit var cloudSyncRepository: CloudSyncRepository
-    
+
     override fun onBind(intent: Intent?): IBinder? = null
-    
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         when (intent?.action) {
             ACTION_SYNC_CALENDAR -> {
                 syncCalendar()
@@ -26,7 +29,7 @@ class CalendarSyncService : Service() {
         }
         return START_NOT_STICKY
     }
-    
+
     private fun syncCalendar() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -38,7 +41,7 @@ class CalendarSyncService : Service() {
             }
         }
     }
-    
+
     companion object {
         const val ACTION_SYNC_CALENDAR = "com.moderncalendar.action.SYNC_CALENDAR"
     }

@@ -22,34 +22,34 @@ fun WeekView(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     eventsForWeek: List<Event> = emptyList(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val weekFields = WeekFields.of(Locale.getDefault())
     val startOfWeek = selectedDate.with(weekFields.dayOfWeek(), 1)
     val weekDates = (0..6).map { startOfWeek.plusDays(it.toLong()) }
-    
+
     // Group events by date
     val eventsByDate = eventsForWeek.groupBy { it.startDateTime.toLocalDate() }
-    
+
     Column(modifier = modifier.padding(16.dp)) {
         // Week header with dates
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             weekDates.forEach { date ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(
                         text = date.dayOfWeek.name.take(3),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    
+
                     Spacer(modifier = Modifier.height(4.dp))
-                    
+
                     CalendarDateCell(
                         date = date,
                         isSelected = date == selectedDate,
@@ -58,44 +58,50 @@ fun WeekView(
                         isWeekend = date.dayOfWeek.value >= 6,
                         hasEvents = eventsByDate[date]?.isNotEmpty() == true,
                         eventCount = eventsByDate[date]?.size ?: 0,
-                        onClick = onDateSelected
+                        onClick = onDateSelected,
                     )
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Events for selected date in week
         Text(
             text = "Events for ${selectedDate.format(DateTimeFormatter.ofPattern("EEEE, MMM dd"))}",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         val eventsForSelectedDate = eventsByDate[selectedDate] ?: emptyList()
-        
+
         if (eventsForSelectedDate.isEmpty()) {
             Text(
                 text = "No events for this date",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 16.dp)
+                modifier = Modifier.padding(vertical = 16.dp),
             )
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(eventsForSelectedDate) { event ->
                     EventCard(
                         title = event.title,
-                        time = if (event.isAllDay) "All day" else 
-                            "${event.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${event.endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                        time =
+                            if (event.isAllDay) {
+                                "All day"
+                            } else {
+                                "${event.startDateTime.format(
+                                    DateTimeFormatter.ofPattern("HH:mm"),
+                                )} - ${event.endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))}"
+                            },
                         description = event.description,
                         color = com.moderncalendar.core.ui.utils.ColorUtils.parseColorSafely(event.color),
-                        isCompleted = event.isCompleted
+                        isCompleted = event.isCompleted,
                     )
                 }
             }

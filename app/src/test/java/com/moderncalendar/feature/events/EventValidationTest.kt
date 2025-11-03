@@ -7,7 +7,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class EventValidationTest {
-
     @Test
     fun `event creation validation passes for valid input`() {
         val title = "Valid Event"
@@ -111,9 +110,12 @@ class EventValidationTest {
 
         val titleError = if (title.isBlank()) "Title is required" else null
         val dateError = DateTimeValidation.validateFutureDate(startDate, allowToday = true)
-        val timeRangeError = if (!isAllDay) {
-            DateTimeValidation.validateTimeRange(LocalTime.of(10, 0), LocalTime.of(9, 0))
-        } else null
+        val timeRangeError =
+            if (!isAllDay) {
+                DateTimeValidation.validateTimeRange(LocalTime.of(10, 0), LocalTime.of(9, 0))
+            } else {
+                null
+            }
 
         assertNull(titleError)
         assertNull(dateError)

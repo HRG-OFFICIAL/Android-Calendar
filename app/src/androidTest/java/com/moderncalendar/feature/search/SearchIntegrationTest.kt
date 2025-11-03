@@ -17,34 +17,34 @@ import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
 class SearchIntegrationTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val sampleEvents = listOf(
-        Event(
-            id = "1",
-            title = "Team Meeting",
-            description = "Weekly team sync",
-            location = "Conference Room",
-            startDateTime = LocalDateTime.of(2024, 1, 15, 9, 0),
-            endDateTime = LocalDateTime.of(2024, 1, 15, 10, 0),
-            isAllDay = false,
-            color = "#FF0000",
-            priority = EventPriority.HIGH
-        ),
-        Event(
-            id = "2",
-            title = "Lunch Break",
-            description = "Lunch with colleagues",
-            location = "Cafeteria",
-            startDateTime = LocalDateTime.of(2024, 1, 15, 12, 0),
-            endDateTime = LocalDateTime.of(2024, 1, 15, 13, 0),
-            isAllDay = false,
-            color = "#00FF00",
-            priority = EventPriority.MEDIUM
+    private val sampleEvents =
+        listOf(
+            Event(
+                id = "1",
+                title = "Team Meeting",
+                description = "Weekly team sync",
+                location = "Conference Room",
+                startDateTime = LocalDateTime.of(2024, 1, 15, 9, 0),
+                endDateTime = LocalDateTime.of(2024, 1, 15, 10, 0),
+                isAllDay = false,
+                color = "#FF0000",
+                priority = EventPriority.HIGH,
+            ),
+            Event(
+                id = "2",
+                title = "Lunch Break",
+                description = "Lunch with colleagues",
+                location = "Cafeteria",
+                startDateTime = LocalDateTime.of(2024, 1, 15, 12, 0),
+                endDateTime = LocalDateTime.of(2024, 1, 15, 13, 0),
+                isAllDay = false,
+                color = "#00FF00",
+                priority = EventPriority.MEDIUM,
+            ),
         )
-    )
 
     @Test
     fun searchScreen_initialState_showsEmptyState() {
@@ -53,7 +53,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -80,7 +80,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -107,7 +107,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -145,7 +145,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -174,7 +174,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -209,7 +209,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -245,7 +245,7 @@ class SearchIntegrationTest {
             ModernCalendarTheme {
                 SearchScreen(
                     viewModel = mockViewModel,
-                    onEventClick = { eventId -> clickedEventId = eventId }
+                    onEventClick = { eventId -> clickedEventId = eventId },
                 )
             }
         }
@@ -271,7 +271,7 @@ class SearchIntegrationTest {
         composeTestRule.setContent {
             ModernCalendarTheme {
                 SearchScreen(
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -293,12 +293,12 @@ class SearchIntegrationTest {
 
     private fun createMockSearchViewModel(events: List<Event>): SearchViewModel {
         val mockViewModel = mockk<SearchViewModel>(relaxed = true)
-        
+
         every { mockViewModel.searchResults } returns MutableStateFlow(Result.Success(events))
         every { mockViewModel.isSearching } returns MutableStateFlow(false)
         every { mockViewModel.searchQuery } returns MutableStateFlow("")
         every { mockViewModel.recentSearches } returns MutableStateFlow(emptyList())
-        
+
         return mockViewModel
     }
 }

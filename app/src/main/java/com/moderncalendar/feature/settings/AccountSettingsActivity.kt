@@ -21,11 +21,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AccountSettingsActivity : ComponentActivity() {
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         setContent {
             ModernCalendarTheme {
                 AccountSettingsScreen()
@@ -37,64 +36,68 @@ class AccountSettingsActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountSettingsScreen() {
-    var accounts by remember { 
-        mutableStateOf(listOf(
-            "Google Account (user@gmail.com)",
-            "Microsoft Account (user@outlook.com)",
-            "Local Account"
-        ))
+    var accounts by remember {
+        mutableStateOf(
+            listOf(
+                "Google Account (user@gmail.com)",
+                "Microsoft Account (user@outlook.com)",
+                "Local Account",
+            ),
+        )
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Account Settings") }
+                title = { Text("Account Settings") },
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* Add new account */ }
+                onClick = { /* Add new account */ },
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Account")
             }
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item {
                 Text(
                     text = "Connected Accounts",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = 8.dp),
                 )
             }
-            
+
             items(accounts) { account ->
                 Card(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = account,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
                         )
-                        
+
                         Row {
                             IconButton(onClick = { /* Edit account */ }) {
                                 Icon(Icons.Default.Edit, contentDescription = "Edit")
                             }
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 accounts = accounts.filter { it != account }
                             }) {
                                 Icon(Icons.Default.Delete, contentDescription = "Delete")
@@ -103,25 +106,26 @@ fun AccountSettingsScreen() {
                     }
                 }
             }
-            
+
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        ),
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = "Sync Settings",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = "Manage how your calendars sync across devices",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }

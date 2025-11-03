@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -27,7 +29,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -44,9 +46,31 @@ android {
     buildFeatures {
         compose = true
     }
-    
+
     lint {
         disable += setOf("NullSafeMutableLiveData", "RememberInComposition", "FrequentlyChangingValue")
+    }
+}
+
+detekt {
+    toolVersion = "1.23.7"
+    config.setFrom(file("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    allRules = false
+}
+
+ktlint {
+    version.set("1.0.1")
+    debug.set(true)
+    verbose.set(true)
+    android.set(true)
+    outputToConsole.set(true)
+    outputColorName.set("RED")
+    ignoreFailures.set(true)  // Allow build to continue with warnings
+    enableExperimentalRules.set(false)
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
     }
 }
 
@@ -68,66 +92,66 @@ dependencies {
     implementation(project(":core:performance"))
     implementation(project(":core:accessibility"))
     implementation(project(":core:settings"))
-    
+
     // Core Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.bundles.lifecycle)
-    
+
     // Hilt-Compose integration
     implementation(libs.hilt.navigation.compose)
-    
+
     // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended")
-    
+
     // Calendar
     implementation(libs.calendar.compose)
-    
+
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
-    
+
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
-    
+
     // WorkManager
     implementation(libs.work.runtime.ktx)
     implementation(libs.work.hilt)
     // AndroidX Hilt compiler for @HiltWorker
     ksp("androidx.hilt:hilt-compiler:1.2.0")
-    
+
     // Paging
     implementation(libs.paging.runtime.ktx)
     implementation(libs.paging.compose)
-    
+
     // Accompanist
     implementation(libs.accompanist.permissions)
     implementation(libs.accompanist.systemuicontroller)
-    
+
     // Coil
     implementation(libs.coil.compose)
-    
+
     // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended")
-    
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-    
+
     // UI & Animation
     implementation(libs.lottie.compose)
     implementation(libs.coil.compose)
     implementation(libs.accompanist.permissions)
     implementation(libs.accompanist.systemuicontroller)
-    
+
     // Testing
     testImplementation(libs.bundles.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))

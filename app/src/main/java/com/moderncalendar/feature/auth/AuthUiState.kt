@@ -6,5 +6,5 @@ data class AuthUiState(
     val emailError: String? = null,
     val passwordError: String? = null,
     val confirmPasswordError: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
 )

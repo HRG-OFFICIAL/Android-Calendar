@@ -6,7 +6,6 @@ import android.util.Log
  * Central error handling utility for the calendar app
  */
 object ErrorHandler {
-
     private const val DEFAULT_TAG = "CalendarApp"
 
     /**
@@ -18,18 +17,21 @@ object ErrorHandler {
             is java.net.UnknownHostException -> CalendarError.NetworkError.noConnection()
             is java.net.SocketTimeoutException -> CalendarError.NetworkError.timeout()
             is java.net.ConnectException -> CalendarError.NetworkError.noConnection()
-            is java.io.IOException -> CalendarError.NetworkError(
-                errorMessage = "Network communication failed",
-                cause = throwable
-            )
-            is IllegalArgumentException -> CalendarError.ValidationError(
-                errorMessage = throwable.message ?: "Invalid input provided",
-                cause = throwable
-            )
-            is SecurityException -> CalendarError.SecurityError(
-                errorMessage = throwable.message ?: "Security error occurred",
-                cause = throwable
-            )
+            is java.io.IOException ->
+                CalendarError.NetworkError(
+                    errorMessage = "Network communication failed",
+                    cause = throwable,
+                )
+            is IllegalArgumentException ->
+                CalendarError.ValidationError(
+                    errorMessage = throwable.message ?: "Invalid input provided",
+                    cause = throwable,
+                )
+            is SecurityException ->
+                CalendarError.SecurityError(
+                    errorMessage = throwable.message ?: "Security error occurred",
+                    cause = throwable,
+                )
             else -> CalendarError.UnknownError.fromThrowable(throwable)
         }
     }
@@ -54,17 +56,18 @@ object ErrorHandler {
     fun logError(
         tag: String = DEFAULT_TAG,
         error: CalendarError,
-        additionalContext: Map<String, Any> = emptyMap()
+        additionalContext: Map<String, Any> = emptyMap(),
     ) {
-        val logMessage = buildString {
-            append("Error: ${error.errorMessage}")
-            if (error.context.isNotEmpty()) {
-                append(" | Context: ${error.context}")
+        val logMessage =
+            buildString {
+                append("Error: ${error.errorMessage}")
+                if (error.context.isNotEmpty()) {
+                    append(" | Context: ${error.context}")
+                }
+                if (additionalContext.isNotEmpty()) {
+                    append(" | Additional: $additionalContext")
+                }
             }
-            if (additionalContext.isNotEmpty()) {
-                append(" | Additional: $additionalContext")
-            }
-        }
 
         when (error.getSeverity()) {
             ErrorSeverity.LOW -> Log.i(tag, logMessage, error.cause)
@@ -80,15 +83,16 @@ object ErrorHandler {
         tag: String = DEFAULT_TAG,
         message: String,
         throwable: Throwable? = null,
-        context: Map<String, Any> = emptyMap()
+        context: Map<String, Any> = emptyMap(),
     ) {
         val calendarError = throwable?.let { handleException(it) }
-        val logMessage = buildString {
-            append(message)
-            if (context.isNotEmpty()) {
-                append(" | Context: $context")
+        val logMessage =
+            buildString {
+                append(message)
+                if (context.isNotEmpty()) {
+                    append(" | Context: $context")
+                }
             }
-        }
 
         if (calendarError != null) {
             logError(tag, calendarError)
@@ -124,7 +128,7 @@ object ErrorHandler {
 
     private fun getValidationErrorActions(error: CalendarError.ValidationError): List<RecoveryAction> {
         return listOf(
-            RecoveryAction.Dismiss()
+            RecoveryAction.Dismiss(),
         )
     }
 
@@ -142,9 +146,11 @@ object ErrorHandler {
         return buildList {
             when (error.syncType) {
                 "CONFLICT" -> {
-                    add(RecoveryAction.ResolveSyncConflict(
-                        conflictResolution = ConflictResolution.MANUAL
-                    ))
+                    add(
+                        RecoveryAction.ResolveSyncConflict(
+                            conflictResolution = ConflictResolution.MANUAL,
+                        ),
+                    )
                 }
                 else -> {
                     if (error.canRetry()) {

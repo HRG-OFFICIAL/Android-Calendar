@@ -19,7 +19,7 @@ class AlertActivity : ComponentActivity() {
             ModernCalendarTheme {
                 AlertScreen(
                     onDismiss = { finish() },
-                    onSnooze = { finish() }
+                    onSnooze = { finish() },
                 )
             }
         }
@@ -29,37 +29,38 @@ class AlertActivity : ComponentActivity() {
 @Composable
 fun AlertScreen(
     onDismiss: () -> Unit,
-    onSnooze: () -> Unit
+    onSnooze: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = "Event Reminder",
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = "You have an upcoming event",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Button(onClick = onDismiss) {
                 Text("Dismiss")
             }
-            
+
             OutlinedButton(onClick = onSnooze) {
                 Text("Snooze")
             }

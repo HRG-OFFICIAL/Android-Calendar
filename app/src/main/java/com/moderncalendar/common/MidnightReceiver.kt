@@ -8,8 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MidnightReceiver : BroadcastReceiver() {
-    
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
                 // Schedule midnight alarm after boot
@@ -43,7 +45,7 @@ class MidnightReceiver : BroadcastReceiver() {
             }
         }
     }
-    
+
     private suspend fun scheduleMidnightAlarm(context: Context) {
         // TODO: Implement midnight alarm scheduling
         // This would typically:
@@ -51,7 +53,7 @@ class MidnightReceiver : BroadcastReceiver() {
         // 2. Schedule alarm for midnight
         // 3. Set up recurring daily alarm
     }
-    
+
     private suspend fun handleMidnightEvent(context: Context) {
         // TODO: Implement midnight event handling
         // This would typically:

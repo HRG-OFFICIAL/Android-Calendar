@@ -18,9 +18,12 @@ data class Calendar(
     val isSynced: Boolean = false,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
 )
 
 enum class CalendarType {
-    LOCAL, GOOGLE, MICROSOFT, CALDAV
+    LOCAL,
+    GOOGLE,
+    MICROSOFT,
+    CALDAV,
 }

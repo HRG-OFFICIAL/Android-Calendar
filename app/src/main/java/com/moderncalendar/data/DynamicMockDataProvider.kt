@@ -3,8 +3,6 @@ package com.moderncalendar.data
 import com.moderncalendar.core.common.model.Event
 import com.moderncalendar.core.common.model.EventPriority
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.UUID
 
 /**
  * @deprecated This class is deprecated and should not be used.
@@ -13,10 +11,9 @@ import java.util.UUID
  */
 @Deprecated(
     message = "Use MockDataInitializer and MockDataService instead",
-    replaceWith = ReplaceWith("MockDataInitializer.getMockEvents()")
+    replaceWith = ReplaceWith("MockDataInitializer.getMockEvents()"),
 )
 object DynamicMockDataProvider {
-    
     /**
      * @deprecated Get mock events for any given date
      * This creates events dynamically without database persistence
@@ -26,7 +23,7 @@ object DynamicMockDataProvider {
         return listOf(
             // 🌞 Morning Yoga & Meditation
             Event(
-                id = "mock_yoga_${date}",
+                id = "mock_yoga_$date",
                 title = "🌞 Morning Yoga & Meditation",
                 description = "Awaken your body and mind with sunrise yoga, calm breathing, and nature vibes. Bring your mat & water bottle!",
                 location = "🌳 Central Park – Green Zone",
@@ -36,12 +33,11 @@ object DynamicMockDataProvider {
                 color = "#FF9800", // Orange for morning energy
                 priority = EventPriority.MEDIUM,
                 category = "Health & Fitness",
-                reminderMinutes = listOf(15, 5)
+                reminderMinutes = listOf(15, 5),
             ),
-            
             // 💼 Team Sync Meeting
             Event(
-                id = "mock_meeting_${date}",
+                id = "mock_meeting_$date",
                 title = "💼 Team Sync Meeting",
                 description = "Weekly sprint check-in with project updates, blockers, and goals. Don't forget your coffee!",
                 location = "Google Meet",
@@ -51,12 +47,11 @@ object DynamicMockDataProvider {
                 color = "#2196F3", // Blue for work
                 priority = EventPriority.HIGH,
                 category = "Work",
-                reminderMinutes = listOf(10, 2)
+                reminderMinutes = listOf(10, 2),
             ),
-            
             // 🍔 Lunch with Friends
             Event(
-                id = "mock_lunch_${date}",
+                id = "mock_lunch_$date",
                 title = "🍔 Lunch with Friends",
                 description = "Catch up over cheesy slices and laughter. RSVP in group chat! 😋",
                 location = "Pizza Hub, Downtown",
@@ -67,12 +62,11 @@ object DynamicMockDataProvider {
                 priority = EventPriority.MEDIUM,
                 category = "Social",
                 attendees = listOf("Alex", "Sarah", "Mike"),
-                reminderMinutes = listOf(30, 10)
+                reminderMinutes = listOf(30, 10),
             ),
-            
             // 📖 Study Session – Data Structures
             Event(
-                id = "mock_study_${date}",
+                id = "mock_study_$date",
                 title = "📖 Study Session – Data Structures",
                 description = "Focused study on AVL Trees & Tries. No distractions!",
                 location = "Home Office / Library",
@@ -82,12 +76,11 @@ object DynamicMockDataProvider {
                 color = "#9C27B0", // Purple for learning
                 priority = EventPriority.HIGH,
                 category = "Education",
-                reminderMinutes = listOf(15)
+                reminderMinutes = listOf(15),
             ),
-            
             // 🌙 Movie Night & Chill
             Event(
-                id = "mock_movie_${date}",
+                id = "mock_movie_$date",
                 title = "🌙 Movie Night & Chill",
                 description = "Watching \"Inception\" with popcorn and cozy blankets",
                 location = "Living Room",
@@ -97,11 +90,11 @@ object DynamicMockDataProvider {
                 color = "#FF5722", // Deep orange for entertainment
                 priority = EventPriority.LOW,
                 category = "Entertainment",
-                reminderMinutes = listOf(20)
-            )
+                reminderMinutes = listOf(20),
+            ),
         )
     }
-    
+
     /**
      * @deprecated Get mock events for today
      */
@@ -109,7 +102,7 @@ object DynamicMockDataProvider {
     fun getTodaysMockEvents(): List<Event> {
         return getMockEventsForDate(LocalDate.now())
     }
-    
+
     /**
      * @deprecated Check if a date has mock events
      */
@@ -118,7 +111,7 @@ object DynamicMockDataProvider {
         // For demo purposes, show events only for today
         return date == LocalDate.now()
     }
-    
+
     /**
      * @deprecated Get event count for a date
      */

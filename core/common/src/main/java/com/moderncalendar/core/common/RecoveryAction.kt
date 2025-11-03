@@ -5,15 +5,14 @@ package com.moderncalendar.core.common
  */
 sealed class RecoveryAction(
     open val label: String,
-    open val description: String? = null
+    open val description: String? = null,
 ) {
-
     /**
      * Retry the failed operation
      */
     data class Retry(
         override val label: String = "Retry",
-        override val description: String? = "Try the operation again"
+        override val description: String? = "Try the operation again",
     ) : RecoveryAction(label, description)
 
     /**
@@ -21,7 +20,7 @@ sealed class RecoveryAction(
      */
     data class Refresh(
         override val label: String = "Refresh",
-        override val description: String? = "Reload the data"
+        override val description: String? = "Reload the data",
     ) : RecoveryAction(label, description)
 
     /**
@@ -30,7 +29,7 @@ sealed class RecoveryAction(
     data class GoToSettings(
         override val label: String = "Settings",
         override val description: String? = "Open app settings",
-        val settingsType: SettingsType = SettingsType.GENERAL
+        val settingsType: SettingsType = SettingsType.GENERAL,
     ) : RecoveryAction(label, description)
 
     /**
@@ -39,7 +38,7 @@ sealed class RecoveryAction(
     data class RequestPermission(
         override val label: String = "Grant Permission",
         override val description: String? = "Allow required permissions",
-        val permission: String
+        val permission: String,
     ) : RecoveryAction(label, description)
 
     /**
@@ -47,7 +46,7 @@ sealed class RecoveryAction(
      */
     data class CheckConnection(
         override val label: String = "Check Connection",
-        override val description: String? = "Verify your internet connection"
+        override val description: String? = "Verify your internet connection",
     ) : RecoveryAction(label, description)
 
     /**
@@ -55,7 +54,7 @@ sealed class RecoveryAction(
      */
     data class ContactSupport(
         override val label: String = "Contact Support",
-        override val description: String? = "Get help from support team"
+        override val description: String? = "Get help from support team",
     ) : RecoveryAction(label, description)
 
     /**
@@ -63,7 +62,7 @@ sealed class RecoveryAction(
      */
     data class Dismiss(
         override val label: String = "Dismiss",
-        override val description: String? = "Close this error"
+        override val description: String? = "Close this error",
     ) : RecoveryAction(label, description)
 
     /**
@@ -72,7 +71,7 @@ sealed class RecoveryAction(
     data class Navigate(
         override val label: String,
         override val description: String? = null,
-        val destination: String
+        val destination: String,
     ) : RecoveryAction(label, description)
 
     /**
@@ -80,7 +79,7 @@ sealed class RecoveryAction(
      */
     data class ClearCache(
         override val label: String = "Clear Cache",
-        override val description: String? = "Clear app cache and try again"
+        override val description: String? = "Clear app cache and try again",
     ) : RecoveryAction(label, description)
 
     /**
@@ -88,7 +87,7 @@ sealed class RecoveryAction(
      */
     data class ForceSync(
         override val label: String = "Force Sync",
-        override val description: String? = "Force synchronization with server"
+        override val description: String? = "Force synchronization with server",
     ) : RecoveryAction(label, description)
 
     /**
@@ -97,7 +96,7 @@ sealed class RecoveryAction(
     data class ResolveSyncConflict(
         override val label: String = "Resolve Conflict",
         override val description: String? = "Choose how to resolve the sync conflict",
-        val conflictResolution: ConflictResolution
+        val conflictResolution: ConflictResolution,
     ) : RecoveryAction(label, description)
 }
 
@@ -109,15 +108,15 @@ enum class SettingsType {
     PERMISSIONS,
     NETWORK,
     SYNC,
-    NOTIFICATIONS
+    NOTIFICATIONS,
 }
 
 /**
  * Types of conflict resolution strategies
  */
 enum class ConflictResolution {
-    USE_LOCAL,      // Keep local changes
-    USE_REMOTE,     // Use server version
-    MERGE,          // Attempt to merge both
-    MANUAL          // Let user decide manually
+    USE_LOCAL, // Keep local changes
+    USE_REMOTE, // Use server version
+    MERGE, // Attempt to merge both
+    MANUAL, // Let user decide manually
 }
