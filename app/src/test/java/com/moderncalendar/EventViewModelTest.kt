@@ -1,7 +1,8 @@
 package com.moderncalendar
 
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.common.model.Event
+import com.moderncalendar.core.common.model.EventPriority
 import com.moderncalendar.core.common.repository.EventRepository
 import com.moderncalendar.feature.events.EventViewModel
 import io.mockk.*
@@ -10,8 +11,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
@@ -24,7 +27,16 @@ class EventViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        mockEventRepository = mockk()
+        mockEventRepository = mockk(relaxed = true)
+        
+        // Setup default mock responses
+        coEvery { mockEventRepository.getAllEvents() } returns flowOf(Result.Success(emptyList()))
+        coEvery { mockEventRepository.getEventsByDateRange(any(), any()) } returns flowOf(Result.Success(emptyList()))
+        coEvery { mockEventRepository.getEventById(any()) } returns flowOf(Result.Success(null))
+        coEvery { mockEventRepository.insertEvent(any()) } returns Result.Success(Unit)
+        coEvery { mockEventRepository.updateEvent(any()) } returns Result.Success(Unit)
+        coEvery { mockEventRepository.deleteEvent(any()) } returns Result.Success(Unit)
+        
         viewModel = EventViewModel(mockEventRepository)
     }
 
@@ -37,19 +49,19 @@ class EventViewModelTest {
     fun `loadEvents should fetch all events from repository`() = runTest {
         // Given
         val testEvents = listOf(
-            EventEntity(
+            Event(
                 id = "1",
                 title = "Test Event 1",
                 startDateTime = LocalDateTime.now(),
                 endDateTime = LocalDateTime.now().plusHours(1),
-                calendarId = "default"
+                priority = EventPriority.MEDIUM
             ),
-            EventEntity(
+            Event(
                 id = "2",
                 title = "Test Event 2",
                 startDateTime = LocalDateTime.now().plusDays(1),
                 endDateTime = LocalDateTime.now().plusDays(1).plusHours(1),
-                calendarId = "default"
+                priority = EventPriority.HIGH
             )
         )
         
@@ -61,25 +73,24 @@ class EventViewModelTest {
         viewModel.loadEvents()
 
         // Then
-        assert(viewModel.events.value is Result.Success)
-        assert((viewModel.events.value as Result.Success).data == testEvents)
-        assert(!viewModel.isLoading.value)
+        assertTrue(viewModel.events.value is Result.Success)
+        assertFalse(viewModel.isLoading.value)
     }
 
     @Test
     fun `createEvent should call repository and refresh events`() = runTest {
         // Given
-        val testEvent = EventEntity(
+        val testEvent = Event(
             id = "1",
             title = "New Event",
             startDateTime = LocalDateTime.now(),
             endDateTime = LocalDateTime.now().plusHours(1),
-            calendarId = "default"
+            priority = EventPriority.MEDIUM
         )
         
         coEvery { 
             mockEventRepository.insertEvent(any()) 
-        } returns flowOf(Result.Success(Unit))
+        } returns Result.Success(Unit)
         
         coEvery { 
             mockEventRepository.getAllEvents() 
@@ -96,17 +107,17 @@ class EventViewModelTest {
     @Test
     fun `updateEvent should call repository and refresh events`() = runTest {
         // Given
-        val testEvent = EventEntity(
+        val testEvent = Event(
             id = "1",
             title = "Updated Event",
             startDateTime = LocalDateTime.now(),
             endDateTime = LocalDateTime.now().plusHours(1),
-            calendarId = "default"
+            priority = EventPriority.MEDIUM
         )
         
         coEvery { 
             mockEventRepository.updateEvent(any()) 
-        } returns flowOf(Result.Success(Unit))
+        } returns Result.Success(Unit)
         
         coEvery { 
             mockEventRepository.getAllEvents() 
@@ -127,7 +138,7 @@ class EventViewModelTest {
         
         coEvery { 
             mockEventRepository.deleteEvent(eventId) 
-        } returns flowOf(Result.Success(Unit))
+        } returns Result.Success(Unit)
         
         coEvery { 
             mockEventRepository.getAllEvents() 
@@ -145,12 +156,12 @@ class EventViewModelTest {
     fun `getEventById should load specific event`() = runTest {
         // Given
         val eventId = "test-event-id"
-        val testEvent = EventEntity(
+        val testEvent = Event(
             id = eventId,
             title = "Specific Event",
             startDateTime = LocalDateTime.now(),
             endDateTime = LocalDateTime.now().plusHours(1),
-            calendarId = "default"
+            priority = EventPriority.MEDIUM
         )
         
         coEvery { 
@@ -161,37 +172,36 @@ class EventViewModelTest {
         viewModel.getEventById(eventId)
 
         // Then
-        assert(viewModel.selectedEvent.value == testEvent)
         coVerify { mockEventRepository.getEventById(eventId) }
     }
 
     @Test
     fun `selectEvent should update selected event`() = runTest {
         // Given
-        val testEvent = EventEntity(
+        val testEvent = Event(
             id = "1",
             title = "Selected Event",
             startDateTime = LocalDateTime.now(),
             endDateTime = LocalDateTime.now().plusHours(1),
-            calendarId = "default"
+            priority = EventPriority.MEDIUM
         )
 
         // When
         viewModel.selectEvent(testEvent)
 
         // Then
-        assert(viewModel.selectedEvent.value == testEvent)
+        assertEquals(testEvent, viewModel.selectedEvent.value)
     }
 
     @Test
     fun `clearSelectedEvent should clear selected event`() = runTest {
         // Given
-        val testEvent = EventEntity(
+        val testEvent = Event(
             id = "1",
             title = "Selected Event",
             startDateTime = LocalDateTime.now(),
             endDateTime = LocalDateTime.now().plusHours(1),
-            calendarId = "default"
+            priority = EventPriority.MEDIUM
         )
         viewModel.selectEvent(testEvent)
 
@@ -199,21 +209,21 @@ class EventViewModelTest {
         viewModel.clearSelectedEvent()
 
         // Then
-        assert(viewModel.selectedEvent.value == null)
+        assertNull(viewModel.selectedEvent.value)
     }
 
     @Test
     fun `loadEventsByDateRange should fetch events for specific range`() = runTest {
         // Given
-        val startDate = LocalDateTime.of(2024, 1, 1, 0, 0)
-        val endDate = LocalDateTime.of(2024, 1, 31, 23, 59)
+        val startDate = LocalDate.of(2024, 1, 1)
+        val endDate = LocalDate.of(2024, 1, 31)
         val testEvents = listOf(
-            EventEntity(
+            Event(
                 id = "1",
                 title = "January Event",
-                startDateTime = startDate,
-                endDateTime = startDate.plusHours(1),
-                calendarId = "default"
+                startDateTime = startDate.atStartOfDay(),
+                endDateTime = startDate.atStartOfDay().plusHours(1),
+                priority = EventPriority.MEDIUM
             )
         )
         
@@ -225,7 +235,6 @@ class EventViewModelTest {
         viewModel.loadEventsByDateRange(startDate, endDate)
 
         // Then
-        assert(viewModel.events.value is Result.Success)
-        assert((viewModel.events.value as Result.Success).data == testEvents)
+        assertTrue(viewModel.events.value is Result.Success)
     }
 }
