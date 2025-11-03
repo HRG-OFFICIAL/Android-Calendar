@@ -100,7 +100,7 @@ object ColorUtils {
                 
                 isValidColorString(colorString) -> {
                     parseValidatedColor(colorString) ?: run {
-                        Log.w(TAG, "Failed to parse validated color: $colorString, using ${fallbackType.name.lowercase()} fallback")
+                        Log.e(TAG, "CRITICAL: Failed to parse validated color: '$colorString' (length: ${colorString.length}), using ${fallbackType.name.lowercase()} fallback")
                         getThemeAwareDefaultColor(fallbackType)
                     }
                 }
@@ -576,6 +576,29 @@ object ColorUtils {
     )
     
     /**
+     * Safely converts a Compose Color to a hex string.
+     * Always produces a valid 6-character hex color string.
+     * 
+     * @param color The Compose Color to convert
+     * @return A valid hex color string (e.g., "#FF5722")
+     */
+    fun colorToHexString(color: Color): String {
+        return try {
+            // Convert to ARGB and extract RGB components
+            val argb = color.value.toInt()
+            val red = (argb shr 16) and 0xFF
+            val green = (argb shr 8) and 0xFF
+            val blue = argb and 0xFF
+            
+            // Format as 6-character hex string
+            "#%02X%02X%02X".format(red, green, blue)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error converting color to hex string", e)
+            "#009688" // Default teal color as fallback
+        }
+    }
+    
+    /**
      * Validates hex color format using comprehensive regex patterns.
      * Supports: #RGB, #ARGB, #RRGGBB, #AARRGGBB
      * 
@@ -644,13 +667,25 @@ object ColorUtils {
         return try {
             val colorValue = hex.substring(1) // Remove #
             
+            // Additional validation before parsing
+            if (!isValidHexString(colorValue)) {
+                Log.w(TAG, "Invalid hex string format: $colorValue")
+                return null
+            }
+            
             when (colorValue.length) {
                 3 -> {
                     // #RGB -> #RRGGBB
                     val r = colorValue[0].toString().repeat(2)
                     val g = colorValue[1].toString().repeat(2)
                     val b = colorValue[2].toString().repeat(2)
-                    Color(android.graphics.Color.parseColor("#$r$g$b"))
+                    val fullHex = "#$r$g$b"
+                    try {
+                        Color(android.graphics.Color.parseColor(fullHex))
+                    } catch (e: IllegalArgumentException) {
+                        Log.w(TAG, "Failed to parse expanded RGB color: $fullHex", e)
+                        null
+                    }
                 }
                 
                 4 -> {
@@ -659,23 +694,42 @@ object ColorUtils {
                     val r = colorValue[1].toString().repeat(2)
                     val g = colorValue[2].toString().repeat(2)
                     val b = colorValue[3].toString().repeat(2)
-                    Color(android.graphics.Color.parseColor("#$a$r$g$b"))
+                    val fullHex = "#$a$r$g$b"
+                    try {
+                        Color(android.graphics.Color.parseColor(fullHex))
+                    } catch (e: IllegalArgumentException) {
+                        Log.w(TAG, "Failed to parse expanded ARGB color: $fullHex", e)
+                        null
+                    }
                 }
                 
                 6 -> {
                     // #RRGGBB
-                    Color(android.graphics.Color.parseColor(hex))
+                    try {
+                        Color(android.graphics.Color.parseColor(hex))
+                    } catch (e: IllegalArgumentException) {
+                        Log.w(TAG, "Failed to parse RRGGBB color: $hex", e)
+                        null
+                    }
                 }
                 
                 8 -> {
                     // #AARRGGBB
-                    Color(android.graphics.Color.parseColor(hex))
+                    try {
+                        Color(android.graphics.Color.parseColor(hex))
+                    } catch (e: IllegalArgumentException) {
+                        Log.w(TAG, "Failed to parse AARRGGBB color: $hex", e)
+                        null
+                    }
                 }
                 
-                else -> null
+                else -> {
+                    Log.w(TAG, "Unsupported hex color length: ${colorValue.length} for $hex")
+                    null
+                }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Error parsing hex color: $hex", e)
+            Log.e(TAG, "Unexpected error parsing hex color: $hex", e)
             null
         }
     }

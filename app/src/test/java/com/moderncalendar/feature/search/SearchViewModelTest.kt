@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.common.model.Event
 import com.moderncalendar.core.common.model.EventPriority
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

@@ -161,7 +161,7 @@ fun ErrorSnackbar(
                 TextButton(
                     onClick = { onRecoveryAction(primaryAction) }
                 ) {
-                    Text(primaryAction.getDisplayText())
+                    Text(primaryAction.label)
                 }
             }
         },
@@ -239,22 +239,22 @@ private fun ErrorRecoveryActions(
                     is RecoveryAction.Retry -> {
                         if (compact) {
                             TextButton(onClick = { onRecoveryAction(action) }) {
-                                Text(action.getDisplayText())
+                                Text(action.label)
                             }
                         } else {
                             Button(onClick = { onRecoveryAction(action) }) {
-                                Text(action.getDisplayText())
+                                Text(action.label)
                             }
                         }
                     }
                     is RecoveryAction.Dismiss -> {
                         OutlinedButton(onClick = { onRecoveryAction(action) }) {
-                            Text(action.getDisplayText())
+                            Text(action.label)
                         }
                     }
                     else -> {
                         OutlinedButton(onClick = { onRecoveryAction(action) }) {
-                            Text(action.getDisplayText())
+                            Text(action.label)
                         }
                     }
                 }

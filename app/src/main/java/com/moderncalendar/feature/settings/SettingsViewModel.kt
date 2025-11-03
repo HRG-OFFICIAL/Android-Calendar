@@ -2,13 +2,14 @@ package com.moderncalendar.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moderncalendar.core.common.settings.SettingsRepository
-import com.moderncalendar.core.data.repository.UserPreferencesRepository
+import com.moderncalendar.core.common.repository.SettingsRepository
+import com.moderncalendar.core.common.repository.UserPreferencesRepository
 import com.moderncalendar.data.MockDataService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,11 +59,12 @@ class SettingsViewModel @Inject constructor(
             _isLoading.value = true
             
             launch { userPreferencesRepository.getTheme().collect { _theme.value = it } }
-            launch { userPreferencesRepository.getNotificationsEnabled().collect { _notificationsEnabled.value = it } }
-            launch { userPreferencesRepository.getReminderTime().collect { _reminderTime.value = it } }
-            launch { userPreferencesRepository.getWeekStartsOn().collect { _weekStartsOn.value = it } }
-            launch { userPreferencesRepository.getTimeFormat().collect { _timeFormat.value = it } }
-            launch { userPreferencesRepository.getDateFormat().collect { _dateFormat.value = it } }
+            launch { 
+                userPreferencesRepository.getUserSettings().collect { settings ->
+                    _notificationsEnabled.value = settings.eventReminders
+                    _weekStartsOn.value = settings.weekStartsOn.ordinal
+                }
+            }
             
             _isLoading.value = false
         }
@@ -71,49 +73,54 @@ class SettingsViewModel @Inject constructor(
     fun updateTheme(theme: String) {
         viewModelScope.launch {
             _theme.value = theme
-            userPreferencesRepository.setTheme(theme).collect { }
+            userPreferencesRepository.setTheme(theme)
         }
     }
     
     fun updateNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             _notificationsEnabled.value = enabled
-            userPreferencesRepository.setNotificationsEnabled(enabled).collect { }
+            val currentSettings = userPreferencesRepository.getUserSettings().first()
+            userPreferencesRepository.updateUserSettings(currentSettings.copy(eventReminders = enabled))
         }
     }
     
     fun updateReminderTime(minutes: Int) {
         viewModelScope.launch {
             _reminderTime.value = minutes
-            userPreferencesRepository.setReminderTime(minutes).collect { }
+            // Note: UserSettings doesn't have reminderTime, this is just for UI state
         }
     }
     
     fun updateWeekStartsOn(day: Int) {
         viewModelScope.launch {
             _weekStartsOn.value = day
-            userPreferencesRepository.setWeekStartsOn(day).collect { }
+            val currentSettings = userPreferencesRepository.getUserSettings().first()
+            val dayOfWeek = com.moderncalendar.core.common.model.DayOfWeek.values().getOrElse(day) { 
+                com.moderncalendar.core.common.model.DayOfWeek.MONDAY 
+            }
+            userPreferencesRepository.updateUserSettings(currentSettings.copy(weekStartsOn = dayOfWeek))
         }
     }
     
     fun updateTimeFormat(format: String) {
         viewModelScope.launch {
             _timeFormat.value = format
-            userPreferencesRepository.setTimeFormat(format).collect { }
+            // Note: UserSettings doesn't have timeFormat, this is just for UI state
         }
     }
     
     fun updateDateFormat(format: String) {
         viewModelScope.launch {
             _dateFormat.value = format
-            userPreferencesRepository.setDateFormat(format).collect { }
+            // Note: UserSettings doesn't have dateFormat, this is just for UI state
         }
     }
     
     fun resetToDefaults() {
         viewModelScope.launch {
             _isLoading.value = true
-            userPreferencesRepository.resetToDefaults().collect { }
+            userPreferencesRepository.clearAllSettings()
             _theme.value = "system"
             _notificationsEnabled.value = true
             _reminderTime.value = 15

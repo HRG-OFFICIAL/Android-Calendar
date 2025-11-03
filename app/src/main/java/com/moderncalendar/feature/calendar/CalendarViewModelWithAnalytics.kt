@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.analytics.AnalyticsManager
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.common.model.Event
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -43,10 +43,9 @@ class CalendarViewModelWithAnalytics @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             
-            val startOfDay = _selectedDate.value.atStartOfDay()
-            val endOfDay = _selectedDate.value.atTime(23, 59, 59)
+            val selectedDate = _selectedDate.value
             
-            eventRepository.getEventsByDateRange(startOfDay, endOfDay)
+            eventRepository.getEventsByDateRange(selectedDate, selectedDate)
                 .collect { result ->
                     _events.value = result
                     _isLoading.value = false

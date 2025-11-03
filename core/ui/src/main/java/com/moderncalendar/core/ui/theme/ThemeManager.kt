@@ -7,7 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moderncalendar.core.data.repository.UserPreferencesRepository
+import com.moderncalendar.core.common.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -45,7 +45,7 @@ class ThemeViewModel @Inject constructor(
                 ThemeMode.DARK -> "dark"
                 ThemeMode.SYSTEM -> "system"
             }
-            userPreferencesRepository.setTheme(themeString).collect()
+            userPreferencesRepository.setTheme(themeString)
             _themeMode.value = mode
         }
     }

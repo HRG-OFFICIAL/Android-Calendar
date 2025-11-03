@@ -3,7 +3,7 @@ package com.moderncalendar.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

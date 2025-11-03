@@ -9,7 +9,7 @@ import android.widget.RemoteViews
 import com.moderncalendar.MainActivity
 import com.moderncalendar.R
 import com.moderncalendar.core.common.model.Event
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,8 +57,8 @@ class AgendaWidgetProvider : AppWidgetProvider() {
                 val today = LocalDate.now()
                 val dateFmt = DateTimeFormatter.ofPattern("MMM dd")
                 val timeFmt = DateTimeFormatter.ofPattern("HH:mm")
-                val start = today.atStartOfDay()
-                val end = start.plusDays(1)
+                val start = today
+                val end = today.plusDays(1)
                 val result: Result<List<Event>>? = eventRepository.getEventsByDateRange(start, end).firstOrNull()
                 val events: List<Event> = if (result is Result.Success<List<Event>>) result.data else emptyList()
                 

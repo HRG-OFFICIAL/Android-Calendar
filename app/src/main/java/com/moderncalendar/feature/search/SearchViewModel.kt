@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.common.model.Event
 import com.moderncalendar.core.common.model.EventPriority
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

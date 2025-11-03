@@ -3,7 +3,7 @@ package com.moderncalendar.services
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

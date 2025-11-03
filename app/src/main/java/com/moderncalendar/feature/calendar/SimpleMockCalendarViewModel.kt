@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.common.model.Event
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +39,7 @@ class SimpleMockCalendarViewModel @Inject constructor(
         
         // Get events for the selected date from repository
         viewModelScope.launch {
-            eventRepository.getEventsForDate(date).collect { result ->
+            eventRepository.getEventsByDate(date).collect { result ->
                 _events.value = result
             }
         }
@@ -48,8 +48,8 @@ class SimpleMockCalendarViewModel @Inject constructor(
     fun loadEventsForMonth(yearMonth: YearMonth) {
         // Load events for the entire month from repository
         viewModelScope.launch {
-            val startOfMonth = yearMonth.atDay(1).atStartOfDay()
-            val endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59)
+            val startOfMonth = yearMonth.atDay(1)
+            val endOfMonth = yearMonth.atEndOfMonth()
             
             eventRepository.getEventsByDateRange(startOfMonth, endOfMonth).collect { result ->
                 _monthEvents.value = result

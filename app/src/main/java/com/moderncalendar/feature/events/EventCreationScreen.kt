@@ -17,12 +17,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.moderncalendar.core.common.model.Event
 import com.moderncalendar.core.common.model.EventPriority
-import com.moderncalendar.core.common.model.RecurrenceFrequency
+import com.moderncalendar.core.data.entity.RecurrenceFrequency
 import com.moderncalendar.core.ui.components.CalendarScaffold
 import com.moderncalendar.core.ui.components.CalendarTextField
 import com.moderncalendar.core.ui.components.DatePickerField
 import com.moderncalendar.core.ui.components.TimePickerField
 import com.moderncalendar.core.ui.components.TimeRangeField
+import com.moderncalendar.core.ui.utils.ColorUtils
 import com.moderncalendar.core.ui.components.ColorPickerField
 import com.moderncalendar.core.ui.components.SwitchField
 import com.moderncalendar.core.ui.components.DateTimeValidation
@@ -193,7 +194,7 @@ fun EventCreationScreen(
                         startDateTime = startDateTime,
                         endDateTime = endDateTime,
                         isAllDay = isAllDay,
-                        color = "#${selectedColor.value.toString(16).padStart(8, '0').substring(2)}",
+                        color = ColorUtils.colorToHexString(selectedColor),
                         priority = priority,
                         recurrenceRule = null // TODO: Implement recurrence
                     )

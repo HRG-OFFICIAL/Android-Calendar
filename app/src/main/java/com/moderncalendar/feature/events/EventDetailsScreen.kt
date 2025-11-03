@@ -227,7 +227,7 @@ private fun EventDetailsContent(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Repeats ${recurrenceRule.frequency.name.lowercase()}",
+                        text = "Repeats: $recurrenceRule",
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

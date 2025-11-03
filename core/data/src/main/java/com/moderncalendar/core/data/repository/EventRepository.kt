@@ -4,14 +4,18 @@ import com.moderncalendar.core.common.CalendarError
 import com.moderncalendar.core.common.ErrorHandler
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.common.model.Event
+import com.moderncalendar.core.common.repository.EventRepository
+import com.moderncalendar.core.common.utils.retryWithBackoff
 import com.moderncalendar.core.data.dao.EventDao
 import com.moderncalendar.core.data.mapper.toDomainModel
 import com.moderncalendar.core.data.mapper.toDataEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,8 +57,8 @@ class RoomEventRepository @Inject constructor(
     }
     
     override fun getEventsByDateRange(
-        startDate: LocalDateTime,
-        endDate: LocalDateTime
+        startDate: LocalDate,
+        endDate: LocalDate
     ): Flow<Result<List<Event>>> {
         return flow {
             // Validate date range
@@ -69,7 +73,7 @@ class RoomEventRepository @Inject constructor(
             }
             
             emit(Result.Loading)
-            eventDao.getEventsInDateRange(startDate, endDate)
+            eventDao.getEventsInDateRange(startDate.atStartOfDay(), endDate.atStartOfDay().plusDays(1))
                 .catch { exception -> 
                     val error = ErrorHandler.handleException(exception)
                     ErrorHandler.logError(
@@ -101,8 +105,8 @@ class RoomEventRepository @Inject constructor(
         }
     }
     
-    override fun getEventsByDate(date: LocalDateTime): Flow<Result<List<Event>>> {
-        val startOfDay = date.toLocalDate().atStartOfDay()
+    override fun getEventsByDate(date: LocalDate): Flow<Result<List<Event>>> {
+        val startOfDay = date.atStartOfDay()
         val endOfDay = startOfDay.plusDays(1)
         return flow {
             emit(Result.Loading)
@@ -137,12 +141,13 @@ class RoomEventRepository @Inject constructor(
         }
     }
     
-    override fun getEventsForDate(date: java.time.LocalDate): Flow<Result<List<Event>>> {
-        val startOfDay = date.atStartOfDay()
-        val endOfDay = startOfDay.plusDays(1)
+    override fun getEventsForDate(
+        startDateTime: LocalDateTime,
+        endDateTime: LocalDateTime
+    ): Flow<Result<List<Event>>> {
         return flow {
             emit(Result.Loading)
-            eventDao.getEventsInDateRange(startOfDay, endOfDay)
+            eventDao.getEventsInDateRange(startDateTime, endDateTime)
                 .catch { exception -> 
                     val error = ErrorHandler.handleException(exception)
                     ErrorHandler.logError(
@@ -151,7 +156,8 @@ class RoomEventRepository @Inject constructor(
                         throwable = exception,
                         context = mapOf(
                             "operation" to "getEventsForDate",
-                            "date" to date.toString()
+                            "startDateTime" to startDateTime.toString(),
+                            "endDateTime" to endDateTime.toString()
                         )
                     )
                     emit(Result.Error(error))
@@ -215,10 +221,11 @@ class RoomEventRepository @Inject constructor(
     }
     
     override suspend fun insertEvent(event: Event): Result<Unit> {
-        return ErrorHandler.retryWithBackoff(
-            maxRetries = 2,
-            initialDelayMs = 500,
-            operation = {
+        return try {
+            retryWithBackoff(
+                maxRetries = 2,
+                initialDelayMs = 500
+            ) {
                 // Validate event before insertion
                 validateEvent(event)
                 
@@ -238,14 +245,18 @@ class RoomEventRepository @Inject constructor(
                     throw CalendarError.DatabaseError.insertFailed("events")
                 }
             }
-        )
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(ErrorHandler.handleException(e))
+        }
     }
     
     override suspend fun updateEvent(event: Event): Result<Unit> {
-        return ErrorHandler.retryWithBackoff(
-            maxRetries = 2,
-            initialDelayMs = 500,
-            operation = {
+        return try {
+            retryWithBackoff(
+                maxRetries = 2,
+                initialDelayMs = 500
+            ) {
                 // Validate event before update
                 validateEvent(event)
                 
@@ -265,14 +276,18 @@ class RoomEventRepository @Inject constructor(
                     throw CalendarError.DatabaseError.updateFailed("events")
                 }
             }
-        )
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(ErrorHandler.handleException(e))
+        }
     }
     
     override suspend fun deleteEvent(eventId: String): Result<Unit> {
-        return ErrorHandler.retryWithBackoff(
-            maxRetries = 2,
-            initialDelayMs = 500,
-            operation = {
+        return try {
+            retryWithBackoff(
+                maxRetries = 2,
+                initialDelayMs = 500
+            ) {
                 // Validate event ID
                 if (eventId.isBlank()) {
                     throw CalendarError.ValidationError.requiredField("Event ID")
@@ -293,14 +308,18 @@ class RoomEventRepository @Inject constructor(
                     throw CalendarError.DatabaseError.deleteFailed("events")
                 }
             }
-        )
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(ErrorHandler.handleException(e))
+        }
     }
     
     override suspend fun deleteAllEvents(): Result<Unit> {
-        return ErrorHandler.retryWithBackoff(
-            maxRetries = 2,
-            initialDelayMs = 500,
-            operation = {
+        return try {
+            retryWithBackoff(
+                maxRetries = 2,
+                initialDelayMs = 500
+            ) {
                 try {
                     eventDao.deleteAllEvents()
                 } catch (e: Exception) {
@@ -315,7 +334,10 @@ class RoomEventRepository @Inject constructor(
                     throw CalendarError.DatabaseError.deleteFailed("events")
                 }
             }
-        )
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(ErrorHandler.handleException(e))
+        }
     }
     
     override fun searchEvents(query: String): Flow<Result<List<Event>>> {
@@ -330,8 +352,7 @@ class RoomEventRepository @Inject constructor(
             if (query.length < 2) {
                 val error = CalendarError.ValidationError(
                     errorMessage = "Search query must be at least 2 characters long.",
-                    field = "Search query",
-                    validationRule = "MIN_LENGTH"
+                    field = "Search query"
                 )
                 emit(Result.Error(error))
                 return@flow
@@ -370,6 +391,73 @@ class RoomEventRepository @Inject constructor(
     }
     
     /**
+     * Cleans up any events with invalid color values by replacing them with default colors.
+     * This is a maintenance function to fix data integrity issues.
+     */
+    override suspend fun cleanupInvalidColors(): Result<Int> {
+        return try {
+            var fixedCount = 0
+            
+            // Get all events using first() to get a single emission
+            val allEvents = eventDao.getAllEvents().first()
+            
+            allEvents.forEach { eventEntity ->
+                val colorString = eventEntity.color
+                
+                // Check if the color is invalid using simple validation
+                if (!isValidColorString(colorString)) {
+                    // Update with default color
+                    val updatedEntity = eventEntity.copy(color = "#009688") // Default teal
+                    eventDao.updateEvent(updatedEntity)
+                    fixedCount++
+                    
+                    ErrorHandler.logError(
+                        tag = "EventRepository",
+                        message = "Fixed invalid color for event ${eventEntity.id}: '$colorString' -> '#009688'"
+                    )
+                }
+            }
+            
+            if (fixedCount > 0) {
+                ErrorHandler.logError(
+                    tag = "EventRepository",
+                    message = "Color cleanup completed: fixed $fixedCount events with invalid colors"
+                )
+            }
+            
+            Result.Success(fixedCount)
+        } catch (e: Exception) {
+            ErrorHandler.logError(
+                tag = "EventRepository", 
+                message = "Failed to cleanup invalid colors",
+                throwable = e,
+                context = mapOf("operation" to "cleanupInvalidColors")
+            )
+            Result.Error(ErrorHandler.handleException(e))
+        }
+    }
+
+    /**
+     * Simple color string validation for cleanup purposes
+     */
+    private fun isValidColorString(colorString: String?): Boolean {
+        if (colorString.isNullOrBlank()) return false
+        
+        val trimmed = colorString.trim()
+        
+        // Check for basic hex color format
+        if (trimmed.startsWith("#")) {
+            val hex = trimmed.substring(1)
+            if (hex.length !in listOf(3, 6, 8)) return false
+            return hex.all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }
+        }
+        
+        // Check for basic named colors
+        val namedColors = setOf("red", "green", "blue", "yellow", "cyan", "magenta", "black", "white", "gray", "grey")
+        return namedColors.contains(trimmed.lowercase())
+    }
+
+    /**
      * Validate event data before database operations
      */
     private fun validateEvent(event: Event) {
@@ -384,8 +472,7 @@ class RoomEventRepository @Inject constructor(
         if (event.title.length > 200) {
             throw CalendarError.ValidationError(
                 errorMessage = "Event title cannot exceed 200 characters.",
-                field = "Event title",
-                validationRule = "MAX_LENGTH"
+                field = "Event title"
             )
         }
         
@@ -401,8 +488,7 @@ class RoomEventRepository @Inject constructor(
             if (description.length > 1000) {
                 throw CalendarError.ValidationError(
                     errorMessage = "Event description cannot exceed 1000 characters.",
-                    field = "Event description",
-                    validationRule = "MAX_LENGTH"
+                    field = "Event description"
                 )
             }
         }

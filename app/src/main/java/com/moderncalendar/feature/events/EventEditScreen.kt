@@ -23,6 +23,7 @@ import com.moderncalendar.core.ui.components.TimeRangeField
 import com.moderncalendar.core.ui.components.ColorPickerField
 import com.moderncalendar.core.ui.components.SwitchField
 import com.moderncalendar.core.ui.components.DateTimeValidation
+import com.moderncalendar.core.ui.utils.ColorUtils
 import com.moderncalendar.core.ui.theme.EventColors
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -198,7 +199,7 @@ private fun EventEditContent(
                         startDateTime = startDateTime,
                         endDateTime = endDateTime,
                         isAllDay = isAllDay,
-                        color = "#${selectedColor.value.toString(16).padStart(8, '0').substring(2)}",
+                        color = ColorUtils.colorToHexString(selectedColor),
                         priority = priority,
                         updatedAt = LocalDateTime.now()
                     )

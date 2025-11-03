@@ -5,7 +5,7 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.moderncalendar.R
 import com.moderncalendar.core.common.model.Event
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
@@ -40,8 +40,8 @@ class AgendaRemoteViewsFactory(
         runBlocking {
             try {
                 currentDate = java.time.LocalDate.now()
-                val start = currentDate.atStartOfDay()
-                val end = start.plusDays(1)
+                val start = currentDate
+                val end = currentDate.plusDays(1)
                 val result: Result<List<Event>>? = eventRepository.getEventsByDateRange(start, end).firstOrNull()
                 events = if (result is Result.Success<List<Event>>) result.data else emptyList()
             } catch (e: Exception) {

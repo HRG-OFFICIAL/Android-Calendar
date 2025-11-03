@@ -5,7 +5,7 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.moderncalendar.R
 import com.moderncalendar.core.data.entity.EventEntity
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDate

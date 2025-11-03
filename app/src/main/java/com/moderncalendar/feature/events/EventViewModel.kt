@@ -4,12 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.common.model.Event
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -37,7 +38,7 @@ class EventViewModel @Inject constructor(
         }
     }
     
-    fun loadEventsByDateRange(startDate: LocalDateTime, endDate: LocalDateTime) {
+    fun loadEventsByDateRange(startDate: LocalDate, endDate: LocalDate) {
         viewModelScope.launch {
             _isLoading.value = true
             eventRepository.getEventsByDateRange(startDate, endDate).collect { result ->

@@ -41,8 +41,8 @@ class EventSearchViewModel @Inject constructor(
     fun handleError(throwable: Throwable) = errorStateManager.handleError(throwable)
     suspend fun retryLastOperation() = errorStateManager.retryLastOperation()
     fun hasError() = errorStateManager.hasError()
-    fun isCurrentErrorRecoverable() = errorStateManager.isCurrentErrorRecoverable()
-    fun getCurrentErrorRecoveryActions() = errorStateManager.getCurrentErrorRecoveryActions()
+    fun isCurrentErrorRecoverable() = errorStateManager.canRetry()
+    fun getCurrentErrorRecoveryActions() = errorStateManager.getRecoveryActions()
     
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -228,14 +228,15 @@ class EventSearchViewModel @Inject constructor(
                 is RecoveryAction.Retry -> {
                     retryLastOperation()
                 }
-                is RecoveryAction.RefreshData -> {
+                is RecoveryAction.Refresh -> {
                     refreshSearchResults()
                 }
                 is RecoveryAction.Dismiss -> {
                     clearError()
                 }
-                is RecoveryAction.GoOffline -> {
-                    enableOfflineMode()
+                is RecoveryAction.Navigate -> {
+                    // Handle navigation if needed
+                    clearError()
                 }
                 else -> {
                     handleRecoveryAction(action)
@@ -335,7 +336,7 @@ class EventSearchViewModel @Inject constructor(
     /**
      * Get available recovery actions for current error
      */
-    fun getAvailableRecoveryActions(): List<RecoveryAction> = getCurrentErrorRecoveryActions()
+    fun getAvailableRecoveryActions(): List<RecoveryAction> = errorStateManager.getRecoveryActions()
 }
 
 data class SearchFilters(

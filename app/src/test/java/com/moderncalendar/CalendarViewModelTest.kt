@@ -2,7 +2,7 @@ package com.moderncalendar
 
 import com.moderncalendar.core.common.Result
 import com.moderncalendar.core.data.entity.EventEntity
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import com.moderncalendar.feature.calendar.CalendarViewModel
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers

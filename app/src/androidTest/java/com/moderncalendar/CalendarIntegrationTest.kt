@@ -6,7 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.moderncalendar.core.data.database.CalendarDatabase
 import com.moderncalendar.core.data.dao.EventDao
 import com.moderncalendar.core.data.entity.EventEntity
-import com.moderncalendar.core.data.repository.EventRepository
+import com.moderncalendar.core.common.repository.EventRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After

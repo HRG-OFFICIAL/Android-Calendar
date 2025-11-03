@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import android.util.Log
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -195,7 +196,12 @@ fun CalendarScreen(
                                         time = if (event.isAllDay) "All day" else 
                                             "${event.startDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${event.endDateTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
                                         description = event.description,
-                                        color = ColorUtils.parseColorSafely(event.color),
+                                        color = try {
+                                            ColorUtils.parseColorSafely(event.color)
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("CalendarScreen", "Failed to parse color for event ${event.id}: '${event.color}'", e)
+                                            ColorUtils.getDefaultEventColor()
+                                        },
                                         isCompleted = event.isCompleted,
                                         onClick = { 
                                             val encodedId = try {
