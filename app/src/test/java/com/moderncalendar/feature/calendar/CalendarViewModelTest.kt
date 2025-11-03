@@ -11,13 +11,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalendarViewModelTest {
@@ -29,7 +27,14 @@ class CalendarViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        eventRepository = mockk()
+        eventRepository = mockk(relaxed = true)
+        
+        // Setup default mock responses
+        coEvery { eventRepository.getEventsByDateRange(any(), any()) } returns flowOf(Result.Success(emptyList()))
+        coEvery { eventRepository.insertEvent(any()) } returns Result.Success(Unit)
+        coEvery { eventRepository.updateEvent(any()) } returns Result.Success(Unit)
+        coEvery { eventRepository.deleteEvent(any()) } returns Result.Success(Unit)
+        
         viewModel = CalendarViewModel(eventRepository)
     }
     
@@ -113,9 +118,10 @@ class CalendarViewModelTest {
         // Then
         val eventsResult = viewModel.events.value
         assertTrue(eventsResult is Result.Success)
-        assertEquals(2, eventsResult.data.size)
-        assertEquals("Event 1", eventsResult.data[0].title)
-        assertEquals("Event 2", eventsResult.data[1].title)
+        val successResult = eventsResult as Result.Success
+        assertEquals(2, successResult.data.size)
+        assertEquals("Event 1", successResult.data[0].title)
+        assertEquals("Event 2", successResult.data[1].title)
     }
     
     @Test

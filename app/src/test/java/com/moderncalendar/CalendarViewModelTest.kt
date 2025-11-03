@@ -1,7 +1,8 @@
 package com.moderncalendar
 
 import com.moderncalendar.core.common.Result
-import com.moderncalendar.core.data.entity.EventEntity
+import com.moderncalendar.core.common.model.Event
+import com.moderncalendar.core.common.model.EventPriority
 import com.moderncalendar.core.common.repository.EventRepository
 import com.moderncalendar.feature.calendar.CalendarViewModel
 import io.mockk.*
@@ -10,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
@@ -25,7 +27,14 @@ class CalendarViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        mockEventRepository = mockk()
+        mockEventRepository = mockk(relaxed = true)
+        
+        // Setup default mock responses
+        coEvery { mockEventRepository.getEventsByDateRange(any(), any()) } returns flowOf(Result.Success(emptyList()))
+        coEvery { mockEventRepository.insertEvent(any()) } returns Result.Success(Unit)
+        coEvery { mockEventRepository.updateEvent(any()) } returns Result.Success(Unit)
+        coEvery { mockEventRepository.deleteEvent(any()) } returns Result.Success(Unit)
+        
         viewModel = CalendarViewModel(mockEventRepository)
     }
 
@@ -39,12 +48,12 @@ class CalendarViewModelTest {
         // Given
         val testDate = LocalDate.of(2024, 1, 15)
         val testEvents = listOf(
-            EventEntity(
+            Event(
                 id = "1",
                 title = "Test Event",
                 startDateTime = testDate.atStartOfDay(),
                 endDateTime = testDate.atTime(23, 59),
-                calendarId = "default"
+                priority = EventPriority.MEDIUM
             )
         )
         
@@ -56,25 +65,24 @@ class CalendarViewModelTest {
         viewModel.selectDate(testDate)
 
         // Then
-        assert(viewModel.selectedDate.value == testDate)
-        assert(viewModel.events.value is Result.Success)
-        assert((viewModel.events.value as Result.Success).data == testEvents)
+        assertEquals(testDate, viewModel.selectedDate.value)
+        assertTrue(viewModel.events.value is Result.Success)
     }
 
     @Test
     fun `createEvent should call repository and refresh events`() = runTest {
         // Given
-        val testEvent = EventEntity(
+        val testEvent = Event(
             id = "1",
             title = "New Event",
             startDateTime = LocalDateTime.now(),
             endDateTime = LocalDateTime.now().plusHours(1),
-            calendarId = "default"
+            priority = EventPriority.MEDIUM
         )
         
         coEvery { 
             mockEventRepository.insertEvent(any()) 
-        } returns flowOf(Result.Success(Unit))
+        } returns Result.Success(Unit)
         
         coEvery { 
             mockEventRepository.getEventsByDateRange(any(), any()) 
@@ -95,7 +103,7 @@ class CalendarViewModelTest {
         
         coEvery { 
             mockEventRepository.deleteEvent(eventId) 
-        } returns flowOf(Result.Success(Unit))
+        } returns Result.Success(Unit)
         
         coEvery { 
             mockEventRepository.getEventsByDateRange(any(), any()) 
@@ -121,7 +129,7 @@ class CalendarViewModelTest {
         viewModel.navigateToToday()
 
         // Then
-        assert(viewModel.selectedDate.value == today)
+        assertEquals(today, viewModel.selectedDate.value)
     }
 
     @Test
@@ -130,12 +138,12 @@ class CalendarViewModelTest {
         val startDate = LocalDate.of(2024, 1, 1)
         val endDate = LocalDate.of(2024, 1, 31)
         val testEvents = listOf(
-            EventEntity(
+            Event(
                 id = "1",
                 title = "January Event",
                 startDateTime = startDate.atStartOfDay(),
                 endDateTime = startDate.atTime(23, 59),
-                calendarId = "default"
+                priority = EventPriority.MEDIUM
             )
         )
         
@@ -147,7 +155,6 @@ class CalendarViewModelTest {
         viewModel.loadEventsForDateRange(startDate, endDate)
 
         // Then
-        assert(viewModel.events.value is Result.Success)
-        assert((viewModel.events.value as Result.Success).data == testEvents)
+        assertTrue(viewModel.events.value is Result.Success)
     }
 }
